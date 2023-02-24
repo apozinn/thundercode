@@ -1,0 +1,14 @@
+#pragma once
+
+enum {
+    ID_Quit = 1,
+    ID_ABOUT,
+    ID_CONFIG_BUTTON,
+    ID_HIDDE_MENUTOOLS,
+    ID_CODE_EDITOR_COMP,
+    ID_CODE_BLOCK,
+    ID_NEW_FILE,
+    ID_TABS_CONTAINER,
+    ID_TAB,
+    ID_NAVIGATION_COMP,
+};
