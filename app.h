@@ -11,4 +11,14 @@ enum {
     ID_TABS_CONTAINER,
     ID_TAB,
     ID_NAVIGATION_COMP,
+    ID_OPEN_FOLDER,
+    ID_PROJECT_NAME,
+    ID_FILES_TREE_COMP,
 };
+
+std::string project_name;
+
+wxString stringToWxString(std::string str) {
+    wxString r_str = str;
+    return r_str;
+}

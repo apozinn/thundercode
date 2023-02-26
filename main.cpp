@@ -9,6 +9,7 @@
 #include <wx/utils.h>
 #include <wx/nativewin.h>
 #include <wx/process.h>
+#include <wx/filefn.h> 
 #include <wx/infobar.h>
 #include <wx/log.h>
 #include <wx/stc/stc.h>
@@ -21,6 +22,9 @@
 #include "wx/stopwatch.h"
 #include <wx/sizer.h>
 #include <string>
+#include <wx/dirdlg.h>
+#include <iostream>
+#include <filesystem>
 
 #if wxUSE_CLIPBOARD
     #include "wx/dataobj.h"
@@ -47,6 +51,7 @@ class MainFrame: public wxFrame {
         void OnQuit(wxCommandEvent& event);
         void OnAbout(wxCommandEvent& event);
         void OnNewFile(wxCommandEvent& event);
+        void OnOpenFolder(wxCommandEvent& event);
     private:
         wxPanel* code_editor_comp;
         Tabs* tabs_container;
@@ -83,7 +88,7 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
 
      //bottom
     wxPanel *status_bar = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize);
-    status_bar->SetBackgroundColour(wxColor(45,121,207));
+    status_bar->SetBackgroundColour(wxColor(45,120,210));
 
     //barra de navegação(esquerda)
     wxPanel *global_navigation = new wxPanel(global_main, wxID_ANY, wxDefaultPosition, wxDefaultSize);
@@ -137,6 +142,7 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
 
     wxMenu *menuFile = new wxMenu;
     menuFile->Append(ID_NEW_FILE, _("&New File\tCtrl+N"));
+    menuFile->Append(ID_OPEN_FOLDER, _("&Open folder"));
     menuFile->AppendSeparator();
     menuFile->Append(wxID_EXIT, _("&Exit"));
 
@@ -182,6 +188,8 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
      wxCommandEventHandler(MainFrame::OnNewFile));
     Connect(ID_ABOUT, wxEVT_MENU,
      wxCommandEventHandler(MainFrame::OnAbout));
+    Connect(ID_OPEN_FOLDER, wxEVT_MENU,
+     wxCommandEventHandler(MainFrame::OnOpenFolder));
     Maximize();
 
     this->SetOwnForegroundColour(wxColour(*wxWHITE));
@@ -199,4 +207,16 @@ void MainFrame::OnAbout(wxCommandEvent& WXUNUSED(event)) {
 
 void MainFrame::OnNewFile(wxCommandEvent& WXUNUSED(event)) {
     tabs_container->AddTab("Untitled");
+}
+
+void MainFrame::OnOpenFolder(wxCommandEvent& WXUNUSED(event)) {
+    wxDirDialog* dlg = new wxDirDialog( NULL, "Choose project directory", "", wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
+    wxString path = dlg->GetPath();
+    dlg->ShowModal();
+
+    if(path.size()) {
+        if(wxSetWorkingDirectory(path)) {
+            navigation_comp->Update();
+        }
+    }
 }
