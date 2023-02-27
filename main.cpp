@@ -40,6 +40,7 @@
 #include "./components/codeEditor.cpp"
 #include "./components/tabs.cpp"
 #include "./components/navigation.cpp"
+// #include "./members/drawPane.cpp"
 
 class MyApp: public wxApp {
     virtual bool OnInit();

@@ -22,3 +22,11 @@ wxString stringToWxString(std::string str) {
     wxString r_str = str;
     return r_str;
 }
+
+/*class ScrolledWindow : public wxScrolled<wxWindow> {
+public:
+    ScrolledWindow(wxPanel *parent)
+        : wxScrolled<wxWindow>(parent, wxID_ANY) {
+            
+        }
+}*/
