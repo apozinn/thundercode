@@ -1,7 +1,9 @@
 class wxImagePanel : public wxPanel {
-	wxBitmap image;
+    wxBitmap image;
     public:
-        wxImagePanel(wxPanel* parent, wxString file, wxBitmapType format);
+        wxImagePanel(wxPanel* parent, wxString file, wxBitmapType format) : wxPanel(parent) {
+    image.LoadFile(file, format);
+}
         
         void paintEvent(wxPaintEvent & evt);
         void paintNow();
@@ -13,12 +15,6 @@ class wxImagePanel : public wxPanel {
 BEGIN_EVENT_TABLE(wxImagePanel, wxPanel)
 EVT_PAINT(wxImagePanel::paintEvent)
 END_EVENT_TABLE()
-
-wxImagePanel::wxImagePanel(
-	wxFrame* parent, wxString file, wxBitmapType format
-) : wxPanel(parent) {
-    image.LoadFile(file, format);
-}
 
 void wxImagePanel::paintEvent(wxPaintEvent & evt)
 {

@@ -40,7 +40,6 @@
 #include "./components/codeEditor.cpp"
 #include "./components/tabs.cpp"
 #include "./components/navigation.cpp"
-// #include "./members/drawPane.cpp"
 
 class MyApp: public wxApp {
     virtual bool OnInit();
@@ -212,12 +211,11 @@ void MainFrame::OnNewFile(wxCommandEvent& WXUNUSED(event)) {
 
 void MainFrame::OnOpenFolder(wxCommandEvent& WXUNUSED(event)) {
     wxDirDialog* dlg = new wxDirDialog( NULL, "Choose project directory", "", wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
-    wxString path = dlg->GetPath();
     dlg->ShowModal();
+    wxString path = dlg->GetPath();
 
     if(path.size()) {
-        if(wxSetWorkingDirectory(path)) {
-            navigation_comp->Update();
-        }
+        project_path = path;
+        navigation_comp->Update();
     }
 }
