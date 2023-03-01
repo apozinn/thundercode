@@ -11,6 +11,9 @@ class Navigation : public wxPanel {
 	wxSizer* sizer;
 	wxImagePanel* file_icon;
 	wxPanel* file_container;
+	wxSizer* files_tree_sizer;
+	wxStaticText* project_name_comp;
+	wxScrolled<wxPanel>* files_tree;
 public:
 	FileManager* fileManager = new FileManager();
 	Navigation(wxPanel* parent) : wxPanel(parent, ID_NAVIGATION_COMP) {
@@ -64,50 +67,41 @@ public:
 		files_tree->SetBackgroundColour(wxColor(45, 45, 45));
 		sizer->Add(files_tree, 1, wxEXPAND);
 
+		files_tree->SetName("files_tree");
+
+		project_path = wxGetCwd();
+
 		project_name = wxFileNameFromPath(project_path);
 		project_name_comp->SetLabel(stringToWxString(project_name));
-		wxBoxSizer* files_tree_sizer = new wxBoxSizer(wxVERTICAL);
+		files_tree_sizer = new wxBoxSizer(wxVERTICAL);
 
-		wxArrayString project_dirs = wxArrayString();
+		wxArrayString created_project_dirs = wxArrayString();
 
 		fileManager->listFiles(project_path.ToStdString()+"/", [&](const std::string &path) {
 			int id_divisor = path.find(project_name);
 		    wxString project_begin = path.substr(id_divisor+project_name.size()+1);
-
 		    wxFileName dirname = wxFileName::DirName(project_begin);
+		    wxArrayString path_dirs = dirname.GetDirs();
 
-			for(auto& dir_ : dirname.GetDirs()) {
-				wxFileName dir_p(dir_);
-				if(!dir_p.HasExt()) {
-					// project_dirs.Add(dir_);
-					bool finded;
+			for(auto& dir_name : path_dirs) {
+				int this_dir_div = path.find(dir_name);
+				wxString dir_path = path.substr(0, this_dir_div+dir_name.size()+1);
+				wxFileName this_dir_props = wxFileName::DirName(dir_path);
 
-					for(wxWindowList::iterator it = files_tree->GetChildren().begin(); 
-						it != files_tree->GetChildren().end(); it++) 
-					{
-						wxPanel* a_tab = dynamic_cast<wxPanel *>( *it );
-						if(a_tab){
-							if(a_tab->GetName() == dir_) finded = true;
-					    }
-					}
+				if(!this_dir_props.HasExt() && this_dir_props.DirExists()) 
+				{
+					if(created_project_dirs.Index(dir_path) < 0) {
+						created_project_dirs.Add(dir_path);
 
-					if(!finded) {
-						file_container = new wxPanel(files_tree);
-						file_container->SetName(dir_);
-						wxBoxSizer* this_sizer = new wxBoxSizer(wxHORIZONTAL);
-
-						file_icon = new wxImagePanel(file_container, dir+"dir_arrow.png", wxBITMAP_TYPE_PNG);
-						wxStaticText* file_name = new wxStaticText(file_container, wxID_ANY, dir_);
-
-						wxFont font = file_name->GetFont(); 
-						font.SetPixelSize(wxSize(16, 16));
-						file_name->SetFont(font);
-
-						this_sizer->Add(file_icon, 1, wxEXPAND | wxTOP, 5);
-						this_sizer->Add(file_name, 15, wxEXPAND | wxTOP, 3);
-
-						file_container->SetSizerAndFit(this_sizer);
-						files_tree_sizer->Add(file_container, 0, wxEXPAND | wxALL, 3);
+						if(!path_dirs.Index(dir_name)) {
+							create_dir_panel(files_tree->GetName(), dir_name, dir_path);	
+						} else {
+							wxString dir_parent = dir_path.substr(0, dir_path.find(dir_name));
+							auto parent_panel = FindWindowByName(dir_parent);
+							if(parent_panel) {
+								// create_dir_panel(parent_panel->GetName(), dir_name, dir_path);
+							}
+						}
 					}
 				}
 			}
@@ -139,8 +133,67 @@ public:
 		files_tree->FitInside();
 		files_tree->SetScrollRate(10, 10);
 	}
-private:
-	wxStaticText* project_name_comp;
-	wxScrolled<wxPanel>* files_tree;
+
+	void create_dir_panel(wxString parent_name, wxString name, wxString path) {
+		auto parent = FindWindowByName(parent_name);
+		if(parent) {
+			wxPanel* dir_container = new wxPanel(parent);
+			dir_container->SetName(path);
+			wxBoxSizer* this_main_sizer = new wxBoxSizer(wxVERTICAL);
+
+			wxPanel* dir_ctn_props = new wxPanel(dir_container);
+			wxBoxSizer* dir_ctn_props_sizer = new wxBoxSizer(wxHORIZONTAL);
+
+			file_icon = new wxImagePanel(dir_ctn_props, icons_dir+"dir_arrow.png", wxBITMAP_TYPE_PNG);
+			wxStaticText* file_name = new wxStaticText(dir_ctn_props, wxID_ANY, name);
+			wxFont font = file_name->GetFont(); 
+			font.SetPixelSize(wxSize(16, 16));
+			file_name->SetFont(font);
+
+			//dir_ctn_props sizer
+			dir_ctn_props_sizer->Add(file_icon, 1, wxEXPAND | wxTOP, 5);
+			dir_ctn_props_sizer->Add(file_name, 15, wxEXPAND | wxTOP, 3);
+			dir_ctn_props->SetSizerAndFit(dir_ctn_props_sizer);
+
+			//dir_container sizer
+			this_main_sizer->Add(dir_ctn_props, 0, wxEXPAND);
+			dir_container->SetSizerAndFit(this_main_sizer);
+
+			wxSizer* parent_sizer = parent->GetSizer();
+			files_tree_sizer->Add(dir_container, 0, wxEXPAND | wxALL, 3);
+
+			dir_container->Raise();
+		}
+	}
+	void OnHover(wxMouseEvent& event);
+	void OnHoverEnd(wxMouseEvent& event);
 	wxDECLARE_NO_COPY_CLASS(Navigation);
 };
+
+void Navigation::OnHover(wxMouseEvent& event) {
+	wxObject* obj = event.GetEventObject();
+    auto this_pth = ((Navigation*)obj)->GetParent();
+
+    if(this_pth) {
+	    for(wxWindowList::iterator it = this_pth->GetChildren().begin(); 
+	    	it != this_pth->GetChildren().end(); it++) 
+	    {
+	    	wxPanel* a_pth = dynamic_cast<wxPanel *>( *it );
+	    	if(a_pth) a_pth->SetBackgroundColour(wxColor(90, 90, 90));
+	    }
+    }
+}
+
+void Navigation::OnHoverEnd(wxMouseEvent& event) {
+	wxObject* obj = event.GetEventObject();
+    auto this_pth = ((Navigation*)obj)->GetParent();
+
+    if(this_pth) {
+	    for(wxWindowList::iterator it = this_pth->GetChildren().begin(); 
+	    	it != this_pth->GetChildren().end(); it++) 
+	    {
+	    	wxPanel* a_pth = dynamic_cast<wxPanel *>( *it );
+	    	if(a_pth) a_pth->SetBackgroundColour(wxColor(45, 45, 45));
+	    }
+    }
+}

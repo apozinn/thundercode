@@ -18,6 +18,7 @@ enum {
 
 wxString project_path;
 std::string project_name;
+wxString icons_dir;
 
 wxString stringToWxString(std::string str) {
     wxString r_str = str;

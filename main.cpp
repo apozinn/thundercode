@@ -73,14 +73,9 @@ bool MyApp::OnInit() {
 MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 : wxFrame( NULL, -1, title, pos, size )
 {
-    // try to find the directory with our images
-    wxString dir;
-    if ( wxFile::Exists("./icons/settings.png") )
-        dir = "./icons/";
-    else if ( wxFile::Exists("../icons/settings.png") )
-        dir = "../icons/";
-    else
-        wxLogWarning("Can't find image files in either '.' or '..'!");
+    if(wxFile::Exists("./icons/settings.png")) icons_dir = "./icons/";
+    else if(wxFile::Exists("../icons/settings.png")) icons_dir = "../icons/";
+    else wxLogWarning("Can't find icons dir!");
 
     //global_main
     wxSplitterWindow *global_main = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);

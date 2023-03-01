@@ -23,7 +23,7 @@ public:
     void mouseWheelMoved(wxMouseEvent& event);
     void mouseReleased(wxMouseEvent& event);
     void rightClick(wxMouseEvent& event);
-    void mouseLeftWindow(wxMouseEvent&  evento ); 
+    void mouseLeftWindow(wxMouseEvent&  event ); 
     void  keyPressed ( wxKeyEvent &  event ); 
     void  keyReleased ( wxKeyEvent &  event ); 
         
