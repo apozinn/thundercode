@@ -1,9 +1,13 @@
 class wxImagePanel : public wxPanel {
     wxBitmap image;
+    double i_rotate;
     public:
-        wxImagePanel(wxPanel* parent, wxString file, wxBitmapType format) : wxPanel(parent) {
-    image.LoadFile(file, format);
-}
+        wxImagePanel(
+            wxPanel* parent, wxString file, wxBitmapType format, double rotate=0.0, int size=0
+        ) : wxPanel(parent, wxID_ANY, wxDefaultPosition, size ? wxSize(size, size) : wxDefaultSize) {
+            image.LoadFile(file, format);
+            i_rotate = rotate;
+        }
         
         void paintEvent(wxPaintEvent & evt);
         void paintNow();
@@ -30,5 +34,15 @@ void wxImagePanel::paintNow()
 
 void wxImagePanel::render(wxDC&  dc)
 {
-    dc.DrawBitmap( image, 0, 0, false );
+    if(i_rotate) {
+        if(i_rotate == 90.0) {
+            dc.DrawBitmap(wxBitmap(image.ConvertToImage().Rotate90(1), -1), 0, 0, false);
+        } else if(i_rotate == 180.0) {
+            dc.DrawBitmap(wxBitmap(image.ConvertToImage().Rotate180(), -1), 0, 0, false);
+        } else {
+            dc.DrawBitmap(wxBitmap(image.ConvertToImage().Rotate(i_rotate, wxPoint(0, 0)), -1), 0, 0, false);
+        }
+    } else {
+        dc.DrawBitmap(image, 0, 0, false);
+    }
 }

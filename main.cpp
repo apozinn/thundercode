@@ -40,6 +40,7 @@
 #include "./components/codeEditor.cpp"
 #include "./components/tabs.cpp"
 #include "./components/navigation.cpp"
+#include "./components/sideNavigation.cpp"
 
 class MyApp: public wxApp {
     virtual bool OnInit();
@@ -57,6 +58,7 @@ class MainFrame: public wxFrame {
         Tabs* tabs_container;
         wxButton* hidde_menutools;
         Navigation* navigation_comp;
+        SideNavigation* side_navigation_comp;
         wxDECLARE_NO_COPY_CLASS(MainFrame);
 };
 
@@ -88,17 +90,16 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
     //barra de navegação(esquerda)
     wxPanel *global_navigation = new wxPanel(global_main, wxID_ANY, wxDefaultPosition, wxDefaultSize);
 
-    //navigation tools
-    wxPanel *menu_tools = new wxPanel(global_navigation, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER);
-    menu_tools->SetBackgroundColour(wxColor(36, 36, 36));
+    //side navigation menu
+    side_navigation_comp = new SideNavigation(global_navigation);
 
     //navigation_files
     navigation_comp = new Navigation(global_navigation);
 
     //global_navigation sizer
     wxBoxSizer *global_navigation_sizer = new wxBoxSizer(wxHORIZONTAL);
-    global_navigation_sizer->Add(menu_tools, 3, wxEXPAND);
-    global_navigation_sizer->Add(navigation_comp, 15, wxEXPAND);
+    global_navigation_sizer->Add(side_navigation_comp, 3, wxEXPAND);
+    global_navigation_sizer->Add(navigation_comp, 16, wxEXPAND);
 
     global_navigation->SetSizerAndFit(global_navigation_sizer);
 
@@ -137,7 +138,7 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
 
     wxMenu *menuFile = new wxMenu;
     menuFile->Append(ID_NEW_FILE, _("&New File\tCtrl+N"));
-    menuFile->Append(ID_OPEN_FOLDER, _("&Open folder"));
+    menuFile->Append(ID_OPEN_FOLDER, _("&Open folder\tCtrl+k+O"));
     menuFile->AppendSeparator();
     menuFile->Append(wxID_EXIT, _("&Exit"));
 

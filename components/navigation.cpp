@@ -14,6 +14,8 @@ class Navigation : public wxPanel {
 	wxSizer* files_tree_sizer;
 	wxStaticText* project_name_comp;
 	wxScrolled<wxPanel>* files_tree;
+	wxImagePanel* project_name_arrow;
+	wxImagePanel* project_menu;
 public:
 	FileManager* fileManager = new FileManager();
 	Navigation(wxPanel* parent) : wxPanel(parent, ID_NAVIGATION_COMP) {
@@ -24,28 +26,35 @@ public:
 		wxPanel* top_nav = new wxPanel(this, wxID_ANY);
 		wxBoxSizer* top_sizer = new wxBoxSizer(wxHORIZONTAL);
 
-		wxStaticText* tc_name = new wxStaticText(top_nav, wxID_ANY, "THUNDERCODE");
+		wxStaticText* tc_name = new wxStaticText(top_nav, wxID_ANY, "PROJECT");
+		project_menu = new wxImagePanel(top_nav, icons_dir+"dots_menu.png", wxBITMAP_TYPE_PNG, 90.0, 16);
 		wxFont font = tc_name->GetFont(); 
 		font.SetPixelSize(wxSize(14, 14));
 		tc_name->SetFont(font);
 
-		wxStaticText* top_nav_dots = new wxStaticText(top_nav, wxID_ANY, "...");
-
-		top_sizer->Add(tc_name, 17, wxALIGN_CENTER);
-		top_sizer->Add(top_nav_dots, 1, wxALIGN_CENTER);
+		top_sizer->Add(tc_name, 1, wxEXPAND);
+		top_sizer->Add(project_menu, 0, wxEXPAND);
 		top_nav->SetSizerAndFit(top_sizer);
 
-		sizer->Add(top_nav, 0, wxALL, 10);
+		sizer->Add(top_nav, 0, wxEXPAND | wxALL, 8);
 
 		wxPanel* project_tools = new wxPanel(this, wxID_ANY);
 		wxBoxSizer* project_tools_sizer = new wxBoxSizer(wxHORIZONTAL);
-		project_tools->SetBackgroundColour(wxColor(55, 55, 55));
+		project_tools->SetBackgroundColour(wxColor(70, 70, 70));
 
-		project_name_comp = new wxStaticText(project_tools, ID_PROJECT_NAME, project_name);
+		wxPanel* pjt_tools_name_p = new wxPanel(project_tools);
+		wxBoxSizer* pjt_tools_name_p_sizer = new wxBoxSizer(wxHORIZONTAL);
+
+		project_name_arrow = new wxImagePanel(pjt_tools_name_p, icons_dir+"dir_arrow.png", wxBITMAP_TYPE_PNG, 90.0);
+		project_name_comp = new wxStaticText(pjt_tools_name_p, ID_PROJECT_NAME, project_name);
 		font.SetPixelSize(wxSize(16, 16));
 		project_name_comp->SetFont(font);
 
-		project_tools_sizer->Add(project_name_comp, 1, wxALIGN_CENTER | wxALL, 3);
+		pjt_tools_name_p_sizer->Add(project_name_arrow, 1, wxEXPAND | wxTOP, 5);
+		pjt_tools_name_p_sizer->Add(project_name_comp, 15, wxEXPAND | wxTOP, 3);
+
+		pjt_tools_name_p->SetSizerAndFit(pjt_tools_name_p_sizer);
+		project_tools_sizer->Add(pjt_tools_name_p, 1, wxALIGN_CENTER | wxALL, 3);
 		project_tools->SetSizerAndFit(project_tools_sizer);
 
 		files_tree = new wxScrolled<wxPanel>(this, ID_FILES_TREE_COMP);
@@ -53,29 +62,25 @@ public:
 
 		sizer->Add(project_tools, 0, wxEXPAND);
 		sizer->Add(files_tree, 1, wxEXPAND);
+
 		if(project_path.size()) Update();
+
 		this->SetSizerAndFit(sizer);
 	}
 
 	void Update() {
-		wxString dir;
-		if(wxFile::Exists("./icons/settings.png")) dir = "./icons/";
-		else if(wxFile::Exists("../icons/settings.png")) dir = "../icons/";
-
 		files_tree->Destroy();
 		files_tree = new wxScrolled<wxPanel>(Navigation_cmp, ID_FILES_TREE_COMP);
 		files_tree->SetBackgroundColour(wxColor(45, 45, 45));
 		sizer->Add(files_tree, 1, wxEXPAND);
-
 		files_tree->SetName("files_tree");
-
-		project_path = wxGetCwd();
 
 		project_name = wxFileNameFromPath(project_path);
 		project_name_comp->SetLabel(stringToWxString(project_name));
 		files_tree_sizer = new wxBoxSizer(wxVERTICAL);
-
 		wxArrayString created_project_dirs = wxArrayString();
+
+		std::cout << project_path << " p\n";
 
 		fileManager->listFiles(project_path.ToStdString()+"/", [&](const std::string &path) {
 			int id_divisor = path.find(project_name);
@@ -113,7 +118,7 @@ public:
 
 			int raiz = project_begin.find("/") > 100 ? true : false;
 		    if(raiz) {
-				file_icon = new wxImagePanel(file_container, dir+"file-icon.png", wxBITMAP_TYPE_PNG);
+				file_icon = new wxImagePanel(file_container, icons_dir+"file-icon.png", wxBITMAP_TYPE_PNG);
 				wxStaticText* file_name = new wxStaticText(file_container, wxID_ANY, f_n);
 
 				wxFont font = file_name->GetFont(); 

@@ -80,7 +80,7 @@ public:
 		active_bar->SetBackgroundColour(wxColor(255, 0, 180));
 		tab_sizer->Add(active_bar, 1, wxEXPAND);
 		tab->SetSizerAndFit(tab_sizer);	
-		sizer->Add(tab, 0);
+		sizer->Add(tab, 0, wxEXPAND | wxTOP, 4);
 		select_tab_id = tab->GetId();
 	}
 private:

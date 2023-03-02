@@ -14,6 +14,7 @@ enum {
     ID_OPEN_FOLDER,
     ID_PROJECT_NAME,
     ID_FILES_TREE_COMP,
+    ID_SIDE_NAVIGATION,
 };
 
 wxString project_path;
