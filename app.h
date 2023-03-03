@@ -15,6 +15,11 @@ enum {
     ID_PROJECT_NAME,
     ID_FILES_TREE_COMP,
     ID_SIDE_NAVIGATION,
+    ID_OPEN_FILE,
+    ID_SAVE,
+
+    ID_CODE_CONTAINER,
+    ID_TOGGLE_MENUBAR_VISIBILITY,
 };
 
 wxString project_path;

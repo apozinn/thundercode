@@ -1,10 +1,14 @@
 #include <vector>
 #include <wx/filename.h>
 #include <wx/scrolwin.h>
+#include <wx/wfstream.h>
+#include <wx/txtstrm.h>
 #include "../app.h"
 #include "../utils/randoms.hpp"
 #include "../utils/fileManager.hpp"
 #include "../members/imagePanel.cpp"
+
+Tabs* tabs_container;
 
 class Navigation : public wxPanel {
 	wxPanel* Navigation_cmp;
@@ -18,8 +22,10 @@ class Navigation : public wxPanel {
 	wxImagePanel* project_menu;
 public:
 	FileManager* fileManager = new FileManager();
-	Navigation(wxPanel* parent) : wxPanel(parent, ID_NAVIGATION_COMP) {
+	Navigation(wxPanel* parent, Tabs* tb_ctn) : wxPanel(parent, ID_NAVIGATION_COMP) {
 		Navigation_cmp = this;
+		tabs_container = tb_ctn;
+
 		this->SetBackgroundColour(wxColor(45, 45, 45));
 		sizer = new wxBoxSizer(wxVERTICAL);
 
@@ -40,7 +46,7 @@ public:
 
 		wxPanel* project_tools = new wxPanel(this, wxID_ANY);
 		wxBoxSizer* project_tools_sizer = new wxBoxSizer(wxHORIZONTAL);
-		project_tools->SetBackgroundColour(wxColor(70, 70, 70));
+		project_tools->SetBackgroundColour(wxColor(45, 45, 45));
 
 		wxPanel* pjt_tools_name_p = new wxPanel(project_tools);
 		wxBoxSizer* pjt_tools_name_p_sizer = new wxBoxSizer(wxHORIZONTAL);
@@ -80,8 +86,6 @@ public:
 		files_tree_sizer = new wxBoxSizer(wxVERTICAL);
 		wxArrayString created_project_dirs = wxArrayString();
 
-		std::cout << project_path << " p\n";
-
 		fileManager->listFiles(project_path.ToStdString()+"/", [&](const std::string &path) {
 			int id_divisor = path.find(project_name);
 		    wxString project_begin = path.substr(id_divisor+project_name.size()+1);
@@ -114,12 +118,21 @@ public:
 			wxString f_n = wxFileNameFromPath(stringToWxString(path));
 			file_container = new wxPanel(files_tree);
 			file_container->SetName(path);
+			file_container->Connect(wxID_ANY, wxEVT_LEFT_UP,
+				wxMouseEventHandler(Navigation::OnFileSelect));
 			wxBoxSizer* this_sizer = new wxBoxSizer(wxHORIZONTAL);
 
 			int raiz = project_begin.find("/") > 100 ? true : false;
 		    if(raiz) {
 				file_icon = new wxImagePanel(file_container, icons_dir+"file-icon.png", wxBITMAP_TYPE_PNG);
+				file_icon->SetName(path);
 				wxStaticText* file_name = new wxStaticText(file_container, wxID_ANY, f_n);
+				file_name->SetName(path);
+
+				file_icon->Connect(wxID_ANY, wxEVT_LEFT_UP,
+				wxMouseEventHandler(Navigation::OnFileSelect));
+				file_name->Connect(wxID_ANY, wxEVT_LEFT_UP,
+				wxMouseEventHandler(Navigation::OnFileSelect));
 
 				wxFont font = file_name->GetFont(); 
 				font.SetPixelSize(wxSize(16, 16));
@@ -172,6 +185,7 @@ public:
 	}
 	void OnHover(wxMouseEvent& event);
 	void OnHoverEnd(wxMouseEvent& event);
+	void OnFileSelect(wxMouseEvent& event);
 	wxDECLARE_NO_COPY_CLASS(Navigation);
 };
 
@@ -200,5 +214,25 @@ void Navigation::OnHoverEnd(wxMouseEvent& event) {
 	    	wxPanel* a_pth = dynamic_cast<wxPanel *>( *it );
 	    	if(a_pth) a_pth->SetBackgroundColour(wxColor(45, 45, 45));
 	    }
+    }
+}
+
+void Navigation::OnFileSelect(wxMouseEvent& event) {
+	wxObject* obj = event.GetEventObject();
+    auto this_fc = ((Navigation*)obj)->GetParent();
+
+    if(this_fc) {
+    	wxString file_path = this_fc->GetName();
+    	if(tabs_container) {
+	    	tabs_container->AddTab(wxFileNameFromPath(file_path), file_path);
+	    	auto codeContainer = ((CodeContainer*)FindWindowByName("CodeContainer"));
+
+	    	if(codeContainer) {
+		    	codeContainer->LoadFile(file_path);
+	    		codeContainer->SelectNone();
+	    		codeContainer->SetLexer(wxSTC_LEX_CPP);
+	    		codeContainer->SetFilename(file_path);
+	    	}
+    	} else {}
     }
 }

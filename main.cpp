@@ -20,6 +20,7 @@
 #include "wx/wfstream.h"
 #include "wx/quantize.h"
 #include "wx/stopwatch.h"
+#include <wx/accel.h>
 #include <wx/sizer.h>
 #include <string>
 #include <wx/dirdlg.h>
@@ -27,9 +28,9 @@
 #include <filesystem>
 
 #if wxUSE_CLIPBOARD
-    #include "wx/dataobj.h"
-    #include "wx/clipbrd.h"
-#endif // wxUSE_CLIPBOARD
+#include "wx/dataobj.h"
+#include "wx/clipbrd.h"
+#endif 
 
 #ifdef __WXMSW__
 #include "wx/msw/private.h"
@@ -37,10 +38,13 @@
 
 #include "./app.h"
 #include "./components/paintButton.cpp"
-#include "./components/codeEditor.cpp"
 #include "./components/tabs.cpp"
 #include "./components/navigation.cpp"
 #include "./components/sideNavigation.cpp"
+
+//code container component
+#include "./components/codeContainer/code.hpp"
+#include "./components/codeContainer/code.cpp"
 
 class MyApp: public wxApp {
     virtual bool OnInit();
@@ -53,12 +57,17 @@ class MainFrame: public wxFrame {
         void OnAbout(wxCommandEvent& event);
         void OnNewFile(wxCommandEvent& event);
         void OnOpenFolder(wxCommandEvent& event);
+        void OnOpenFile(wxCommandEvent& event);
+
+        void OnPrev(wxCommandEvent& event);
     private:
         wxPanel* code_editor_comp;
-        Tabs* tabs_container;
         wxButton* hidde_menutools;
         Navigation* navigation_comp;
         SideNavigation* side_navigation_comp;
+        Tabs* tabs_container;
+
+        CodeContainer* codeContainer;
         wxDECLARE_NO_COPY_CLASS(MainFrame);
 };
 
@@ -93,31 +102,28 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
     //side navigation menu
     side_navigation_comp = new SideNavigation(global_navigation);
 
-    //navigation_files
-    navigation_comp = new Navigation(global_navigation);
-
-    //global_navigation sizer
-    wxBoxSizer *global_navigation_sizer = new wxBoxSizer(wxHORIZONTAL);
-    global_navigation_sizer->Add(side_navigation_comp, 3, wxEXPAND);
-    global_navigation_sizer->Add(navigation_comp, 16, wxEXPAND);
-
-    global_navigation->SetSizerAndFit(global_navigation_sizer);
-
-    //content box(direita)
+    //code box(right)
     wxPanel *code_content = new wxPanel(global_main, wxID_ANY, wxDefaultPosition, wxDefaultSize);
 
     //tabs
     tabs_container = new Tabs(code_content);
 
-    //codebox
-    code_editor_comp = new CodeEditor(code_content);
-    code_editor_comp->SetBackgroundColour(wxColor(80, 80, 80));
+    //navigation_files
+    navigation_comp = new Navigation(global_navigation, tabs_container);
+
+    //global_navigation sizer
+    wxBoxSizer *global_navigation_sizer = new wxBoxSizer(wxHORIZONTAL);
+    global_navigation_sizer->Add(side_navigation_comp, 3, wxEXPAND);
+    global_navigation_sizer->Add(navigation_comp, 16, wxEXPAND);
+    global_navigation->SetSizerAndFit(global_navigation_sizer);
+
+    //code container
+    codeContainer = new CodeContainer(code_content, ID_CODE_CONTAINER);
 
     //code_content boxSizer
     wxBoxSizer *code_content_sizer = new wxBoxSizer(wxVERTICAL);
     code_content_sizer->Add(tabs_container, 0, wxEXPAND);
-    code_content_sizer->Add(code_editor_comp, 1, wxEXPAND);
-
+    code_content_sizer->Add(codeContainer, 1, wxEXPAND);
     code_content->SetSizerAndFit(code_content_sizer);
 
     //global_main sizer
@@ -137,8 +143,10 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
     this->SetSizerAndFit(main_sizer);
 
     wxMenu *menuFile = new wxMenu;
-    menuFile->Append(ID_NEW_FILE, _("&New File\tCtrl+N"));
-    menuFile->Append(ID_OPEN_FOLDER, _("&Open folder\tCtrl+k+O"));
+    menuFile->Append(ID_NEW_FILE, _("&New File\tCtrl-N"));
+    menuFile->Append(ID_OPEN_FOLDER, _("&Open folder\tCtrl-o-k"));
+    menuFile->Append(wxID_OPEN, _("&Open file"));
+    menuFile->Append(wxID_SAVE, _("&Save"));
     menuFile->AppendSeparator();
     menuFile->Append(wxID_EXIT, _("&Exit"));
 
@@ -164,7 +172,7 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
     menuTerminal->Append(wxID_ANY, _("&Terminal"));
 
     wxMenu *menuHelp = new wxMenu;
-    menuHelp->Append(ID_ABOUT, _("&About"));
+    menuHelp->Append(wxID_ABOUT, _("&About"));
 
     wxMenuBar *menuBar = new wxMenuBar;
     menuBar->Append(menuFile, _("&File"));
@@ -178,14 +186,20 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
     menuBar->Append(menuHelp, _("&Help"));
     SetMenuBar(menuBar);
 
-    Connect(ID_CODE_BLOCK, wxEVT_STC_CHANGE,
-     wxCommandEventHandler(CodeEditor::OnChangeCode));
+    wxAcceleratorEntry shiftReturn(wxACCEL_ALT, wxACCEL_NORMAL, wxID_BACKWARD);
+    this->SetAcceleratorTable(wxAcceleratorTable(1, &shiftReturn));
+    this->Bind(wxEVT_MENU, &MainFrame::OnPrev, this, wxID_BACKWARD);
+
     Connect(ID_NEW_FILE, wxEVT_MENU,
      wxCommandEventHandler(MainFrame::OnNewFile));
-    Connect(ID_ABOUT, wxEVT_MENU,
+    Connect(wxID_ABOUT, wxEVT_MENU,
      wxCommandEventHandler(MainFrame::OnAbout));
     Connect(ID_OPEN_FOLDER, wxEVT_MENU,
      wxCommandEventHandler(MainFrame::OnOpenFolder));
+    Connect(wxID_OPEN, wxEVT_MENU,
+     wxCommandEventHandler(MainFrame::OnOpenFile));
+    Connect(wxID_SAVE, wxEVT_MENU,
+     wxCommandEventHandler(CodeContainer::OnSave));
     Maximize();
 
     this->SetOwnForegroundColour(wxColour(*wxWHITE));
@@ -202,7 +216,7 @@ void MainFrame::OnAbout(wxCommandEvent& WXUNUSED(event)) {
 }
 
 void MainFrame::OnNewFile(wxCommandEvent& WXUNUSED(event)) {
-    tabs_container->AddTab("Untitled");
+    tabs_container->AddTab("Untitled", project_path+"/");
 }
 
 void MainFrame::OnOpenFolder(wxCommandEvent& WXUNUSED(event)) {
@@ -212,6 +226,10 @@ void MainFrame::OnOpenFolder(wxCommandEvent& WXUNUSED(event)) {
 
     if(path.size()) {
         project_path = path;
+        tabs_container->ClearAllTabs();
         navigation_comp->Update();
     }
 }
+
+void MainFrame::OnOpenFile(wxCommandEvent& WXUNUSED(event)) {}
+void MainFrame::OnPrev(wxCommandEvent& WXUNUSED(event)) {}
