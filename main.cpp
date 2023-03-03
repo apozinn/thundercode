@@ -103,7 +103,7 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
     side_navigation_comp = new SideNavigation(global_navigation);
 
     //code box(right)
-    wxPanel *code_content = new wxPanel(global_main, wxID_ANY, wxDefaultPosition, wxDefaultSize);
+    wxPanel *code_content = new wxPanel(global_main, ID_CODE_BLOCK, wxDefaultPosition, wxDefaultSize);
 
     //tabs
     tabs_container = new Tabs(code_content);
@@ -226,7 +226,9 @@ void MainFrame::OnOpenFolder(wxCommandEvent& WXUNUSED(event)) {
 
     if(path.size()) {
         project_path = path;
-        tabs_container->ClearAllTabs();
+        if(tabs_container) {
+            tabs_container->ClearAllTabs();
+        }
         navigation_comp->Update();
     }
 }

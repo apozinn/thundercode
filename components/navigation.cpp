@@ -228,11 +228,12 @@ void Navigation::OnFileSelect(wxMouseEvent& event) {
 	    	auto codeContainer = ((CodeContainer*)FindWindowByName("CodeContainer"));
 
 	    	if(codeContainer) {
-		    	codeContainer->LoadFile(file_path);
-	    		codeContainer->SelectNone();
-	    		codeContainer->SetLexer(wxSTC_LEX_CPP);
-	    		codeContainer->SetFilename(file_path);
-	    	}
+				if(!codeContainer->IsShown()) {
+					FindWindowById(ID_EMPYT_WINDOW)->Destroy();
+					codeContainer->Show();
+				}
+				codeContainer->LoadNewFile(file_path);
+			}
     	} else {}
     }
 }

@@ -6,7 +6,6 @@ enum {
     ID_CONFIG_BUTTON,
     ID_HIDDE_MENUTOOLS,
     ID_CODE_EDITOR_COMP,
-    ID_CODE_BLOCK,
     ID_NEW_FILE,
     ID_TABS_CONTAINER,
     ID_TAB,
@@ -20,6 +19,8 @@ enum {
 
     ID_CODE_CONTAINER,
     ID_TOGGLE_MENUBAR_VISIBILITY,
+    ID_CODE_BLOCK,
+    ID_EMPYT_WINDOW,
 };
 
 wxString project_path;
