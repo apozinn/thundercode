@@ -12,7 +12,7 @@
 #include <wx/filefn.h> 
 #include <wx/infobar.h>
 #include <wx/log.h>
-#include <wx/stc/stc.h>
+#include <wx/sashwin.h>
 #include "wx/image.h"
 #include "wx/file.h"
 #include "wx/filename.h"
@@ -36,174 +36,126 @@
 #include "wx/msw/private.h"
 #endif
 
-#include "./app.h"
-#include "./components/paintButton.cpp"
-#include "./components/tabs.cpp"
-#include "./components/navigation.cpp"
-#include "./components/sideNavigation.cpp"
+#include "./app.hpp"
+#include "./defs.hpp"
 
-//code container component
-#include "./components/codeContainer/code.hpp"
 #include "./components/codeContainer/code.cpp"
+#include "./components/filesTree/files.cpp"
+#include "./components/sideNavigation/side.cpp"
+#include "./components/statusBar/status.cpp"
+#include "./components/tabs/tabs.cpp"
+#include "./members/menuBar.cpp"
 
-class MyApp: public wxApp {
+class ThunderCode: public wxApp {
     virtual bool OnInit();
 };
 
 class MainFrame: public wxFrame {
-    public:
-        MainFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
-        void OnQuit(wxCommandEvent& event);
-        void OnAbout(wxCommandEvent& event);
-        void OnNewFile(wxCommandEvent& event);
-        void OnOpenFolder(wxCommandEvent& event);
-        void OnOpenFile(wxCommandEvent& event);
-
-        void OnPrev(wxCommandEvent& event);
-    private:
-        wxPanel* code_editor_comp;
-        wxButton* hidde_menutools;
-        Navigation* navigation_comp;
-        SideNavigation* side_navigation_comp;
-        Tabs* tabs_container;
-
-        CodeContainer* codeContainer;
-        wxDECLARE_NO_COPY_CLASS(MainFrame);
+    wxFrame* main_frame;
+    wxBoxSizer* sizer;
+    wxPanel* main_container;
+    StatusBar* status_bar;
+    wxSplitterWindow* main_splitter;
+    SideNavigation* side_navigation;
+    FilesTree* files_tree;
+    wxPanel* main_code;
+    CodeContainer* code_container;
+    Tabs* tabs_container;
+    MenuBar* menu_bar;
+public:
+    MainFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
+    void OnQuit(wxCommandEvent& event);
+    void OnAbout(wxCommandEvent& event);
+    void OnNewFile(wxCommandEvent& event);
+    void OnOpenFolder(wxCommandEvent& event);
+    void OnOpenFile(wxCommandEvent& event);
+    void OnHiddeFilesTree(wxCommandEvent& event);
+    void OnHiddeSideNav(wxCommandEvent& event);
+    void OnHiddeMenuBar(wxCommandEvent& event);
+    void OnSashPaint( wxPaintEvent& event );
+    void OnSashPosChange( wxSplitterEvent& event );
+private:
+    wxDECLARE_NO_COPY_CLASS(MainFrame);
+    wxDECLARE_EVENT_TABLE();
 };
 
-IMPLEMENT_APP(MyApp)
+wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
+    EVT_MENU(wxID_EXIT, MainFrame::OnQuit)
+    EVT_MENU(wxID_ABOUT, MainFrame::OnAbout)
+    EVT_MENU(ID_NEW_FILE, MainFrame::OnNewFile)
+    EVT_MENU(ID_OPEN_FOLDER, MainFrame::OnOpenFolder)
+    EVT_MENU(ID_OPEN_FILE, MainFrame::OnOpenFile)
+    EVT_MENU(ID_HIDDE_FILES_TREE, MainFrame::OnHiddeFilesTree)
+    EVT_MENU(ID_HIDDE_SIDE_NAV, MainFrame::OnHiddeSideNav)
+    EVT_MENU(ID_HIDDE_MENU_BAR, MainFrame::OnHiddeMenuBar)
+wxEND_EVENT_TABLE()
 
-bool MyApp::OnInit() {
-    MainFrame *frame = new MainFrame(
-     _("ThunderCode"), wxPoint(50, 50),  wxSize(500,400));
+IMPLEMENT_APP(ThunderCode)
+
+bool ThunderCode::OnInit() {
+    MainFrame* frame = new MainFrame(_("ThunderCode"), wxPoint(50, 50),  wxSize(900, 800));
     frame->Show(true);
     SetTopWindow(frame);
     return true;
 } 
 
-MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
-: wxFrame( NULL, -1, title, pos, size )
+MainFrame::MainFrame(
+    const wxString& title, const wxPoint& pos, const wxSize& size
+) : wxFrame( NULL, -1, title, pos, size )
 {
+    //set icons folder
     if(wxFile::Exists("./icons/settings.png")) icons_dir = "./icons/";
     else if(wxFile::Exists("../icons/settings.png")) icons_dir = "../icons/";
     else wxLogWarning("Can't find icons dir!");
 
-    //global_main
-    wxSplitterWindow *global_main = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
-    global_main->SetSashInvisible(true);
+    sizer = new wxBoxSizer(wxVERTICAL);
+    
+    main_container = new wxPanel(this, ID_MAIN_CONTAINER);
+    wxBoxSizer* main_container_sizer = new wxBoxSizer(wxHORIZONTAL);
 
-     //bottom
-    wxPanel *status_bar = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize);
-    status_bar->SetBackgroundColour(wxColor(45,120,210));
+    side_navigation = new SideNavigation(main_container, ID_SIDE_NAVIGATION);
+    main_container_sizer->Add(side_navigation, 0, wxEXPAND);
+    
+    main_splitter = new wxSplitterWindow(main_container, ID_MAIN_SPLITTER);
+    main_splitter->SetBackgroundStyle(wxBG_STYLE_PAINT);
+    main_splitter->Bind(wxEVT_PAINT, &MainFrame::OnSashPaint, this);
+    main_splitter->Bind(wxEVT_COMMAND_SPLITTER_SASH_POS_CHANGED, &MainFrame::OnSashPosChange, this);
 
-    //barra de navegação(esquerda)
-    wxPanel *global_navigation = new wxPanel(global_main, wxID_ANY, wxDefaultPosition, wxDefaultSize);
+    main_container_sizer->Add(main_splitter, 1, wxEXPAND);
+    wxBoxSizer* main_splitter_sizer = new wxBoxSizer(wxHORIZONTAL);
+    
+    files_tree = new FilesTree(main_splitter, ID_FILES_TREE);
+    main_splitter_sizer->Add(files_tree, 0, wxEXPAND);
+    
+    main_code = new wxPanel(main_splitter, ID_MAIN_CODE);
+    main_splitter_sizer->Add(main_code, 1, wxEXPAND);
+    wxBoxSizer* main_code_sizer = new wxBoxSizer(wxVERTICAL);
+    
+    tabs_container = new Tabs(main_code, ID_TABS);
+    code_container = new CodeContainer(main_code, ID_CODE_CONTAINER);
+    
+    main_code_sizer->Add(tabs_container, 0, wxEXPAND);
+    main_code_sizer->Add(code_container, 1, wxEXPAND);
+    main_code->SetSizerAndFit(main_code_sizer);
+    
+    main_splitter->SetSizerAndFit(main_splitter_sizer);
+    main_splitter->SetMinimumPaneSize(250);
+    main_splitter->SplitVertically(files_tree, main_code, 1);
+    
+    status_bar = new StatusBar(this, ID_STATUS_BAR);
 
-    //side navigation menu
-    side_navigation_comp = new SideNavigation(global_navigation);
+    main_container->SetSizerAndFit(main_container_sizer);
+    sizer->Add(main_container, 1, wxEXPAND);
+    sizer->Add(status_bar, 0, wxEXPAND);
 
-    //code box(right)
-    wxPanel *code_content = new wxPanel(global_main, ID_CODE_BLOCK, wxDefaultPosition, wxDefaultSize);
-
-    //tabs
-    tabs_container = new Tabs(code_content);
-
-    //navigation_files
-    navigation_comp = new Navigation(global_navigation, tabs_container);
-
-    //global_navigation sizer
-    wxBoxSizer *global_navigation_sizer = new wxBoxSizer(wxHORIZONTAL);
-    global_navigation_sizer->Add(side_navigation_comp, 3, wxEXPAND);
-    global_navigation_sizer->Add(navigation_comp, 16, wxEXPAND);
-    global_navigation->SetSizerAndFit(global_navigation_sizer);
-
-    //code container
-    codeContainer = new CodeContainer(code_content, ID_CODE_CONTAINER);
-
-    //code_content boxSizer
-    wxBoxSizer *code_content_sizer = new wxBoxSizer(wxVERTICAL);
-    code_content_sizer->Add(tabs_container, 0, wxEXPAND);
-    code_content_sizer->Add(codeContainer, 1, wxEXPAND);
-    code_content->SetSizerAndFit(code_content_sizer);
-
-    //global_main sizer
-    wxBoxSizer *global_main_sizer = new wxBoxSizer(wxHORIZONTAL);
-    global_main_sizer->Add(global_navigation, 2, wxEXPAND);
-    global_main_sizer->Add(code_content, 13, wxEXPAND);
-
-    global_main->SetMinimumPaneSize(300);
-    global_main->SplitVertically(global_navigation, code_content, 1);
-    global_main->SetSizerAndFit(global_main_sizer);
-
-    //global sizer
-    wxBoxSizer *main_sizer = new wxBoxSizer(wxVERTICAL);
-    main_sizer->Add(global_main, 30, wxEXPAND);
-    main_sizer->Add(status_bar, 1, wxEXPAND);
-
-    this->SetSizerAndFit(main_sizer);
-
-    wxMenu *menuFile = new wxMenu;
-    menuFile->Append(ID_NEW_FILE, _("&New File\tCtrl-N"));
-    menuFile->Append(ID_OPEN_FOLDER, _("&Open folder\tCtrl-o-k"));
-    menuFile->Append(wxID_OPEN, _("&Open file"));
-    menuFile->Append(wxID_SAVE, _("&Save"));
-    menuFile->AppendSeparator();
-    menuFile->Append(wxID_EXIT, _("&Exit"));
-
-    wxMenu *menuEdit = new wxMenu;
-    menuEdit->Append(wxID_ANY, _("&Edit"));
-
-    wxMenu *menuSelection = new wxMenu;
-    menuSelection->Append(wxID_ANY, _("&Selection"));
-
-    wxMenu *menuFind = new wxMenu;
-    menuFind->Append(wxID_ANY, _("&Find"));
-
-    wxMenu *menuView = new wxMenu;
-    menuView->Append(wxID_ANY, _("&View"));
-
-    wxMenu *menuTools = new wxMenu;
-    menuTools->Append(wxID_ANY, _("&Tools"));
-
-    wxMenu *menuPreference = new wxMenu;
-    menuPreference->Append(wxID_ANY, _("&Preferences"));
-
-    wxMenu *menuTerminal = new wxMenu;
-    menuTerminal->Append(wxID_ANY, _("&Terminal"));
-
-    wxMenu *menuHelp = new wxMenu;
-    menuHelp->Append(wxID_ABOUT, _("&About"));
-
-    wxMenuBar *menuBar = new wxMenuBar;
-    menuBar->Append(menuFile, _("&File"));
-    menuBar->Append(menuEdit, _("&Edit"));
-    menuBar->Append(menuSelection, _("&Selection"));
-    menuBar->Append(menuFind, _("&Find"));
-    menuBar->Append(menuView, _("&View"));
-    menuBar->Append(menuTools, _("&Tools"));
-    menuBar->Append(menuTerminal, _("&Terminal"));
-    menuBar->Append(menuPreference, _("&Preferences"));
-    menuBar->Append(menuHelp, _("&Help"));
-    SetMenuBar(menuBar);
-
-    wxAcceleratorEntry shiftReturn(wxACCEL_ALT, wxACCEL_NORMAL, wxID_BACKWARD);
-    this->SetAcceleratorTable(wxAcceleratorTable(1, &shiftReturn));
-    this->Bind(wxEVT_MENU, &MainFrame::OnPrev, this, wxID_BACKWARD);
-
-    Connect(ID_NEW_FILE, wxEVT_MENU,
-     wxCommandEventHandler(MainFrame::OnNewFile));
-    Connect(wxID_ABOUT, wxEVT_MENU,
-     wxCommandEventHandler(MainFrame::OnAbout));
-    Connect(ID_OPEN_FOLDER, wxEVT_MENU,
-     wxCommandEventHandler(MainFrame::OnOpenFolder));
-    Connect(wxID_OPEN, wxEVT_MENU,
-     wxCommandEventHandler(MainFrame::OnOpenFile));
-    Connect(wxID_SAVE, wxEVT_MENU,
-     wxCommandEventHandler(CodeContainer::OnSave));
+    menu_bar = new MenuBar(ID_MENU_BAR);
+    SetMenuBar(menu_bar);
     Maximize();
 
+    this->SetSizerAndFit(sizer);
     this->SetOwnForegroundColour(wxColour(*wxWHITE));
     this->SetThemeEnabled(true);
+    main_frame = this;
 }
 
 void MainFrame::OnQuit(wxCommandEvent& WXUNUSED(event)) {
@@ -216,22 +168,73 @@ void MainFrame::OnAbout(wxCommandEvent& WXUNUSED(event)) {
 }
 
 void MainFrame::OnNewFile(wxCommandEvent& WXUNUSED(event)) {
-    tabs_container->AddTab("Untitled", project_path+"/");
+    tabs_container->AddTab("Untitled", project_path);
 }
 
 void MainFrame::OnOpenFolder(wxCommandEvent& WXUNUSED(event)) {
     wxDirDialog* dlg = new wxDirDialog( NULL, "Choose project directory", "", wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
     dlg->ShowModal();
     wxString path = dlg->GetPath();
-
     if(path.size()) {
-        project_path = path;
+        project_path = path+"/";
         if(tabs_container) {
             tabs_container->ClearAllTabs();
         }
-        navigation_comp->Update();
+        files_tree->Update();
     }
 }
 
 void MainFrame::OnOpenFile(wxCommandEvent& WXUNUSED(event)) {}
-void MainFrame::OnPrev(wxCommandEvent& WXUNUSED(event)) {}
+
+void MainFrame::OnHiddeFilesTree(wxCommandEvent& WXUNUSED(event)) {
+    if(main_splitter) {
+        if(files_tree) {
+            if(files_tree->IsShown()) {
+                files_tree->Hide();
+                main_splitter->SetMinimumPaneSize(0);
+                main_splitter->SetSashInvisible(true);
+            } else {
+                files_tree->Show(); 
+                main_splitter->SetMinimumPaneSize(250);
+                main_splitter->SetSashInvisible(false);
+            }
+            wxSizer* ms_sizer = main_splitter->GetSizer();
+            if(main_splitter) {
+                main_splitter->Refresh();
+                ms_sizer->Layout();
+            }
+        }
+    }
+}
+
+void MainFrame::OnHiddeSideNav(wxCommandEvent& WXUNUSED(event)) {}
+
+void MainFrame::OnHiddeMenuBar(wxCommandEvent& WXUNUSED(event)) {}
+
+void MainFrame::OnSashPaint( wxPaintEvent& event )
+{
+    wxPaintDC myDC(main_splitter);
+    myDC.SetBrush(wxColour(45, 45, 45));
+    myDC.SetPen( *wxTRANSPARENT_PEN );
+
+    if( main_splitter->GetSplitMode() == wxSPLIT_VERTICAL) {
+        myDC.DrawRectangle(
+            main_splitter->GetSashPosition(),
+            0,
+            main_splitter->GetSashSize(),
+            main_splitter->GetSize().GetHeight()
+        );
+    } else {
+        myDC.DrawRectangle(
+            0,
+            main_splitter->GetSashPosition(),
+            main_splitter->GetSize().GetWidth(),
+            main_splitter->GetSashSize()
+        );
+    }
+}
+
+void MainFrame::OnSashPosChange( wxSplitterEvent& event )
+{
+    main_splitter->Refresh();
+}

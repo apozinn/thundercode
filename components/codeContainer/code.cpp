@@ -8,8 +8,6 @@
 #include "wx/file.h"
 #include "wx/filename.h"
 #include "wx/settings.h"
-
-#include "../../app.h"
 #include "code.hpp"
 
 wxBEGIN_EVENT_TABLE(CodeContainer, wxStyledTextCtrl)

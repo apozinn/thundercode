@@ -1,6 +1,4 @@
 #pragma once
-
-#include "../../app.h"
 #include <wx/stc/stc.h>
 
 class CodeContainer : public wxStyledTextCtrl {
