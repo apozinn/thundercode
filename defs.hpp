@@ -25,6 +25,10 @@ enum {
     ID_PROJECT_FILES,
     ID_PROJECT_TOOLS_BAR,
     ID_PROJECT_FILES_CTN,
+    ID_FILES_TREE_EMPTY,
+    ID_PJT_TOOLS_PJTNAME,
+
+    ID_FILE_DOCKER,
 };
 
 wxString project_path;

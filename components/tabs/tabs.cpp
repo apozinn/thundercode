@@ -92,8 +92,10 @@ void Tabs::AddTab(wxString tab_name, wxString path) {
 }
 
 void Tabs::ClearTab(wxString tab_path) {
-	 auto codeContainer = ((CodeContainer*)FindWindowById(ID_CODE_CONTAINER));
-        auto t_tab = this->GetGrandParent()->GetParent();
+    auto codeContainer = ((CodeContainer*)FindWindowById(ID_CODE_CONTAINER));
+    auto t_tab = this->GetGrandParent()->GetParent();
+
+
         if(t_tab) {
             for(wxWindowList::iterator it = t_tab->GetChildren().begin(); 
                 it != t_tab->GetChildren().end(); it++) 
@@ -153,7 +155,10 @@ void Tabs::ClearTab(wxString tab_path) {
 
 void Tabs::ClearAllTabs() {
 	auto codeContainer = ((CodeContainer*)FindWindowById(ID_CODE_CONTAINER));
-	if(codeContainer) codeContainer->ClearAll();
+	if(codeContainer) {
+        codeContainer->ClearAll();
+        codeContainer->Hide();
+    }
 
     if(this->IsShown()) {
         this->DestroyChildren();

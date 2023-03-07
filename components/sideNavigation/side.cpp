@@ -9,8 +9,19 @@ SideNavigation::SideNavigation(wxPanel* parent, wxWindowID ID) : wxPanel(parent,
         wxBoxSizer* top_panel_sizer = new wxBoxSizer(wxVERTICAL);
 
         //top_panel icons
-        file_docker = new wxImagePanel(top_panel, icons_dir+"file-dock.png", wxBITMAP_TYPE_PNG, 28);
-        top_panel_sizer->Add(file_docker, 0, wxEXPAND | wxALL, 8);
+        wxPanel* file_docker = new wxPanel(top_panel, ID_FILE_DOCKER);
+        wxBoxSizer* fl_sizer = new wxBoxSizer(wxHORIZONTAL);
+
+        wxPanel* fl_active = new wxPanel(file_docker);
+        fl_active->SetBackgroundColour(wxColor(255, 255, 255));
+        fl_sizer->Add(fl_active, 0, wxEXPAND);
+
+        wxImagePanel* fl_icon = new wxImagePanel(file_docker, icons_dir+"file-dock.png", wxBITMAP_TYPE_PNG, 28);
+        fl_sizer->Add(fl_icon, 1, wxEXPAND | wxALL, 8);
+
+        file_docker->SetSizerAndFit(fl_sizer);
+
+        top_panel_sizer->Add(file_docker, 0, wxEXPAND);
 
         search = new wxImagePanel(top_panel, icons_dir+"search.png", wxBITMAP_TYPE_PNG, 28);
         top_panel_sizer->Add(search, 0, wxEXPAND | wxALL, 8);

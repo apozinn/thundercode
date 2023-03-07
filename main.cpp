@@ -128,6 +128,7 @@ MainFrame::MainFrame(
     main_splitter_sizer->Add(files_tree, 0, wxEXPAND);
     
     main_code = new wxPanel(main_splitter, ID_MAIN_CODE);
+    main_code->SetBackgroundColour(wxColor(55, 55, 55));
     main_splitter_sizer->Add(main_code, 1, wxEXPAND);
     wxBoxSizer* main_code_sizer = new wxBoxSizer(wxVERTICAL);
     
@@ -177,6 +178,7 @@ void MainFrame::OnOpenFolder(wxCommandEvent& WXUNUSED(event)) {
     wxString path = dlg->GetPath();
     if(path.size()) {
         project_path = path+"/";
+        project_name = wxFileNameFromPath(path);
         if(tabs_container) {
             tabs_container->ClearAllTabs();
         }

@@ -11,13 +11,14 @@ FilesTree::FilesTree(wxWindow* parent, wxWindowID ID) : wxPanel(parent, ID)
 	wxPanel* top_content = new wxPanel(this);
 	wxBoxSizer* top_ctn_sizer = new wxBoxSizer(wxHORIZONTAL);
 
-	wxStaticText* top_ctn_pjt = new wxStaticText(top_content, wxID_ANY, "PROJECT");
-	top_ctn_pjt->SetFont(fontWithOtherSize(top_ctn_pjt, 17));
-	top_ctn_sizer->Add(top_ctn_pjt, 1, wxEXPAND);
+	wxStaticText* top_ctn_pjt = new wxStaticText(top_content, wxID_ANY, "EXPLORATOR");
+	top_ctn_pjt->SetFont(fontWithOtherSize(top_ctn_pjt, 15));
+	top_ctn_pjt->SetForegroundColour(wxColor(200, 200, 200));
+	top_ctn_sizer->Add(top_ctn_pjt, 1, wxEXPAND | wxTOP, 4);
 	wxStaticText* top_ctn_menu = new wxStaticText(top_content, ID_FILES_TREE_TOP_MENU, "...");
 	top_ctn_sizer->Add(top_ctn_menu, 0, wxEXPAND);
 	top_content->SetSizerAndFit(top_ctn_sizer);
-	sizer->Add(top_content, 0, wxEXPAND | wxALL, 8);
+	sizer->Add(top_content, 0, wxEXPAND | wxALL, 10);
 	//
 
 	//divisor
@@ -37,7 +38,7 @@ FilesTree::FilesTree(wxWindow* parent, wxWindowID ID) : wxPanel(parent, ID)
 
 	wxImagePanel* pjt_arrow = new wxImagePanel(project_tools, icons_dir+"dir_arrow.png", wxBITMAP_TYPE_PNG, 12, 90.0);
 	pjt_tools_sizer->Add(pjt_arrow, 0, wxEXPAND | wxTOP, 2);
-    wxStaticText* pjt_name = new wxStaticText(project_tools, wxID_ANY, "ThunderCode");
+    wxStaticText* pjt_name = new wxStaticText(project_tools, ID_PJT_TOOLS_PJTNAME, project_name);
     pjt_name->Connect(wxID_ANY, wxEVT_LEFT_UP, wxMouseEventHandler(FilesTree::ToggleDir));
     pjt_name->SetFont(fontWithOtherSize(pjt_name, 16));
     pjt_tools_sizer->Add(pjt_name, 1, wxEXPAND | wxLEFT, 4);
@@ -49,11 +50,9 @@ FilesTree::FilesTree(wxWindow* parent, wxWindowID ID) : wxPanel(parent, ID)
 	pjt_files_sizer->Add(project_files_ctn, 1, wxEXPAND | wxLEFT, 3);
 	wxBoxSizer* pjt_files_ctn_sizer = new wxBoxSizer(wxVERTICAL);
 	project_files_ctn->SetSizerAndFit(pjt_files_ctn_sizer);
-	// project_files_ctn->SetBackgroundColour(wxColor(255, 0, 180));
 	//
 
 	project_files->SetSizerAndFit(pjt_files_sizer);
-
     sizer->Add(project_files, 1, wxEXPAND);
 	//
 
@@ -63,6 +62,7 @@ FilesTree::FilesTree(wxWindow* parent, wxWindowID ID) : wxPanel(parent, ID)
 void FilesTree::Update() {
 	project_files_ctn->DestroyChildren();
 	project_files_ctn->SetName(project_path);
+	FindWindowById(ID_PJT_TOOLS_PJTNAME)->SetLabel(project_name);
 
 	fileManager->listFiles(project_path.ToStdString(), [&](const std::string &path) {
 		std::string new_path = path.substr(project_path.size());
@@ -202,16 +202,18 @@ void FilesTree::OnFileSelect(wxMouseEvent& event) {
 	wxObject* obj = event.GetEventObject();
     auto this_fc = ((wxWindow*)obj)->GetParent();
 
+    auto codeContainer = ((CodeContainer*)FindWindowById(ID_CODE_CONTAINER));
+    auto tabs_container = ((Tabs*)FindWindowById(ID_TABS));
+
     if(this_fc) {
         wxString file_path = this_fc->GetName();
-        auto codeContainer = ((CodeContainer*)FindWindowByName("CodeContainer"));
-        auto tabs_container = ((Tabs*)FindWindowById(ID_TABS));
 
         if(tabs_container) {
-            tabs_container->AddTab(wxFileNameFromPath(file_path), file_path);
+            tabs_container->AddTab(wxFileNameFromPath(file_path.substr(0, file_path.size()-1)), file_path);
 	        if(codeContainer) {
 	            if(!codeContainer->IsShown()) {
-	                FindWindowById(ID_EMPYT_WINDOW)->Destroy();
+	                auto empty_window = FindWindowById(ID_EMPYT_WINDOW);
+	                if(empty_window) empty_window->Destroy();
 	                codeContainer->Show();
 	            }
 	            codeContainer->LoadNewFile(file_path.substr(0, file_path.size()-1));
