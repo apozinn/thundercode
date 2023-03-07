@@ -4,7 +4,6 @@
 #include "../../utils/randoms.hpp"
 
 class Tabs : public wxScrolled<wxPanel> {
-	wxScrolled<wxPanel>* tabs;
 	wxSizer* sizer;
 	wxString selected_tab;
 public:
