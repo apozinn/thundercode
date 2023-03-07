@@ -5,90 +5,65 @@ Tabs::Tabs(wxPanel* parent, wxWindowID ID) : wxScrolled<wxPanel>(parent, ID)
 {
 	this->SetBackgroundColour(wxColor(55, 55, 55));
 	sizer = new wxBoxSizer(wxVERTICAL);
-
-	this->AddTab("ThunderCode", "initial_tab");
+    this->AddTab("ThunderCode", "initial_tab");
 	this->SetSizerAndFit(sizer);
-	tabs_ctn = this;
+    this->SetScrollRate(20, 20);
 }
 
 void Tabs::AddTab(wxString tab_name, wxString path) {
-	if(this) {
-            if(!this->IsShown()) {
-                this->Show();
-            }
+    sizer = this->GetSizer();
+    if(!sizer) {
+        wxBoxSizer* n_s = new wxBoxSizer(wxHORIZONTAL);
+        this->SetSizerAndFit(n_s);
+        sizer = n_s;
+    }
+    
+    if(!this->IsShown()) this->Show();
 
-            bool alredy_exists = false;
-            for(wxWindowList::iterator it = this->GetChildren().begin(); 
-                it != this->GetChildren().end(); it++) 
-            {
-                wxPanel* a_tab = dynamic_cast<wxPanel *>( *it );
-                if(a_tab){
-                    if(a_tab->GetName() == path) {
-                        a_tab->GetChildren()[1]->SetBackgroundColour(wxColor(255, 0, 180));
-                        alredy_exists = true;
-                    } else {
-                        a_tab->GetChildren()[1]->SetBackgroundColour(wxColor(55, 55, 55));
-                    }
-                }
-            }
+    bool exists = false;
+    for(auto& a_tab : this->GetChildren()) {
+        if(a_tab->GetName() == path) {
+            a_tab->GetChildren()[1]->SetBackgroundColour(wxColor(255, 0, 180));
+            exists = true;
+        } else {
+            a_tab->GetChildren()[1]->SetBackgroundColour(wxColor(55, 55, 55));
+        }
+    }
+    if(exists) return;
 
-            if(alredy_exists) return;
+    wxPanel* new_tab = new wxPanel(this);
+    new_tab->SetName(path);
+    wxBoxSizer* new_tab_sizer = new wxBoxSizer(wxVERTICAL);
 
-            wxPanel* tab = new wxPanel(this);
-            tab->SetName(path);
-            wxBoxSizer* tab_sizer = new wxBoxSizer(wxVERTICAL);
-            selected_tab = path;
+    //tab infos
+    wxPanel* tab_infos = new wxPanel(new_tab);
+    wxBoxSizer* tab_infos_sizer = new wxBoxSizer(wxHORIZONTAL);
 
-            wxPanel* tab_props = new wxPanel(tab, wxID_ANY);
-            tab_props->SetBackgroundColour(wxColor(55, 55, 55));
+    //name
+    wxStaticText* name = new wxStaticText(tab_infos, wxID_ANY, tab_name);
+    name->SetFont(fontWithOtherSize(name, 16));
+    tab_infos_sizer->Add(name, 0, wxEXPAND | wxRIGHT, 5);
 
-            wxBoxSizer* props_sizer = new wxBoxSizer(wxHORIZONTAL);
+    tab_infos_sizer->Layout();
 
-            wxStaticText* name = new wxStaticText(tab_props, wxID_ANY, tab_name);
+    //close icon
+    wxImagePanel* close_icon = new wxImagePanel(tab_infos, icons_dir+"close.png", wxBITMAP_TYPE_PNG, 8);
+    tab_infos_sizer->Add(close_icon, 0, wxEXPAND | wxTOP, 5);
 
-            name->Connect(wxID_ANY, wxEVT_LEFT_UP,
-                wxMouseEventHandler(Tabs::SelectTab));
+    tab_infos->SetSizerAndFit(tab_infos_sizer);
+    new_tab_sizer->Add(tab_infos, 1, wxEXPAND | wxTOP | wxLEFT | wxBOTTOM, 8);
+    //
 
-            wxFont font = name->GetFont(); 
-            font.SetPixelSize(wxSize(16, 16));
-            name->SetFont(font);
+    //tab active bar
+    wxPanel* active_bar = new wxPanel(new_tab);
+    active_bar->SetBackgroundColour(wxColor(255, 0, 180));
+    new_tab_sizer->Add(active_bar, 0, wxEXPAND);
+    //
 
-            wxStaticText* close = new wxStaticText(tab_props, wxID_ANY, "x");
-            font.SetPixelSize(wxSize(20, 20));
-            close->SetFont(font);
-
-            close->Connect(wxID_ANY, wxEVT_LEFT_UP,
-                wxMouseEventHandler(Tabs::CloseTab));
-
-            props_sizer->Add(name, 1, wxALIGN_CENTER | wxLEFT, 5);
-            props_sizer->Add(close, wxSizerFlags(0).Border(wxTOP, 3));
-
-            tab_props->SetSizerAndFit(props_sizer);
-            tab_sizer->Add(tab_props, 30, wxEXPAND | wxRIGHT, 5);
-
-            wxPanel* active_bar = new wxPanel(tab, wxID_ANY);
-
-            for(wxWindowList::iterator it = this->GetChildren().begin(); 
-                it != this->GetChildren().end(); it++) 
-            {
-                wxPanel* a_tab = dynamic_cast<wxPanel *>( *it );
-                if(a_tab){
-                    for(wxWindowList::iterator it = a_tab->GetChildren().begin(); 
-                        it != a_tab->GetChildren().end(); it++) 
-                    {
-                        wxPanel* a_tab_t = dynamic_cast<wxPanel *>( *it );
-                        if(a_tab_t){
-                            a_tab_t->SetBackgroundColour(wxColor(55, 55, 55));
-                        }
-                    }
-                }
-            }
-
-            active_bar->SetBackgroundColour(wxColor(255, 0, 180));
-            tab_sizer->Add(active_bar, 1, wxEXPAND);
-            tab->SetSizerAndFit(tab_sizer); 
-            sizer->Add(tab, 0, wxTOP, 4);
-        } 
+    new_tab->SetSizerAndFit(new_tab_sizer);
+    sizer->Add(new_tab, 0);
+    selected_tab = path;
+    this->FitInside();
 }
 
 void Tabs::ClearTab(wxString tab_path) {
@@ -174,7 +149,7 @@ void Tabs::SelectTab(wxMouseEvent& event) {
     if(this_tab) {
         auto codeContainer = ((CodeContainer*)FindWindowById(ID_CODE_CONTAINER));
 
-        auto tabs_ctn = ((Tabs*)obj)->GetParent()->GetParent()->GetParent();
+        auto this_ctn = ((Tabs*)obj)->GetParent()->GetParent()->GetParent();
         wxString tab_path = this_tab->GetName();
         selected_tab = tab_path;
 
@@ -190,8 +165,8 @@ void Tabs::SelectTab(wxMouseEvent& event) {
             if(codeContainer) codeContainer->ClearAll();
         }
 
-        for(wxWindowList::iterator it = tabs_ctn->GetChildren().begin(); 
-            it != tabs_ctn->GetChildren().end(); it++) 
+        for(wxWindowList::iterator it = this_ctn->GetChildren().begin(); 
+            it != this_ctn->GetChildren().end(); it++) 
         {
             wxPanel* a_tab = dynamic_cast<wxPanel *>( *it );
             if(a_tab){

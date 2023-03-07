@@ -4,8 +4,8 @@
 #include "../../utils/randoms.hpp"
 
 class Tabs : public wxScrolled<wxPanel> {
-	wxScrolled<wxPanel>* tabs_ctn;
-	wxBoxSizer* sizer;
+	wxScrolled<wxPanel>* tabs;
+	wxSizer* sizer;
 	wxString selected_tab;
 public:
 	Tabs(wxPanel* parent, wxWindowID ID);
