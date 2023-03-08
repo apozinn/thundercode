@@ -1,5 +1,6 @@
 #include "tabs.hpp"
 #include "../codeContainer/code.hpp"
+#include "../../members/emptyWindow.cpp"
 
 Tabs::Tabs(wxPanel* parent, wxWindowID ID) : wxScrolled<wxPanel>(parent, ID) 
 {
@@ -88,7 +89,7 @@ void Tabs::ClearTab(wxString tab_path) {
                         selected_tab = next_tab->GetName();
                     }
 
-                    if(new_tab_path.size() && new_tab_path != "initial_tab") {
+                    if(new_tab_path.size()) {
                         codeContainer->LoadNewFile(new_tab_path);
                     } else {
                         codeContainer->ClearAll();
@@ -100,9 +101,7 @@ void Tabs::ClearTab(wxString tab_path) {
                             main_code->GetChildren()[0]->Hide();
                             main_code->GetChildren()[1]->Hide();
 
-                            wxPanel* empty_window = new wxPanel(main_code, ID_EMPYT_WINDOW);
-                            empty_window->SetBackgroundColour(wxColor(55, 55, 55));
-
+                            EmptyWindow* empty_window = new EmptyWindow(main_code, ID_EMPYT_WINDOW);
                             wxSizer* main_code_sizer = main_code->GetSizer();
                             if(main_code_sizer) {
                                 main_code_sizer->Add(empty_window, 1, wxEXPAND);
@@ -128,11 +127,7 @@ void Tabs::ClearAllTabs() {
         codeContainer->Hide();
     }
 
-    if(this->IsShown()) {
-        this->DestroyChildren();
-    } else {
-        this->Show();
-	}
+    this->DestroyChildren();
 }
 
 void Tabs::SelectTab(wxMouseEvent& event) {
@@ -148,7 +143,7 @@ void Tabs::SelectTab(wxMouseEvent& event) {
         if(tab_path == selected_tab) return;
         selected_tab = tab_path;
 
-        if(tab_path.size() && tab_path != "initial_tab") {
+        if(tab_path.size()) {
             if(codeContainer) {
                 if(!codeContainer->IsShown()) {
                     FindWindowById(ID_EMPYT_WINDOW)->Destroy();

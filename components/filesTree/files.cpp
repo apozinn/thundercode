@@ -199,26 +199,16 @@ void FilesTree::CreateDir(
 }
 
 void FilesTree::OnFileSelect(wxMouseEvent& event) {
-	wxObject* obj = event.GetEventObject();
-    auto this_fc = ((wxWindow*)obj)->GetParent();
-
     auto codeContainer = ((CodeContainer*)FindWindowById(ID_CODE_CONTAINER));
-    auto tabs_container = ((Tabs*)FindWindowById(ID_TABS));
+    auto tabsContainer = ((Tabs*)FindWindowById(ID_TABS));
+	wxObject* obj = event.GetEventObject();
+    auto this_file = ((wxWindow*)obj)->GetParent();
 
-    if(this_fc) {
-        wxString file_path = this_fc->GetName();
-
-        if(tabs_container) {
-            tabs_container->AddTab(wxFileNameFromPath(file_path.substr(0, file_path.size()-1)), file_path);
-	        if(codeContainer) {
-	            if(!codeContainer->IsShown()) {
-	                auto empty_window = FindWindowById(ID_EMPYT_WINDOW);
-	                if(empty_window) empty_window->Destroy();
-	                codeContainer->Show();
-	            }
-	            codeContainer->LoadNewFile(file_path.substr(0, file_path.size()-1));
-	        }
-        }
+    if(this_file && tabsContainer && codeContainer) {
+        wxString file_path = this_file->GetName();
+        tabsContainer->AddTab(wxFileNameFromPath(file_path.substr(0, file_path.size()-1)), file_path);
+        if(!codeContainer->IsShown()) FindWindowById(ID_EMPYT_WINDOW)->Destroy();
+        codeContainer->LoadNewFile(file_path.substr(0, file_path.size()-1));
     }
 }
 

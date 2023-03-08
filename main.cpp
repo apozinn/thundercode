@@ -45,13 +45,13 @@
 #include "./components/statusBar/status.cpp"
 #include "./components/tabs/tabs.cpp"
 #include "./members/menuBar.cpp"
+#include "./members/emptyWindow.cpp"
 
 class ThunderCode: public wxApp {
     virtual bool OnInit();
 };
 
 class MainFrame: public wxFrame {
-    wxFrame* main_frame;
     wxBoxSizer* sizer;
     wxPanel* main_container;
     StatusBar* status_bar;
@@ -62,6 +62,7 @@ class MainFrame: public wxFrame {
     CodeContainer* code_container;
     Tabs* tabs_container;
     MenuBar* menu_bar;
+    EmptyWindow* empty_window;
 public:
     MainFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
     void OnQuit(wxCommandEvent& event);
@@ -103,13 +104,11 @@ MainFrame::MainFrame(
     const wxString& title, const wxPoint& pos, const wxSize& size
 ) : wxFrame( NULL, -1, title, pos, size )
 {
-    //set icons folder
     if(wxFile::Exists("./icons/settings.png")) icons_dir = "./icons/";
     else if(wxFile::Exists("../icons/settings.png")) icons_dir = "../icons/";
     else wxLogWarning("Can't find icons dir!");
 
     sizer = new wxBoxSizer(wxVERTICAL);
-    
     main_container = new wxPanel(this, ID_MAIN_CONTAINER);
     wxBoxSizer* main_container_sizer = new wxBoxSizer(wxHORIZONTAL);
 
@@ -131,32 +130,42 @@ MainFrame::MainFrame(
     main_code->SetBackgroundColour(wxColor(55, 55, 55));
     main_splitter_sizer->Add(main_code, 1, wxEXPAND);
     wxBoxSizer* main_code_sizer = new wxBoxSizer(wxVERTICAL);
-    
+
     tabs_container = new Tabs(main_code, ID_TABS);
     code_container = new CodeContainer(main_code, ID_CODE_CONTAINER);
-    
+    empty_window = new EmptyWindow(main_code, ID_EMPYT_WINDOW);
+
     main_code_sizer->Add(tabs_container, 0, wxEXPAND);
     main_code_sizer->Add(code_container, 1, wxEXPAND);
-    main_code->SetSizerAndFit(main_code_sizer);
+    main_code_sizer->Add(empty_window, 1, wxEXPAND);
+
+    if(project_path.size()) {
+        empty_window->Hide();
+    } else {
+        tabs_container->Hide();
+        code_container->Hide();
+    }
     
+    main_code_sizer->Layout();
+    
+    main_code->SetSizerAndFit(main_code_sizer);
     main_splitter->SetSizerAndFit(main_splitter_sizer);
     main_splitter->SetMinimumPaneSize(250);
     main_splitter->SplitVertically(files_tree, main_code, 1);
     
     status_bar = new StatusBar(this, ID_STATUS_BAR);
-
     main_container->SetSizerAndFit(main_container_sizer);
     sizer->Add(main_container, 1, wxEXPAND);
     sizer->Add(status_bar, 0, wxEXPAND);
 
     menu_bar = new MenuBar(ID_MENU_BAR);
     SetMenuBar(menu_bar);
-    Maximize();
 
     this->SetSizerAndFit(sizer);
     this->SetOwnForegroundColour(wxColour(*wxWHITE));
     this->SetThemeEnabled(true);
-    main_frame = this;
+
+    Maximize();
 }
 
 void MainFrame::OnQuit(wxCommandEvent& WXUNUSED(event)) {
