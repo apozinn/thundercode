@@ -2,51 +2,92 @@
 
 SideNavigation::SideNavigation(wxPanel* parent, wxWindowID ID) : wxPanel(parent, ID) 
 {
-	this->SetBackgroundColour(wxColor(36, 36, 36));
-        sizer = new wxBoxSizer(wxVERTICAL);
+    this->SetBackgroundColour(wxColor(36, 36, 36));
+    sizer = new wxBoxSizer(wxVERTICAL);
 
-        wxPanel* top_panel = new wxPanel(this);
-        wxBoxSizer* top_panel_sizer = new wxBoxSizer(wxVERTICAL);
+    wxPanel* top_container = new wxPanel(this);
+    wxBoxSizer* top_ctn_sizer = new wxBoxSizer(wxVERTICAL);
 
-        //top_panel icons
-        wxPanel* file_docker = new wxPanel(top_panel, ID_FILE_DOCKER);
-        wxBoxSizer* fl_sizer = new wxBoxSizer(wxHORIZONTAL);
+    wxPanel* code_page = new wxPanel(top_container);
+    wxBoxSizer* code_pg_sizer = new wxBoxSizer(wxHORIZONTAL);
+    top_ctn_sizer->Add(code_page, 0, wxEXPAND);
 
-        wxPanel* fl_active = new wxPanel(file_docker);
-        fl_active->SetBackgroundColour(wxColor(255, 255, 255));
-        fl_sizer->Add(fl_active, 0, wxEXPAND);
+    wxPanel* code_pg_line = new wxPanel(code_page);
+    code_pg_line->SetBackgroundColour(wxColor(255, 0, 180));
+    code_pg_sizer->Add(code_pg_line, 1, wxEXPAND);
 
-        wxImagePanel* fl_icon = new wxImagePanel(file_docker, icons_dir+"file-dock.png", wxBITMAP_TYPE_PNG, 28);
-        fl_sizer->Add(fl_icon, 1, wxEXPAND | wxALL, 10);
+    wxImagePanel* code_pg_icon = new wxImagePanel(code_page, icons_dir+"code_page.png", wxBITMAP_TYPE_PNG, 26);
+    code_pg_sizer->Add(code_pg_icon, 20, wxEXPAND | wxALL, 10);
+    code_page->SetSizerAndFit(code_pg_sizer);
 
-        file_docker->SetSizerAndFit(fl_sizer);
+    wxPanel* search_page = new wxPanel(top_container);
+    wxBoxSizer* search_pg_sizer = new wxBoxSizer(wxHORIZONTAL);
+    top_ctn_sizer->Add(search_page, 0, wxEXPAND);
 
-        top_panel_sizer->Add(file_docker, 0, wxEXPAND);
+    wxPanel* search_pg_line = new wxPanel(search_page);
+    search_pg_line->SetBackgroundColour(wxColor(36, 36, 36));
+    search_pg_sizer->Add(search_pg_line, 1, wxEXPAND);
 
-        search = new wxImagePanel(top_panel, icons_dir+"search.png", wxBITMAP_TYPE_PNG, 28);
-        top_panel_sizer->Add(search, 0, wxEXPAND | wxALL, 10);
+    wxImagePanel* search_pg_icon = new wxImagePanel(search_page, icons_dir+"search.png", wxBITMAP_TYPE_PNG, 26);
+    search_pg_sizer->Add(search_pg_icon, 20, wxEXPAND | wxALL, 10);
+    search_page->SetSizerAndFit(search_pg_sizer);
 
-        wx = new wxImagePanel(top_panel, icons_dir+"wx.png", wxBITMAP_TYPE_PNG, 28);
-        top_panel_sizer->Add(wx, 0, wxEXPAND | wxALL, 10);
+    wxPanel* builder_page = new wxPanel(top_container);
+    wxBoxSizer* builder_pg_sizer = new wxBoxSizer(wxHORIZONTAL);
+    top_ctn_sizer->Add(builder_page, 0, wxEXPAND);
 
-        extensions = new wxImagePanel(top_panel, icons_dir+"extensions.png", wxBITMAP_TYPE_PNG, 28);
-        top_panel_sizer->Add(extensions, 0, wxEXPAND | wxALL, 10);
+    wxPanel* builder_pg_line = new wxPanel(builder_page);
+    builder_pg_line->SetBackgroundColour(wxColor(36, 36, 36));
+    builder_pg_sizer->Add(builder_pg_line, 1, wxEXPAND);
 
-        wxPanel* bottom_panel = new wxPanel(this);
-        wxBoxSizer* bottom_panel_sizer = new wxBoxSizer(wxVERTICAL);
+    wxImagePanel* builder_pg_icon = new wxImagePanel(builder_page, icons_dir+"builder.png", wxBITMAP_TYPE_PNG, 26);
+    builder_pg_sizer->Add(builder_pg_icon, 20, wxEXPAND | wxALL, 10);
+    builder_page->SetSizerAndFit(builder_pg_sizer);
+   
+    wxPanel* extensions_page = new wxPanel(top_container);
+    wxBoxSizer* extensions_pg_sizer = new wxBoxSizer(wxHORIZONTAL);
+    top_ctn_sizer->Add(extensions_page, 0, wxEXPAND);
 
-        //bottom_panel icons
-        settings = new wxImagePanel(bottom_panel, icons_dir+"settings.png", wxBITMAP_TYPE_PNG, 28);
-        bottom_panel_sizer->Add(settings, 0, wxEXPAND | wxALL, 10);
+    wxPanel* extensions_pg_line = new wxPanel(extensions_page);
+    extensions_pg_line->SetBackgroundColour(wxColor(36, 36, 36));
+    extensions_pg_sizer->Add(extensions_pg_line, 1, wxEXPAND);
 
-        hidde_sideNavigation = new wxImagePanel(bottom_panel, icons_dir+"hidde_sideNavigation.png", wxBITMAP_TYPE_PNG, 28);
-        bottom_panel_sizer->Add(hidde_sideNavigation, 0, wxEXPAND | wxALL, 10);
+    wxImagePanel* extensions_pg_icon = new wxImagePanel(extensions_page, icons_dir+"extensions.png", wxBITMAP_TYPE_PNG, 26);
+    extensions_pg_sizer->Add(extensions_pg_icon, 20, wxEXPAND | wxALL, 10);
+    extensions_page->SetSizerAndFit(extensions_pg_sizer);
+    
+    top_container->SetSizerAndFit(top_ctn_sizer);
+    
+    wxPanel* bottom_container = new wxPanel(this);
+    wxBoxSizer* bottom_ctn_sizer = new wxBoxSizer(wxVERTICAL);
 
-        //set sizer to panels
-        top_panel->SetSizerAndFit(top_panel_sizer);
-        bottom_panel->SetSizerAndFit(bottom_panel_sizer);
+    wxPanel* settings_page = new wxPanel(bottom_container);
+    wxBoxSizer* settings_pg_sizer = new wxBoxSizer(wxHORIZONTAL);
+    bottom_ctn_sizer->Add(settings_page, 0, wxEXPAND);
 
-        sizer->Add(top_panel, 1, wxEXPAND);
-        sizer->Add(bottom_panel, 0, wxEXPAND);
-        this->SetSizerAndFit(sizer);
+    wxPanel* settings_pg_line = new wxPanel(settings_page);
+    settings_pg_line->SetBackgroundColour(wxColor(36, 36, 36));
+    settings_pg_sizer->Add(settings_pg_line, 1, wxEXPAND);
+
+    wxImagePanel* settings_pg_icon = new wxImagePanel(settings_page, icons_dir+"settings.png", wxBITMAP_TYPE_PNG, 26);
+    settings_pg_sizer->Add(settings_pg_icon, 20, wxEXPAND | wxALL, 10);
+    settings_page->SetSizerAndFit(settings_pg_sizer);
+
+    wxPanel* focus_page = new wxPanel(bottom_container);
+    wxBoxSizer* focus_pg_sizer = new wxBoxSizer(wxHORIZONTAL);
+    bottom_ctn_sizer->Add(focus_page, 0, wxEXPAND);
+
+    wxPanel* focus_pg_line = new wxPanel(focus_page);
+    focus_pg_line->SetBackgroundColour(wxColor(36, 36, 36));
+    focus_pg_sizer->Add(focus_pg_line, 1, wxEXPAND);
+
+    wxImagePanel* focus_pg_icon = new wxImagePanel(focus_page, icons_dir+"focus_mode.png", wxBITMAP_TYPE_PNG, 26);
+    focus_pg_sizer->Add(focus_pg_icon, 20, wxEXPAND | wxALL, 10);
+    focus_page->SetSizerAndFit(focus_pg_sizer);
+
+    bottom_container->SetSizerAndFit(bottom_ctn_sizer);
+
+    sizer->Add(top_container, 1, wxEXPAND);
+    sizer->Add(bottom_container, 0, wxEXPAND);
+    this->SetSizerAndFit(sizer);
 }
