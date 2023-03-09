@@ -5,6 +5,7 @@
 #include <wx/scrolwin.h>
 #include <wx/wfstream.h>
 #include <wx/txtstrm.h>
+#include <wx/statbmp.h>
 
 #include "../../utils/randoms.hpp"
 #include "../../utils/fileManager.hpp"

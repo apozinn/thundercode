@@ -8,11 +8,9 @@ class wxImagePanel : public wxPanel {
             image.LoadFile(file, format);
             i_rotate = rotate;
         }
-        
         void paintEvent(wxPaintEvent & evt);
         void paintNow();
         void render(wxDC& dc);
-        
         DECLARE_EVENT_TABLE()
 };
 
