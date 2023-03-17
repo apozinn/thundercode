@@ -43,16 +43,21 @@ void Tabs::AddTab(wxString tab_name, wxString path) {
 
     wxStaticText* name = new wxStaticText(tab_infos, wxID_ANY, tab_name);
     name->SetName(path);
-    name->SetFont(fontWithOtherSize(name, 16));
+    name->SetFont(fontWithOtherSize(name, 17));
+    name->SetLabel(tab_name);
     name->Bind(wxEVT_LEFT_UP, &Tabs::SelectTab, this);
     tab_infos_sizer->Add(name, 0, wxEXPAND | wxRIGHT, 5);
 
     wxImagePanel* close_icon = new wxImagePanel(tab_infos, icons_dir+"close.png", wxBITMAP_TYPE_PNG, 8);
     close_icon->Bind(wxEVT_LEFT_UP, &Tabs::CloseTab, this);
-    tab_infos_sizer->Add(close_icon, 0, wxEXPAND | wxTOP, 5);
+    tab_infos_sizer->Add(close_icon, 0, wxEXPAND | wxTOP, 6);
 
+    tab_infos->Fit();
+    tab_infos->Update();
+    tab_infos->Refresh();
+    tab_infos->FitInside();
     tab_infos->SetSizerAndFit(tab_infos_sizer);
-    new_tab_sizer->Add(tab_infos, 1, wxEXPAND | wxTOP | wxLEFT | wxBOTTOM, 8);
+    new_tab_sizer->Add(tab_infos, 1, wxEXPAND | wxALL, 8);
 
     wxPanel* active_bar = new wxPanel(new_tab);
     active_bar->SetBackgroundColour(wxColor(255, 0, 180));

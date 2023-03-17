@@ -10,5 +10,7 @@ class SideNavigation : public wxPanel {
     wxImagePanel* hidde_sideNavigation;
 public:
 	SideNavigation(wxPanel* parent, wxWindowID ID);
+	void OnHover(wxMouseEvent& event);
+	void OnEndHover(wxMouseEvent& event);
 	wxDECLARE_NO_COPY_CLASS(SideNavigation);
 };

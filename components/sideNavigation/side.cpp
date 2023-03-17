@@ -85,9 +85,38 @@ SideNavigation::SideNavigation(wxPanel* parent, wxWindowID ID) : wxPanel(parent,
     focus_pg_sizer->Add(focus_pg_icon, 20, wxEXPAND | wxALL, 10);
     focus_page->SetSizerAndFit(focus_pg_sizer);
 
+    focus_page->Connect(wxID_ANY, wxEVT_MOTION, wxMouseEventHandler(SideNavigation::OnHover));
+    focus_page->Connect(wxID_ANY, wxEVT_LEAVE_WINDOW, wxMouseEventHandler(SideNavigation::OnEndHover));
+
     bottom_container->SetSizerAndFit(bottom_ctn_sizer);
 
     sizer->Add(top_container, 1, wxEXPAND);
     sizer->Add(bottom_container, 0, wxEXPAND);
     this->SetSizerAndFit(sizer);
+}
+
+void SideNavigation::OnHover(wxMouseEvent& event) {
+    auto target = ((wxPanel*)event.GetEventObject());
+
+    if(target) {
+        return;
+        wxPanel* active_bar = new wxPanel(target);
+        active_bar->SetBackgroundColour(wxColor(255, 0, 180));
+
+        wxSizer* tgt_sizer = target->GetSizer();
+        if(tgt_sizer) {
+            tgt_sizer->Insert(0, active_bar, 1, wxEXPAND);
+            target->Update();
+            tgt_sizer->Layout();
+        }
+    }
+}
+
+void SideNavigation::OnEndHover(wxMouseEvent& event) {
+    auto target = ((wxPanel*)event.GetEventObject());
+
+    if(target) {
+        auto tgt_active_bar = target->GetChildren()[0];
+        if(tgt_active_bar) tgt_active_bar->Destroy();
+    }
 }
