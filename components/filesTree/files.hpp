@@ -25,5 +25,16 @@ public:
 	void CreateDir(wxWindow* parent, wxString name, wxString path);
 	void OnFileSelect(wxMouseEvent& event);
 	void ToggleDir(wxMouseEvent& event);
+	void Create(std::string path, wxWindow* parent) {
+		fileManager->ListChildrens(
+        	path, [&](const std::string &path, const std::string &type, const std::string &name
+    	) {
+	        if(type == "dir") {
+	            this->CreateDir(parent, name, path);
+	        } else {
+	            this->CreateFile(parent, name, path);
+	        }
+    	});
+	}
 	wxDECLARE_NO_COPY_CLASS(FilesTree);
 };

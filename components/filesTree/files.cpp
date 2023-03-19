@@ -56,15 +56,7 @@ void FilesTree::Update() {
     FindWindowById(ID_PJT_TOOLS_PJTNAME)->SetLabel(project_name);
     FindWindowById(ID_PJT_TOOLS_ARROW)->Show();
 
-    fileManager->ListChildrens(
-        project_path.ToStdString(), [&](const std::string &path, const std::string &type, const std::string &name
-    ) {
-        if(type == "dir") {
-            this->CreateDir(project_files_ctn, name, path);
-        } else {
-            this->CreateFile(project_files_ctn, name , path);
-        }
-    });
+    this->Create(project_path.ToStdString(), project_files_ctn);
 
     project_files_ctn->FitInside();
     project_files_ctn->SetScrollRate(20, 20);
@@ -73,7 +65,7 @@ void FilesTree::Update() {
 void FilesTree::CreateFile(
     wxWindow* parent, wxString name, wxString path
 ) {
-    if(FindWindowByName(path)) return;
+    if(!parent || FindWindowByName(path)) return;
     auto parent_sizer = parent->GetSizer();
     if(!parent_sizer) {
         auto new_sizer = new wxBoxSizer(wxVERTICAL);
@@ -117,8 +109,8 @@ void FilesTree::CreateDir(
     // props container
     wxPanel* props = new wxPanel(container);
     props->SetName(path);
+    ctn_sizer->Add(props, 0, wxEXPAND | wxALL, 2);
     wxBoxSizer* props_sizer = new wxBoxSizer(wxHORIZONTAL);
-    props->SetSizerAndFit(props_sizer);
 
     wxVector<wxBitmap> bitmaps;
     bitmaps.push_back(wxBitmap(icons_dir+"dir_arrow.png", wxBITMAP_TYPE_PNG));
@@ -129,25 +121,19 @@ void FilesTree::CreateDir(
     dir_name->SetFont(fontWithOtherSize(dir_name, 18));
     dir_name->Connect(wxID_ANY, wxEVT_LEFT_UP, wxMouseEventHandler(FilesTree::ToggleDir));
     props_sizer->Add(dir_name, 0, wxEXPAND | wxLEFT, 4);
-    ctn_sizer->Add(props, 0, wxEXPAND | wxALL, 2);
+    props->SetSizerAndFit(props_sizer);
 
     // childrens container
     wxPanel* childrens_ctn = new wxPanel(container);
     wxBoxSizer* childrens_sizer = new wxBoxSizer(wxVERTICAL);
+    childrens_ctn->SetSizerAndFit(childrens_sizer);
+    ctn_sizer->Add(childrens_ctn, 1, wxEXPAND | wxLEFT, 5);
 
-    fileManager->ListChildrens(
-        path.ToStdString(), [&](const std::string &path, const std::string &type, const std::string &name
-    ) {
-        if(type == "dir") {
-            this->CreateDir(container, name, path);
-        } else {
-            this->CreateFile(container, name, path);
-        }
-    });
+    this->Create(path.ToStdString(), container);
+    childrens_ctn->Hide();
 
     container->Update();
     ctn_sizer->Layout();
-
     parent_sizer->Add(container, 0, wxEXPAND | wxLEFT, 5);
     parent->Update();
     parent_sizer->Layout();
@@ -187,12 +173,12 @@ void FilesTree::ToggleDir(wxMouseEvent& event) {
                 bitmaps.push_back(wxBitmap(arrow_bit.ConvertToImage().Rotate90(true), -1));
             }
             dir_arrow_ctn->SetBitmap(wxBitmapBundle::FromBitmaps(bitmaps));
-        }
 
-        auto dir_ctn_sizer = dir_container->GetSizer();
-        dir_container->Update();
-        dir_container->Refresh();
-        dir_container->Layout();
-        dir_ctn_sizer->Layout();
+            auto dir_ctn_sizer = dir_container->GetSizer();
+            dir_container->Update();
+            dir_container->Refresh();
+            dir_container->Layout();
+            dir_ctn_sizer->Layout();
+        }
     }
 }
