@@ -56,7 +56,40 @@ void FilesTree::Update() {
     FindWindowById(ID_PJT_TOOLS_PJTNAME)->SetLabel(project_name);
     FindWindowById(ID_PJT_TOOLS_ARROW)->Show();
 
-    this->Create(project_path.ToStdString(), project_files_ctn);
+    fileManager->ListAllFiles(project_path.ToStdString(), [&](const std::string &path) {
+        std::string new_path = path.substr(project_path.size());
+        wxFileName path_props = wxFileName::DirName(new_path);
+
+        for(auto& dir_name : path_props.GetDirs()) {
+            wxFileName dir_props = wxFileName::DirName(path.substr(0, path.find(dir_name)+dir_name.size()));
+            wxString dir_fullpath = dir_props.GetAbsolutePath();
+            wxString parent_path = dir_fullpath.substr(0, dir_fullpath.size()-dir_name.size()-1);
+
+            if(dir_props.DirExists()) {
+                auto dir_parent = FindWindowByName(parent_path);
+                if(dir_parent) {
+                    if(parent_path == project_path) {
+                        this->CreateDir(dir_parent, dir_name, dir_fullpath);
+                    } else this->CreateDir(dir_parent->GetChildren()[1], dir_name, dir_fullpath);
+                }
+            }
+        }
+
+        for(auto& file_name : path_props.GetDirs()) {
+            wxFileName file_props = wxFileName::DirName(path.substr(0, path.find(file_name)+file_name.size()));
+            wxString file_fullpath = file_props.GetAbsolutePath();
+            wxString parent_path = file_fullpath.substr(0, file_fullpath.size()-file_name.size()-1);
+
+            if(file_props.FileExists()) {
+                auto file_parent = FindWindowByName(parent_path);
+                if(file_parent) {
+                    if(parent_path == project_path) {
+                        this->CreateFile(file_parent, file_name, file_fullpath);
+                    } else this->CreateFile(file_parent->GetChildren()[1], file_name, file_fullpath);
+                }
+            }
+        }
+    });
 
     project_files_ctn->FitInside();
     project_files_ctn->SetScrollRate(20, 20);
@@ -77,18 +110,20 @@ void FilesTree::CreateFile(
     file_container->SetName(path);
     wxBoxSizer* file_ctn_sizer = new wxBoxSizer(wxHORIZONTAL);
 
-    wxImagePanel* file_icon = new wxImagePanel(file_container, icons_dir+"pass.png", wxBITMAP_TYPE_PNG, 17);
-    file_ctn_sizer->Add(file_icon, 0, wxEXPAND | wxALL, 2);
+    wxVector<wxBitmap> bitmaps;
+    bitmaps.push_back(wxBitmap(icons_dir+"pass.png", wxBITMAP_TYPE_PNG));
+    wxStaticBitmap* file_icon = new wxStaticBitmap(file_container, wxID_ANY, wxBitmapBundle::FromBitmaps(bitmaps));
+    file_ctn_sizer->Add(file_icon, 0, wxEXPAND);
 
     wxStaticText* file_name = new wxStaticText(file_container, wxID_ANY, name);
     file_name->SetFont(fontWithOtherSize(file_name, 18));
     file_name->Connect(wxID_ANY, wxEVT_LEFT_UP, wxMouseEventHandler(FilesTree::OnFileSelect));
     file_ctn_sizer->Add(file_name, 0, wxEXPAND | wxLEFT | wxTOP, 2);
-    file_container->SetSizerAndFit(file_ctn_sizer);
 
-    if(parent->GetParent()->GetName() != project_path && parent->GetName() != project_path) parent->Hide();
+    file_container->SetSizerAndFit(file_ctn_sizer);
     parent_sizer->Add(file_container, 0, wxEXPAND | wxLEFT, 5);
     parent_sizer->Layout();
+    parent->Update();
 }
 
 void FilesTree::CreateDir(
@@ -102,41 +137,36 @@ void FilesTree::CreateDir(
         parent_sizer = n_s;
     }
 
-    wxPanel* container = new wxPanel(parent);
-    wxBoxSizer* ctn_sizer = new wxBoxSizer(wxVERTICAL);
-    container->SetSizerAndFit(ctn_sizer);
+    wxPanel* dir_container = new wxPanel(parent);
+    dir_container->SetName(path);
+    wxBoxSizer* dir_ctn_sizer = new wxBoxSizer(wxVERTICAL);
 
-    // props container
-    wxPanel* props = new wxPanel(container);
-    props->SetName(path);
-    ctn_sizer->Add(props, 0, wxEXPAND | wxALL, 2);
+    wxPanel* dir_props = new wxPanel(dir_container);
     wxBoxSizer* props_sizer = new wxBoxSizer(wxHORIZONTAL);
+    dir_ctn_sizer->Add(dir_props, 0, wxEXPAND);
 
     wxVector<wxBitmap> bitmaps;
     bitmaps.push_back(wxBitmap(icons_dir+"dir_arrow.png", wxBITMAP_TYPE_PNG));
-    wxStaticBitmap* dir_arrow = new wxStaticBitmap(props, wxID_ANY, wxBitmapBundle::FromBitmaps(bitmaps));
+    wxStaticBitmap* dir_arrow = new wxStaticBitmap(dir_props, wxID_ANY, wxBitmapBundle::FromBitmaps(bitmaps));
     props_sizer->Add(dir_arrow, 0, wxEXPAND | wxTOP, 2);
 
-    wxStaticText* dir_name = new wxStaticText(props, wxID_ANY, name);
+    wxStaticText* dir_name = new wxStaticText(dir_props, wxID_ANY, name);
     dir_name->SetFont(fontWithOtherSize(dir_name, 18));
     dir_name->Connect(wxID_ANY, wxEVT_LEFT_UP, wxMouseEventHandler(FilesTree::ToggleDir));
     props_sizer->Add(dir_name, 0, wxEXPAND | wxLEFT, 4);
-    props->SetSizerAndFit(props_sizer);
+    dir_props->SetSizerAndFit(props_sizer);
 
-    // childrens container
-    wxPanel* childrens_ctn = new wxPanel(container);
-    wxBoxSizer* childrens_sizer = new wxBoxSizer(wxVERTICAL);
-    childrens_ctn->SetSizerAndFit(childrens_sizer);
-    ctn_sizer->Add(childrens_ctn, 1, wxEXPAND | wxLEFT, 5);
+    wxPanel* dir_childrens = new wxPanel(dir_container);
+    wxBoxSizer* dir_childrens_sizer = new wxBoxSizer(wxVERTICAL);
+    dir_childrens->SetSizerAndFit(dir_childrens_sizer);
+    dir_ctn_sizer->Add(dir_childrens, 0, wxEXPAND);
 
-    this->Create(path.ToStdString(), container);
-    childrens_ctn->Hide();
+    dir_container->SetSizerAndFit(dir_ctn_sizer);
+    dir_childrens->Hide();
 
-    container->Update();
-    ctn_sizer->Layout();
-    parent_sizer->Add(container, 0, wxEXPAND | wxLEFT, 5);
-    parent->Update();
+    parent_sizer->Add(dir_container, 0, wxEXPAND | wxLEFT, 5);
     parent_sizer->Layout();
+    parent->Update();
 }
 
 void FilesTree::OnFileSelect(wxMouseEvent& event) {
@@ -172,8 +202,8 @@ void FilesTree::ToggleDir(wxMouseEvent& event) {
                 dir_content->Show();
                 bitmaps.push_back(wxBitmap(arrow_bit.ConvertToImage().Rotate90(true), -1));
             }
-            dir_arrow_ctn->SetBitmap(wxBitmapBundle::FromBitmaps(bitmaps));
 
+            dir_arrow_ctn->SetBitmap(wxBitmapBundle::FromBitmaps(bitmaps));
             auto dir_ctn_sizer = dir_container->GetSizer();
             dir_container->Update();
             dir_container->Refresh();
