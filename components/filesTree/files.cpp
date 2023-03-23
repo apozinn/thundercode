@@ -56,40 +56,7 @@ void FilesTree::Update() {
     FindWindowById(ID_PJT_TOOLS_PJTNAME)->SetLabel(project_name);
     FindWindowById(ID_PJT_TOOLS_ARROW)->Show();
 
-    fileManager->ListAllFiles(project_path.ToStdString(), [&](const std::string &path) {
-        std::string new_path = path.substr(project_path.size());
-        wxFileName path_props = wxFileName::DirName(new_path);
-
-        for(auto& dir_name : path_props.GetDirs()) {
-            wxFileName dir_props = wxFileName::DirName(path.substr(0, path.find(dir_name)+dir_name.size()));
-            wxString dir_fullpath = dir_props.GetAbsolutePath();
-            wxString parent_path = dir_fullpath.substr(0, dir_fullpath.size()-dir_name.size()-1);
-
-            if(dir_props.DirExists()) {
-                auto dir_parent = FindWindowByName(parent_path);
-                if(dir_parent) {
-                    if(parent_path == project_path) {
-                        this->CreateDir(dir_parent, dir_name, dir_fullpath);
-                    } else this->CreateDir(dir_parent->GetChildren()[1], dir_name, dir_fullpath);
-                }
-            }
-        }
-
-        for(auto& file_name : path_props.GetDirs()) {
-            wxFileName file_props = wxFileName::DirName(path.substr(0, path.find(file_name)+file_name.size()));
-            wxString file_fullpath = file_props.GetAbsolutePath();
-            wxString parent_path = file_fullpath.substr(0, file_fullpath.size()-file_name.size()-1);
-
-            if(file_props.FileExists()) {
-                auto file_parent = FindWindowByName(parent_path);
-                if(file_parent) {
-                    if(parent_path == project_path) {
-                        this->CreateFile(file_parent, file_name, file_fullpath);
-                    } else this->CreateFile(file_parent->GetChildren()[1], file_name, file_fullpath);
-                }
-            }
-        }
-    });
+    this->Create(project_path.ToStdString(), project_files_ctn);
 
     project_files_ctn->FitInside();
     project_files_ctn->SetScrollRate(20, 20);
