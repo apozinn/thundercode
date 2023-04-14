@@ -7,7 +7,10 @@ FilesTree::FilesTree(wxWindow* parent, wxWindowID ID) : wxPanel(parent, ID)
     this->SetBackgroundColour(wxColor(45, 45, 45));
     sizer = new wxBoxSizer(wxVERTICAL);
 
-    wxPanel* top_content = new wxPanel(this);
+    wxPanel* aaa = new wxPanel(this, ID_TRIPLE_A);
+    wxBoxSizer* aaa_sizer = new wxBoxSizer(wxVERTICAL);
+
+    wxPanel* top_content = new wxPanel(aaa);
     wxBoxSizer* top_ctn_sizer = new wxBoxSizer(wxHORIZONTAL);
 
     wxStaticText* top_ctn_pjt = new wxStaticText(top_content, wxID_ANY, "EXPLORATOR");
@@ -18,13 +21,13 @@ FilesTree::FilesTree(wxWindow* parent, wxWindowID ID) : wxPanel(parent, ID)
     wxStaticText* top_ctn_menu = new wxStaticText(top_content, ID_FILES_TREE_TOP_MENU, "...");
     top_ctn_sizer->Add(top_ctn_menu, 0, wxEXPAND);
     top_content->SetSizerAndFit(top_ctn_sizer);
-    sizer->Add(top_content, 0, wxEXPAND | wxALL, 8);
+    aaa_sizer->Add(top_content, 0, wxEXPAND | wxTOP | wxRIGHT | wxBOTTOM, 8);
 
-    wxPanel* project_files = new wxPanel(this, ID_PROJECT_FILES);
+    wxPanel* project_files = new wxPanel(aaa, ID_PROJECT_FILES);
     wxBoxSizer* pjt_files_sizer = new wxBoxSizer(wxVERTICAL);
 
     wxPanel* project_tools = new wxPanel(project_files, ID_PROJECT_TOOLS_BAR);
-    pjt_files_sizer->Add(project_tools, 0, wxEXPAND | wxLEFT, 8);
+    pjt_files_sizer->Add(project_tools, 0, wxEXPAND);
     wxBoxSizer* pjt_tools_sizer = new wxBoxSizer(wxHORIZONTAL);
 
     wxVector<wxBitmap> bitmaps;
@@ -44,8 +47,11 @@ FilesTree::FilesTree(wxWindow* parent, wxWindowID ID) : wxPanel(parent, ID)
     project_files_ctn->SetSizerAndFit(pjt_files_ctn_sizer);
 
     project_files->SetSizerAndFit(pjt_files_sizer);
-    sizer->Add(project_files, 1, wxEXPAND);
+    aaa_sizer->Add(project_files, 1, wxEXPAND);
 
+    aaa->SetSizerAndFit(aaa_sizer);
+
+    sizer->Add(aaa, 0, wxEXPAND | wxLEFT, 5);
     this->SetSizerAndFit(sizer);
     if(!project_path.size()) pjt_arrow->Hide();
 }
@@ -158,6 +164,14 @@ void FilesTree::ToggleDir(wxMouseEvent& event) {
         auto dir_arrow_ctn = ((wxStaticBitmap*)dir_container->GetChildren()[0]->GetChildren()[0]);
         auto dir_content = dir_container->GetChildren()[1];
 
+        dir_content = new wxPanel(dir_container);
+        dir_content->SetBackgroundColour(wxColor(45, 90, 150));
+
+        auto t = new wxStaticText(dir_content, wxID_ANY, "puterrier");
+
+        dir_container->GetSizer()->Add(dir_content, 1, wxEXPAND);
+        dir_container->Layout();
+
         if(dir_content && dir_arrow_ctn) {
             auto arrow_bit = dir_arrow_ctn->GetBitmap();
             wxVector<wxBitmap> bitmaps;
@@ -173,7 +187,6 @@ void FilesTree::ToggleDir(wxMouseEvent& event) {
             dir_arrow_ctn->SetBitmap(wxBitmapBundle::FromBitmaps(bitmaps));
             auto dir_ctn_sizer = dir_container->GetSizer();
             dir_container->Update();
-            dir_container->Refresh();
             dir_container->Layout();
             dir_ctn_sizer->Layout();
         }

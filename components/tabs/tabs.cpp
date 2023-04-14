@@ -44,13 +44,14 @@ void Tabs::AddTab(wxString tab_name, wxString path) {
     wxStaticText* name = new wxStaticText(tab_infos, wxID_ANY, tab_name);
     name->SetName(path);
     name->SetFont(fontWithOtherSize(name, 17));
-    name->SetLabel(tab_name);
     name->Bind(wxEVT_LEFT_UP, &Tabs::SelectTab, this);
     tab_infos_sizer->Add(name, 0, wxEXPAND | wxRIGHT, 5);
 
-    wxImagePanel* close_icon = new wxImagePanel(tab_infos, icons_dir+"close.png", wxBITMAP_TYPE_PNG, 8);
+    wxVector<wxBitmap> bitmaps;
+    bitmaps.push_back(wxBitmap(wxBitmap(icons_dir+"close.png", wxBITMAP_TYPE_PNG)));
+    wxStaticBitmap* close_icon = new wxStaticBitmap(tab_infos, wxID_ANY, wxBitmapBundle::FromBitmaps(bitmaps));
     close_icon->Bind(wxEVT_LEFT_UP, &Tabs::CloseTab, this);
-    tab_infos_sizer->Add(close_icon, 0, wxEXPAND | wxTOP, 6);
+    tab_infos_sizer->Add(close_icon, 0, wxEXPAND | wxTOP, 2);
 
     tab_infos->Fit();
     tab_infos->Update();

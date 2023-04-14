@@ -29,6 +29,12 @@ enum {
     ID_PJT_TOOLS_PJTNAME,
     ID_PJT_TOOLS_ARROW,
     ID_FILE_DOCKER,
+    ID_SEARCH_PAGE_INPUT,
+    ID_TRIPLE_A,
+    ID_BUILDER_PAGE,
+    ID_EXTENSIONS_PAGE,
+    ID_SETTINGS_PAGE,
+    ID_FOCUS_PAGE,
 };
 
 wxString project_path;
