@@ -21,7 +21,7 @@ FilesTree::FilesTree(wxWindow* parent, wxWindowID ID) : wxPanel(parent, ID)
     wxStaticText* top_ctn_menu = new wxStaticText(top_content, ID_FILES_TREE_TOP_MENU, "...");
     top_ctn_sizer->Add(top_ctn_menu, 0, wxEXPAND);
     top_content->SetSizerAndFit(top_ctn_sizer);
-    aaa_sizer->Add(top_content, 0, wxEXPAND | wxTOP | wxRIGHT | wxBOTTOM, 8);
+    aaa_sizer->Add(top_content, 0, wxEXPAND | wxTOP | wxBOTTOM, 8);
 
     wxPanel* project_files = new wxPanel(aaa, ID_PROJECT_FILES);
     wxBoxSizer* pjt_files_sizer = new wxBoxSizer(wxVERTICAL);
