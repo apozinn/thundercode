@@ -12,7 +12,7 @@ Tabs::Tabs(wxPanel* parent, wxWindowID ID) : wxScrolled<wxPanel>(parent, ID)
 }
 
 void Tabs::AddTab(wxString tab_name, wxString path) {
-    path = path.substr(0, path.size()-1);
+    // path = path.substr(0, path.size()-1);
     sizer = this->GetSizer();
     if(!sizer) {
         wxBoxSizer* n_s = new wxBoxSizer(wxHORIZONTAL);
@@ -53,10 +53,12 @@ void Tabs::AddTab(wxString tab_name, wxString path) {
     close_icon->Bind(wxEVT_LEFT_UP, &Tabs::CloseTab, this);
     tab_infos_sizer->Add(close_icon, 0, wxEXPAND | wxTOP, 2);
 
-    tab_infos->Fit();
-    tab_infos->Update();
-    tab_infos->Refresh();
-    tab_infos->FitInside();
+    wxVector<wxBitmap> bitmaps_c;
+    bitmaps_c.push_back(wxBitmap(wxBitmap(icons_dir+"white_circle.png", wxBITMAP_TYPE_PNG)));
+    wxStaticBitmap* modified_icon = new wxStaticBitmap(tab_infos, wxID_ANY, wxBitmapBundle::FromBitmaps(bitmaps_c));
+    modified_icon->Hide();
+    tab_infos_sizer->Add(modified_icon, 0, wxEXPAND | wxTOP, 2);
+    
     tab_infos->SetSizerAndFit(tab_infos_sizer);
     new_tab_sizer->Add(tab_infos, 1, wxEXPAND | wxALL, 8);
 
