@@ -9,14 +9,14 @@ namespace fs = std::filesystem;
 
 class FileManager {
 public:
-	void ListAllFiles(const std::string &path, std::function<void(const std::string &)> cb) {
-	    if (auto dir = opendir(path.c_str())) {
+	void ListAllFiles(const std::string &path, std::function<void(const std::string&, const std::string&, const std::string&)> cb) {
+		if (auto dir = opendir(path.c_str())) {
 	        while (auto f = readdir(dir)) {
 	            if (!f->d_name || f->d_name[0] == '.') continue;
 	            if (f->d_type == DT_DIR) 
 	                ListAllFiles(path + f->d_name + "/", cb);
 	            if (f->d_type == DT_REG)
-	                cb(path + f->d_name);
+	                cb(path + f->d_name, "file", f->d_name);
 	        }
 	        closedir(dir);
 	    }

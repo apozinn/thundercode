@@ -20,7 +20,6 @@ enum
 
 CodeContainer::CodeContainer(wxPanel* parent, wxWindowID ID) : wxStyledTextCtrl(parent, ID) 
 {
-	this->SetName("CodeContainer");
 	this->SetUseTabs(true);
     this->SetTabWidth(4);
     this->SetIndent(4);
@@ -29,27 +28,25 @@ CodeContainer::CodeContainer(wxPanel* parent, wxWindowID ID) : wxStyledTextCtrl(
     this->SetViewEOL(false);
     this->SetViewWhiteSpace(false);
     this->SetIndentationGuides(true);
-    this->SetReadOnly(false);
 
     this->SetMarginWidth(0, this->TextWidth(wxSTC_STYLE_LINENUMBER, wxT("_99999")));
-    this->MarkerDefine(wxSTC_MARKNUM_FOLDER, wxSTC_MARK_BOXPLUS);
-    this->MarkerSetForeground(wxSTC_MARKNUM_FOLDEROPENMID, wxColour(wxT("BLACK")));
-    this->SetSelBackground(true, wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT));
-    this->SetSelForeground(true, wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHTTEXT));
-
     this->SetCaretForeground(wxColour(wxT("WHITE")));
+
     this->StyleSetBackground(wxSTC_STYLE_DEFAULT, wxColor(70, 70, 70));
     this->StyleSetForeground(wxSTC_STYLE_DEFAULT, wxColor(255, 255, 255));
 
+	wxFont font(wxFontInfo(10).Family(wxFONTFAMILY_MODERN));
+    this->StyleSetFont(wxSTC_STYLE_DEFAULT, font);
+    this->SetMarginType(MARGIN_LINE_NUMBERS, wxSTC_MARGIN_NUMBER);
+
     this->StyleClearAll();
 
-    this->StyleSetForeground(wxSTC_STYLE_LINENUMBER, wxColor(190, 180, 180));
-    this->StyleSetBackground (wxSTC_STYLE_LINENUMBER, wxColor(70, 70, 70));
-    this->SetMarginType(MARGIN_LINE_NUMBERS, wxSTC_MARGIN_NUMBER);
+    this->StyleSetForeground(wxSTC_STYLE_LINENUMBER, wxColor(45, 120, 210));
+    this->StyleSetBackground(wxSTC_STYLE_LINENUMBER, wxColor(70, 70, 70));
 }
 
 void CodeContainer::OnSave(wxCommandEvent& WXUNUSED(event)) {
-	auto codeContainer = ((CodeContainer*)FindWindowByName("CodeContainer"));
+	auto codeContainer = ((CodeContainer*)FindWindowById(ID_CODE_CONTAINER));
 	if(codeContainer) {
 	    wxString filename = codeContainer->GetFilename();
 	    if(filename.size()) {

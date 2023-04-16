@@ -51,7 +51,7 @@ FilesTree::FilesTree(wxWindow* parent, wxWindowID ID) : wxPanel(parent, ID)
 
     aaa->SetSizerAndFit(aaa_sizer);
 
-    sizer->Add(aaa, 0, wxEXPAND | wxLEFT, 5);
+    sizer->Add(aaa, 1, wxEXPAND | wxLEFT, 5);
     this->SetSizerAndFit(sizer);
     if(!project_path.size()) pjt_arrow->Hide();
 }

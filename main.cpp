@@ -83,6 +83,7 @@ private:
 wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_MENU(wxID_EXIT, MainFrame::OnQuit)
     EVT_MENU(wxID_ABOUT, MainFrame::OnAbout)
+    EVT_MENU(wxID_SAVE, CodeContainer::OnSave)
     EVT_MENU(ID_NEW_FILE, MainFrame::OnNewFile)
     EVT_MENU(ID_OPEN_FOLDER, MainFrame::OnOpenFolder)
     EVT_MENU(ID_OPEN_FILE, MainFrame::OnOpenFile)
@@ -160,6 +161,9 @@ MainFrame::MainFrame(
 
     menu_bar = new MenuBar(ID_MENU_BAR);
     SetMenuBar(menu_bar);
+
+    SetTitle("ThunderCode");
+    SetBackgroundColour("BLACK");
 
     this->SetSizerAndFit(sizer);
     this->SetOwnForegroundColour(wxColour(*wxWHITE));

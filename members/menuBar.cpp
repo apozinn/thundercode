@@ -5,8 +5,8 @@ public:
 	MenuBar(wxWindowID ID) : wxMenuBar() {
 		wxMenu *menuFile = new wxMenu;
 	    menuFile->Append(ID_NEW_FILE, _("&New File\tCtrl-N"));
-	    menuFile->Append(ID_OPEN_FOLDER, _("&Open folder\tCtrl-K"));
-	    menuFile->Append(wxID_OPEN, _("&Open file"));
+	    menuFile->Append(ID_OPEN_FOLDER, _("&Open folder\tCtrl+Shift+K"));
+	    menuFile->Append(wxID_OPEN, _("&Open file\tCtrl+O"));
 	    menuFile->Append(wxID_SAVE, _("&Save"));
 	    menuFile->AppendSeparator();
 	    menuFile->Append(wxID_EXIT, _("&Exit"));
