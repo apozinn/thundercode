@@ -92,7 +92,7 @@ void CodeContainer::OnSave(wxCommandEvent& WXUNUSED(event)) {
             auto tabs = FindWindowById(ID_TABS);
             if(tabs) {
                 for(auto&& tab : tabs->GetChildren()) {
-                    if(tab->GetName() == this->GetFilename()) {
+                    if(tab->GetName() == filename) {
                         auto close_ico = tab->GetChildren()[0]->GetChildren()[1];
                         auto unsaved_ico = tab->GetChildren()[0]->GetChildren()[2];
 
