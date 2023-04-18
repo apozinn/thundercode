@@ -59,7 +59,6 @@ class MainFrame: public wxFrame {
     SideNavigation* side_navigation;
     FilesTree* files_tree;
     wxPanel* main_code;
-    CodeContainer* code_container;
     Tabs* tabs_container;
     MenuBar* menu_bar;
     EmptyWindow* empty_window;
@@ -133,22 +132,17 @@ MainFrame::MainFrame(
     wxBoxSizer* main_code_sizer = new wxBoxSizer(wxVERTICAL);
 
     tabs_container = new Tabs(main_code, ID_TABS);
-    // code_container = new CodeContainer(main_code, ID_CODE_CONTAINER);
+    tabs_container->DestroyChildren();
     empty_window = new EmptyWindow(main_code, ID_EMPYT_WINDOW);
 
     main_code_sizer->Add(tabs_container, 0, wxEXPAND);
-    // main_code_sizer->Add(code_container, 1, wxEXPAND);
     main_code_sizer->Add(empty_window, 1, wxEXPAND);
 
     if(project_path.size()) {
         empty_window->Hide();
-    } else {
-        tabs_container->Hide();
-        // code_container->Hide();
-    }
+    } else {}
     
     main_code_sizer->Layout();
-    
     main_code->SetSizerAndFit(main_code_sizer);
     main_splitter->SetSizerAndFit(main_splitter_sizer);
     main_splitter->SetMinimumPaneSize(250);
@@ -161,14 +155,11 @@ MainFrame::MainFrame(
 
     menu_bar = new MenuBar(ID_MENU_BAR);
     SetMenuBar(menu_bar);
-
     SetTitle("ThunderCode");
-    SetBackgroundColour("BLACK");
 
     this->SetSizerAndFit(sizer);
     this->SetOwnForegroundColour(wxColour(*wxWHITE));
     this->SetThemeEnabled(true);
-
     Maximize();
 }
 
@@ -249,7 +240,4 @@ void MainFrame::OnSashPaint( wxPaintEvent& event )
     }
 }
 
-void MainFrame::OnSashPosChange( wxSplitterEvent& event )
-{
-    main_splitter->Refresh();
-}
+void MainFrame::OnSashPosChange( wxSplitterEvent& event ) { main_splitter->Refresh(); }
