@@ -34,6 +34,5 @@ StatusBar::StatusBar(wxFrame* parent, wxWindowID ID) : wxPanel(parent, ID)
 	sizer->Add(right_ctn, 0, wxEXPAND | wxTOP, 3);
 	//
 
-
 	this->SetSizerAndFit(sizer);
 }

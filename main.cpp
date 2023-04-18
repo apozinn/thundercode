@@ -133,18 +133,18 @@ MainFrame::MainFrame(
     wxBoxSizer* main_code_sizer = new wxBoxSizer(wxVERTICAL);
 
     tabs_container = new Tabs(main_code, ID_TABS);
-    code_container = new CodeContainer(main_code, ID_CODE_CONTAINER);
+    // code_container = new CodeContainer(main_code, ID_CODE_CONTAINER);
     empty_window = new EmptyWindow(main_code, ID_EMPYT_WINDOW);
 
     main_code_sizer->Add(tabs_container, 0, wxEXPAND);
-    main_code_sizer->Add(code_container, 1, wxEXPAND);
+    // main_code_sizer->Add(code_container, 1, wxEXPAND);
     main_code_sizer->Add(empty_window, 1, wxEXPAND);
 
     if(project_path.size()) {
         empty_window->Hide();
     } else {
         tabs_container->Hide();
-        code_container->Hide();
+        // code_container->Hide();
     }
     
     main_code_sizer->Layout();

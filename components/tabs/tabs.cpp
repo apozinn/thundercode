@@ -12,7 +12,6 @@ Tabs::Tabs(wxPanel* parent, wxWindowID ID) : wxScrolled<wxPanel>(parent, ID)
 }
 
 void Tabs::AddTab(wxString tab_name, wxString path) {
-    // path = path.substr(0, path.size()-1);
     sizer = this->GetSizer();
     if(!sizer) {
         wxBoxSizer* n_s = new wxBoxSizer(wxHORIZONTAL);
@@ -73,103 +72,75 @@ void Tabs::AddTab(wxString tab_name, wxString path) {
 }
 
 void Tabs::ClearTab(wxString tab_path) {
-    auto codeContainer = ((CodeContainer*)FindWindowById(ID_CODE_CONTAINER));
-    auto tabsContainer = ((Tabs*)FindWindowById(ID_TABS));
-
-    if(codeContainer && tabsContainer) {
-        for(auto& a_tab : tabsContainer->GetChildren()) {
-            if(a_tab->GetName() == tab_path) {
+    auto codeContainer = ((CodeContainer*)FindWindowByLabel(tab_path+"_codeContainer"));
+    if(codeContainer && this) {
+        for(auto& tab : this->GetChildren()) {
+            if(tab->GetName() == tab_path) {
+                auto main_code = FindWindowById(ID_MAIN_CODE);
                 if(tab_path == selected_tab) {
-                    auto prev_tab = a_tab->GetPrevSibling();
-                    auto next_tab = a_tab->GetNextSibling();
-                    wxString new_tab_path;
+                    auto prev_tab = tab->GetPrevSibling();
+                    auto next_tab = tab->GetNextSibling();
 
                     if(prev_tab) {
-                        auto act_bar = prev_tab->GetChildren()[1];
-                        if(act_bar) act_bar->SetBackgroundColour(wxColor(255, 0, 180));
-                        new_tab_path = prev_tab->GetName();
+                        auto act_bar = prev_tab->GetChildren()[1]->SetBackgroundColour(wxColor(255, 0, 180));
                         selected_tab = prev_tab->GetName();
-                    }
-                    if(next_tab) {
-                        auto act_bar = next_tab->GetChildren()[1];
-                        if(act_bar) act_bar->SetBackgroundColour(wxColor(255, 0, 180));
-                        new_tab_path = next_tab->GetName();
+                    } else if(next_tab) {
+                        auto act_bar = next_tab->GetChildren()[1]->SetBackgroundColour(wxColor(255, 0, 180));
                         selected_tab = next_tab->GetName();
                     }
 
-                    if(new_tab_path.size()) {
-                        codeContainer->LoadNewFile(new_tab_path);
-                    } else {
-                        codeContainer->ClearAll();
-                    }
+                    auto new_ct = FindWindowByLabel(selected_tab+"_codeContainer");
+                    if(new_ct) new_ct->Show();
 
                     if(!prev_tab && !next_tab) {
-                        auto main_code = ((wxPanel*)FindWindowById(ID_MAIN_CODE));
-                        if(main_code) {
-                            main_code->GetChildren()[0]->Hide();
-                            main_code->GetChildren()[1]->Hide();
-
-                            EmptyWindow* empty_window = new EmptyWindow(main_code, ID_EMPYT_WINDOW);
-                            wxSizer* main_code_sizer = main_code->GetSizer();
-                            if(main_code_sizer) {
-                                main_code_sizer->Add(empty_window, 1, wxEXPAND);
-                                main_code_sizer->Layout();
-                            }
-                        }
+                        this->Hide();
+                        FindWindowById(ID_EMPYT_WINDOW)->Show();
                     }
                 }
 
-                a_tab->Destroy();
-                tabsContainer->GetSizer()->Layout();
-                tabsContainer->Update();
-                tabsContainer->FitInside();
+                codeContainer->Destroy();
+                tab->Destroy();
+                this->GetSizer()->Layout();
+                this->Update();
+                this->FitInside();
+                main_code->GetSizer()->Layout();
+                main_code->Update();
             }
         }
     }
 }
 
 void Tabs::ClearAllTabs() {
-	auto codeContainer = ((CodeContainer*)FindWindowById(ID_CODE_CONTAINER));
-	if(codeContainer) {
-        codeContainer->ClearAll();
-        codeContainer->Hide();
-    }
-
     this->DestroyChildren();
 }
 
 void Tabs::SelectTab(wxMouseEvent& event) {
-    wxObject* obj = event.GetEventObject();
-    auto this_tab = ((Tabs*)obj);
+    auto this_tab = ((Tabs*)event.GetEventObject());
+    wxString tab_path = this_tab->GetName();
+    auto main_code = FindWindowById(ID_MAIN_CODE);
 
-    if(this_tab) {
-        auto codeContainer = ((CodeContainer*)FindWindowById(ID_CODE_CONTAINER));
-        auto tabsContainer = ((Tabs*)FindWindowById(ID_TABS));
+    if(tab_path == selected_tab) return;
+    selected_tab = tab_path;
 
-        wxString tab_path = this_tab->GetName();
-        if(!tab_path) return;
-        if(tab_path == selected_tab) return;
-        selected_tab = tab_path;
-
-        if(tab_path.size()) {
-            if(codeContainer) {
-                if(!codeContainer->IsShown()) {
-                    FindWindowById(ID_EMPYT_WINDOW)->Destroy();
-                    codeContainer->Show();
-                }
-                codeContainer->LoadNewFile(tab_path);
-            }
+    for(auto& children : this->GetChildren()) {
+        if(children->GetName() == tab_path) {
+            children->GetChildren()[1]->SetBackgroundColour(wxColor(255, 0, 180));
         } else {
-            if(codeContainer) codeContainer->ClearAll();
+            children->GetChildren()[1]->SetBackgroundColour(wxColor(55, 55, 55));
         }
+    }
 
-        for(auto& a_tab : tabsContainer->GetChildren()) {
-            if(a_tab->GetName() == tab_path) {
-                a_tab->GetChildren()[1]->SetBackgroundColour(wxColor(255, 0, 180));
-            } else {
-                a_tab->GetChildren()[1]->SetBackgroundColour(wxColor(55, 55, 55));
-            }
+    auto codeContainer = ((CodeContainer*)FindWindowByLabel(tab_path+"_codeContainer"));
+    for(auto&& other_ct : main_code->GetChildren()) {
+        if(other_ct->GetId() != ID_TABS) other_ct->Hide();
+    }
+
+    if(codeContainer) {
+        if(!codeContainer->IsShown()) {
+            codeContainer->Show();
         }
+        main_code->GetSizer()->Layout();
+        main_code->Update();
     }
 }
 

@@ -17,8 +17,10 @@ enum {
     MARGIN_LINE_NUMBERS
 };
 
-CodeContainer::CodeContainer(wxPanel* parent, wxWindowID ID) : wxStyledTextCtrl(parent, ID) 
+CodeContainer::CodeContainer(wxWindow* parent, wxWindowID ID, wxString path) : wxStyledTextCtrl(parent, ID) 
 {
+    this->SetLabel(path+"_codeContainer");
+    this->SetName(path);
 	this->SetUseTabs(true);
     this->SetTabWidth(4);
     this->SetIndent(4);
@@ -82,17 +84,16 @@ CodeContainer::CodeContainer(wxPanel* parent, wxWindowID ID) : wxStyledTextCtrl(
     this->setfoldlevels(0,0,text);
 }
 
-void CodeContainer::OnSave(wxCommandEvent& WXUNUSED(event)) {
-	auto codeContainer = ((CodeContainer*)FindWindowById(ID_CODE_CONTAINER));
-	if(codeContainer) {
-	    wxString filename = codeContainer->GetFilename();
-	    if(filename.size()) {
-	        codeContainer->SaveFile(filename);
+void CodeContainer::OnSave(wxCommandEvent& event) {
+    for(auto&& children : FindWindowById(ID_MAIN_CODE)->GetChildren()) {
+        if(children->GetLabel().find("_codeContainer") != std::string::npos && children->IsShown()) {
+            CodeContainer* children_ct = ((CodeContainer*)children);
+            wxString file_path = children->GetName();
+            if(file_path.size()) {
+                children_ct->SaveFile(file_path);
 
-            auto tabs = FindWindowById(ID_TABS);
-            if(tabs) {
-                for(auto&& tab : tabs->GetChildren()) {
-                    if(tab->GetName() == filename) {
+                for(auto&& tab : FindWindowById(ID_TABS)->GetChildren()) {
+                    if(tab->GetName() == file_path) {
                         auto close_ico = tab->GetChildren()[0]->GetChildren()[1];
                         auto unsaved_ico = tab->GetChildren()[0]->GetChildren()[2];
 
@@ -103,11 +104,11 @@ void CodeContainer::OnSave(wxCommandEvent& WXUNUSED(event)) {
                         tab->Update();
                     }
                 }
-            }            
-	    } else {
-	         wxMessageBox(_("Filename or path don't find"), _("Error in save"), wxOK | wxICON_INFORMATION, this);
-	    }
-	}
+            } else {
+               wxMessageBox(_("Filename or path don't find"), _("Error in save"), wxOK | wxICON_INFORMATION, this);
+            }
+        }
+    }
 }
 
 void CodeContainer::onMarginClick(wxStyledTextEvent& event) {}
@@ -120,7 +121,6 @@ void CodeContainer::setfoldlevels(size_t fromPos, int startfoldlevel, wxString& 
 
 void CodeContainer::OnChange(wxStyledTextEvent& event) {
     wxString key = event.GetText();
-
     if(this->GetModify()) {
         auto tabs = FindWindowById(ID_TABS);
         if(tabs) {

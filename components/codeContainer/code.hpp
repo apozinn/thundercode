@@ -4,7 +4,7 @@
 class CodeContainer : public wxStyledTextCtrl {
     wxStyledTextCtrl* m_activeSTC;
 public:
-    CodeContainer(wxPanel* parent, wxWindowID ID);
+    CodeContainer(wxWindow* parent, wxWindowID ID, wxString path);
     void OnSave(wxCommandEvent& event);
     void LoadNewFile(wxString file_path) {
         this->LoadFile(file_path);
