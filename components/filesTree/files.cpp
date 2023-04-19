@@ -31,7 +31,7 @@ FilesTree::FilesTree(wxWindow* parent, wxWindowID ID) : wxPanel(parent, ID)
     wxBoxSizer* pjt_tools_sizer = new wxBoxSizer(wxHORIZONTAL);
 
     wxVector<wxBitmap> bitmaps;
-    bitmaps.push_back(wxBitmap(wxBitmap(icons_dir+"dir_arrow.png", wxBITMAP_TYPE_PNG).ConvertToImage().Rotate90(true), -1));
+    bitmaps.push_back(wxBitmap(icons_dir+"dir_arrow.png", wxBITMAP_TYPE_PNG));
     wxStaticBitmap* pjt_arrow = new wxStaticBitmap(project_tools, ID_PJT_TOOLS_ARROW, wxBitmapBundle::FromBitmaps(bitmaps));
     pjt_tools_sizer->Add(pjt_arrow, 0, wxEXPAND | wxBOTTOM, 2);
 
@@ -195,10 +195,10 @@ void FilesTree::ToggleDir(wxMouseEvent& event) {
 
             if(dir_content->IsShown()) {
                 dir_content->Hide();
-                bitmaps.push_back(wxBitmap(arrow_bit.ConvertToImage().Rotate90(false), -1));
+                // bitmaps.push_back(wxBitmap(arrow_bit.ConvertToImage().Rotate90(false), -1));
             } else {
                 dir_content->Show();
-                bitmaps.push_back(wxBitmap(arrow_bit.ConvertToImage().Rotate90(true), -1));
+                // bitmaps.push_back(wxBitmap(arrow_bit.ConvertToImage().Rotate90(true), -1));
             }
 
             dir_arrow_ctn->SetBitmap(wxBitmapBundle::FromBitmaps(bitmaps));

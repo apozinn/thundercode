@@ -19,7 +19,7 @@ SideNavigation::SideNavigation(wxPanel* parent, wxWindowID ID) : wxPanel(parent,
     top_ctn_sizer->Add(code_page, 0, wxEXPAND);
 
     wxPanel* code_pg_line = new wxPanel(code_page);
-    code_pg_line->SetBackgroundColour(wxColor(255, 0, 180));
+    code_pg_line->SetBackgroundColour(wxColor(255, 255, 255));
     code_pg_sizer->Add(code_pg_line, 1, wxEXPAND);
 
     wxImagePanel* code_pg_icon = new wxImagePanel(code_page, icons_dir+"code_page.png", wxBITMAP_TYPE_PNG, 26);
@@ -216,7 +216,7 @@ void SideNavigation::SelectPage(wxMouseEvent& event) {
                     if(c_->GetName() != page_name) {
                         c_->GetChildren()[0]->SetBackgroundColour(wxColor(36, 36, 36));
                     } else {
-                        c_->GetChildren()[0]->SetBackgroundColour(wxColor(255, 0, 180));
+                        c_->GetChildren()[0]->SetBackgroundColour(wxColor(255, 255, 255));
                     }
                 }   
             }
