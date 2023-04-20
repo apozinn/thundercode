@@ -95,6 +95,16 @@ void Tabs::ClearTab(wxString tab_path) {
                     if(!prev_tab && !next_tab) {
                         this->Hide();
                         FindWindowById(ID_EMPYT_WINDOW)->Show();
+
+                        auto tab_size_comp = ((wxStaticText*)FindWindowById(ID_STTSBAR_TAB_SIZE));
+                        if(tab_size_comp) {
+                            tab_size_comp->SetLabel("");
+                        }
+
+                        auto file_ext_comp = ((wxStaticText*)FindWindowById(ID_STTSBAR_FILE_EXT));
+                        if(file_ext_comp) {
+                            file_ext_comp->SetLabel("");
+                        }
                     }
                 }
 

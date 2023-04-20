@@ -35,6 +35,8 @@ enum {
     ID_EXTENSIONS_PAGE,
     ID_SETTINGS_PAGE,
     ID_FOCUS_PAGE,
+    ID_STTSBAR_FILE_EXT,
+    ID_STTSBAR_TAB_SIZE,
 };
 
 wxString project_path;
