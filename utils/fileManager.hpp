@@ -13,8 +13,10 @@ public:
 		if (auto dir = opendir(path.c_str())) {
 	        while (auto f = readdir(dir)) {
 	            if (!f->d_name || f->d_name[0] == '.') continue;
-	            if (f->d_type == DT_DIR) 
+	            if (f->d_type == DT_DIR) {
+	                cb(path + f->d_name, "dir", f->d_name);
 	                ListAllFiles(path + f->d_name + "/", cb);
+	            }
 	            if (f->d_type == DT_REG)
 	                cb(path + f->d_name, "file", f->d_name);
 	        }
@@ -31,6 +33,18 @@ public:
 	        }
 	        closedir(dir);
 	    }
+	}
+
+	int GetChildrensCount(wxString path) {
+		int childrens_count = 0;
+		if (auto dir = opendir(path.c_str())) {
+	        while (auto f = readdir(dir)) {
+	            if (!f->d_name || f->d_name[0] == '.') continue;
+	            childrens_count+1;
+	        }
+	        closedir(dir);
+	    }
+	    return childrens_count;
 	}
 
 	std::string GetParentPath(std::string path) {

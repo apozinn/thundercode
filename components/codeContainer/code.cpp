@@ -30,7 +30,7 @@ CodeContainer::CodeContainer(wxWindow* parent, wxWindowID ID, wxString path) : w
     this->SetViewWhiteSpace(false);
     this->SetIndentationGuides(true);
 
-    this->SetMarginWidth(0, this->TextWidth(wxSTC_STYLE_LINENUMBER, wxT("_99999")));
+    this->SetMarginWidth(0, this->TextWidth(wxSTC_STYLE_LINENUMBER, wxT("_9999")));
     this->SetCaretForeground(wxColour(wxT("WHITE")));
 
     this->StyleSetBackground(wxSTC_STYLE_DEFAULT, wxColor(70, 70, 70));

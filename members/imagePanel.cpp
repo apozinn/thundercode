@@ -3,10 +3,12 @@ class wxImagePanel : public wxPanel {
     double i_rotate;
     public:
         wxImagePanel(
-            wxPanel* parent, wxString file, wxBitmapType format, int size=0, double rotate=0.0
+            wxWindow* parent, wxString file, wxBitmapType format, int size=0, double rotate=0.0
         ) : wxPanel(parent, wxID_ANY, wxDefaultPosition, size ? wxSize(size, size) : wxDefaultSize) {
             image.LoadFile(file, format);
             i_rotate = rotate;
+
+            this->SetMinSize(image.ConvertToImage().GetSize());
         }
         void paintEvent(wxPaintEvent & evt);
         void paintNow();

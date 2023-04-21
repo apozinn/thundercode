@@ -73,7 +73,17 @@ void Tabs::AddTab(wxString tab_name, wxString path) {
 
 void Tabs::ClearTab(wxString tab_path) {
     auto codeContainer = ((CodeContainer*)FindWindowByLabel(tab_path+"_codeContainer"));
-    if(codeContainer && this) {
+    auto imgContainer = ((wxPanel*)FindWindowByLabel(tab_path+"_imgContainer"));
+
+    if(codeContainer) {
+        codeContainer->Destroy();
+    }
+
+    if(imgContainer) {
+        imgContainer->Destroy();
+    }
+
+    if(codeContainer || imgContainer && this) {
         for(auto& tab : this->GetChildren()) {
             if(tab->GetName() == tab_path) {
                 auto main_code = FindWindowById(ID_MAIN_CODE);
@@ -90,7 +100,13 @@ void Tabs::ClearTab(wxString tab_path) {
                     }
 
                     auto new_ct = FindWindowByLabel(selected_tab+"_codeContainer");
-                    if(new_ct) new_ct->Show();
+                    auto new_it = FindWindowByLabel(selected_tab+"_imgContainer");
+
+                    if(new_ct) {
+                        new_ct->Show();
+                    } else if(new_it) {
+                        new_it->Show();
+                    }
 
                     if(!prev_tab && !next_tab) {
                         this->Hide();
@@ -108,7 +124,6 @@ void Tabs::ClearTab(wxString tab_path) {
                     }
                 }
 
-                codeContainer->Destroy();
                 tab->Destroy();
                 this->GetSizer()->Layout();
                 this->Update();

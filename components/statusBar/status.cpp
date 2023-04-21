@@ -27,7 +27,7 @@ StatusBar::StatusBar(wxFrame* parent, wxWindowID ID) : wxPanel(parent, ID)
 	left_ctn_sizer->SetSizeHints(left_ctn);
 
 	left_ctn->SetSizerAndFit(left_ctn_sizer);
-	sizer->Add(left_ctn, 1, wxEXPAND | wxALL, 4);
+	sizer->Add(left_ctn, 1, wxEXPAND | wxALL, 3);
 
 	wxPanel* right_ctn = new wxPanel(this);
 	wxBoxSizer* right_ctn_sizer = new wxBoxSizer(wxHORIZONTAL);
@@ -57,7 +57,7 @@ StatusBar::StatusBar(wxFrame* parent, wxWindowID ID) : wxPanel(parent, ID)
 	right_ctn_sizer->SetSizeHints(right_ctn);
 
 	right_ctn->SetSizerAndFit(right_ctn_sizer);
-	sizer->Add(right_ctn, 0, wxEXPAND | wxALL, 4);
+	sizer->Add(right_ctn, 0, wxEXPAND | wxALL, 3);
 
 	sizer->SetSizeHints(this);
 	this->SetSizerAndFit(sizer);
