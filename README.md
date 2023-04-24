@@ -1,8 +1,20 @@
 <p align="center" style="font-size: 20px; font-weight: bold">ThunderCode</p>
 
-<p align="center">fast, lightweight and cross-platform</p>
+<p align="center">Fast, lightweight and cross-platform</p>
 
-#
-<img src="https://imgur.com/4iTlt0l.png">
+# 
+<img src="https://imgur.com/4r2lCy7.png">
 
-<p align="center">This is a simple code editor, written in c++ and using wxWidgets, the plans for this project are many, I hope I can fulfill them all.</p>
+Written in c++. Thundercode was created to be fast, efficient and cross-platform(with a native look thanks to [wxWidgets](https://wxwidgets.org)).
+
+# Purpose
+https://github.com/apozinn/thundercode/blob/main/LICENSE
+With a focus on performance, functionality, Thundercode tries to bring all the necessary tools to edit any code, in any language, and still with a modern and intuitive interface.
+
+# Contributing
+Any help that will improve and implement the project is welcome. Feel free to send suggestions, revisions or new features.
+
+# License
+Copyright (c) Okarin Services. All rights reserved.
+
+Licensed under the [MIT](https://github.com/apozinn/thundercode/blob/main/LICENSE) license.
