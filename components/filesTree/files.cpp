@@ -211,21 +211,20 @@ void FilesTree::ToggleDir(wxMouseEvent& event) {
             path.ToStdString(), [&](const std::string &path, const std::string &type, const std::string &name
         ) {
             if(type == "dir") {
-                this->CreateDir(dir_childrens, name,path);
-                dir_container->SetSize(dir_container->GetSize().GetWidth(), dir_container->GetSize().GetHeight()+18);
-                dir_container->SetMinSize(wxSize(dir_container->GetSize().GetWidth(), dir_container->GetSize().GetHeight()+18));
-                dir_childrens->SetSize(dir_childrens->GetSize().GetWidth(), dir_childrens->GetSize().GetHeight()+18);
-                dir_childrens->SetMinSize(wxSize(dir_childrens->GetSize().GetWidth(), dir_childrens->GetSize().GetHeight()+18));
-
-                this->Create(path, dir_childrens);
+                this->CreateDir(dir_childrens, name, path);                
             } else {
-                this->CreateFile(dir_childrens, name,path);
-                dir_container->SetSize(dir_container->GetSize().GetWidth(), dir_container->GetSize().GetHeight()+21);
-                dir_container->SetMinSize(wxSize(dir_container->GetSize().GetWidth(), dir_container->GetSize().GetHeight()+21));
-                dir_childrens->SetSize(dir_childrens->GetSize().GetWidth(), dir_childrens->GetSize().GetHeight()+21);
-                dir_childrens->SetMinSize(wxSize(dir_childrens->GetSize().GetWidth(), dir_childrens->GetSize().GetHeight()+21));
+                this->CreateFile(dir_childrens, name, path);
+            }
 
-                this->Create(path, dir_childrens);
+            auto next_parent = dir_childrens;
+            bool has_next_parent = true;
+            while(has_next_parent) {
+                if(next_parent->GetId() == ID_PROJECT_FILES_CTN) has_next_parent = false;
+                next_parent->SetSize(next_parent->GetSize().GetWidth(), next_parent->GetSize().GetHeight()+21);
+                next_parent->SetMinSize(wxSize(next_parent->GetSize().GetWidth(), next_parent->GetSize().GetHeight()+21));
+                if(next_parent->GetParent()) {
+                    next_parent = next_parent->GetParent();
+                } else has_next_parent = false;
             }
         });
 
