@@ -1,7 +1,8 @@
 #pragma once
 
 enum {
-    ID_Quit = 1,
+    ID_MAIN_FRAME = -1,
+    ID_Quit,
     ID_ABOUT,
     ID_NEW_FILE,
     ID_OPEN_FOLDER,

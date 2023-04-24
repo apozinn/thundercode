@@ -2,7 +2,7 @@
 #include "../../sidePages/search/search.cpp"
 #include "../../sidePages/builder/builder.cpp"
 #include "../../sidePages/extensions/extensions.cpp"
-#include "../../sidePages/settings/settings.cpp"
+// #include "../../sidePages/settings/settings.cpp"
 #include "../../sidePages/focus/focus.cpp"
 
 SideNavigation::SideNavigation(wxPanel* parent, wxWindowID ID) : wxPanel(parent, ID) 
@@ -144,6 +144,10 @@ void SideNavigation::SelectPage(wxMouseEvent& event) {
             }
 
             if(page_name == "code_page") {
+                FindWindowById(ID_MAIN_SPLITTER)->Show();
+                if(FindWindowById(ID_SETTINGS_PAGE)) {
+                    if(settings_page->IsShown()) settings_page->Hide();
+                }
                 FindWindowById(ID_TRIPLE_A)->Show();
             }
 
@@ -184,14 +188,20 @@ void SideNavigation::SelectPage(wxMouseEvent& event) {
             }
 
             if(page_name == "settings_page") {
-                if(FindWindowById(ID_SETTINGS_PAGE)) {
-                    auto settings_pg = FindWindowById(ID_SETTINGS_PAGE);
-                    settings_pg->Show();
-                } else {
-                    SidePage_Settings* settings_page = new SidePage_Settings(side_bar, ID_SETTINGS_PAGE);
-                    side_bar_sizer->Add(settings_page, 1, wxEXPAND | wxLEFT, 5);
-                    side_bar->Update();
-                    side_bar_sizer->Layout();
+                auto main_container = FindWindowById(ID_MAIN_CONTAINER);
+                if(main_container) {
+                    auto main_ctn_sizer = main_container->GetSizer();
+                    settings_page = ((SettingsPage*)FindWindowById(ID_SETTINGS_PAGE));
+                    FindWindowById(ID_MAIN_SPLITTER)->Hide();
+                    if(settings_page) {
+                        if(!settings_page->IsShown()) settings_page->Show();
+                    } else {
+                        settings_page = new SettingsPage(main_container, ID_SETTINGS_PAGE);
+                        main_ctn_sizer->Add(settings_page, 1, wxEXPAND);
+                    }
+
+                    main_ctn_sizer->Layout();
+                    main_container->Update();
                 }
             }
 

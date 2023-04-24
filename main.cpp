@@ -102,7 +102,7 @@ bool ThunderCode::OnInit() {
 
 MainFrame::MainFrame(
     const wxString& title, const wxPoint& pos, const wxSize& size
-) : wxFrame( NULL, -1, title, pos, size )
+) : wxFrame( NULL, ID_MAIN_FRAME, title, pos, size)
 {
     if(wxFile::Exists("./icons/settings.png")) icons_dir = "./icons/";
     else if(wxFile::Exists("../icons/settings.png")) icons_dir = "../icons/";

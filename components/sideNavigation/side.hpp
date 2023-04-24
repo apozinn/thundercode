@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../../pages/settings/settings.cpp"
+
 class SideNavigation : public wxPanel {
 	wxBoxSizer* sizer;
 	wxImagePanel* file_docker;
@@ -8,6 +10,8 @@ class SideNavigation : public wxPanel {
     wxImagePanel* extensions;
     wxImagePanel* settings;
     wxImagePanel* hidde_sideNavigation;
+
+    SettingsPage* settings_page;
 public:
 	SideNavigation(wxPanel* parent, wxWindowID ID);
 	void OnHover(wxMouseEvent& event);
