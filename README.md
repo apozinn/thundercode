@@ -8,7 +8,6 @@
 Written in c++. Thundercode was created to be fast, efficient and cross-platform(with a native look thanks to [wxWidgets](https://wxwidgets.org)).
 
 # Purpose
-https://github.com/apozinn/thundercode/blob/main/LICENSE
 With a focus on performance, functionality, Thundercode tries to bring all the necessary tools to edit any code, in any language, and still with a modern and intuitive interface.
 
 # Contributing
