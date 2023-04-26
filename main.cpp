@@ -10,8 +10,10 @@
 #include <wx/nativewin.h>
 #include <wx/process.h>
 #include <wx/filefn.h> 
+#include <wx/stdpaths.h>
 #include <wx/infobar.h>
 #include <wx/log.h>
+#include <wx/config.h>
 #include <wx/sashwin.h>
 #include "wx/image.h"
 #include "wx/file.h"
@@ -108,6 +110,14 @@ MainFrame::MainFrame(
     else if(wxFile::Exists("../icons/settings.png")) icons_dir = "../icons/";
     else wxLogWarning("Can't find icons dir!");
 
+    wxConfig *config = new wxConfig("ThunderCode");
+    wxString str;
+    if(config->Read("workspace", &str) ) {
+        wxString last_workspace = config->Read("workspace", str);
+        project_path = last_workspace;
+    }
+    delete config;
+
     sizer = new wxBoxSizer(wxVERTICAL);
     main_container = new wxPanel(this, ID_MAIN_CONTAINER);
     wxBoxSizer* main_container_sizer = new wxBoxSizer(wxHORIZONTAL);
@@ -187,6 +197,10 @@ void MainFrame::OnOpenFolder(wxCommandEvent& WXUNUSED(event)) {
             tabs_container->ClearAllTabs();
         }
         files_tree->Update();
+
+        wxConfig *config = new wxConfig("ThunderCode");
+        config->Write("workspace", project_path);
+        delete config;
     }
 }
 

@@ -50,7 +50,7 @@ void Tabs::AddTab(wxString tab_name, wxString path) {
     bitmaps.push_back(wxBitmap(wxBitmap(icons_dir+"close.png", wxBITMAP_TYPE_PNG)));
     wxStaticBitmap* close_icon = new wxStaticBitmap(tab_infos, wxID_ANY, wxBitmapBundle::FromBitmaps(bitmaps));
     close_icon->Bind(wxEVT_LEFT_UP, &Tabs::CloseTab, this);
-    tab_infos_sizer->Add(close_icon, 0, wxEXPAND | wxTOP, 2);
+    tab_infos_sizer->Add(close_icon, 0, wxALIGN_CENTER);
 
     wxVector<wxBitmap> bitmaps_c;
     bitmaps_c.push_back(wxBitmap(wxBitmap(icons_dir+"white_circle.png", wxBITMAP_TYPE_PNG)));
