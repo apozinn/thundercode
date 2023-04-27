@@ -75,13 +75,8 @@ void Tabs::ClearTab(wxString tab_path) {
     auto codeContainer = ((CodeContainer*)FindWindowByLabel(tab_path+"_codeContainer"));
     auto imgContainer = ((wxPanel*)FindWindowByLabel(tab_path+"_imgContainer"));
 
-    if(codeContainer) {
-        codeContainer->Destroy();
-    }
-
-    if(imgContainer) {
-        imgContainer->Destroy();
-    }
+    if(codeContainer) codeContainer->Destroy();
+    if(imgContainer) imgContainer->Destroy();
 
     if(codeContainer || imgContainer && this) {
         for(auto& tab : this->GetChildren()) {
@@ -136,7 +131,11 @@ void Tabs::ClearTab(wxString tab_path) {
 }
 
 void Tabs::ClearAllTabs() {
+    auto main_code = FindWindowById(ID_MAIN_CODE);
     this->DestroyChildren();
+    for(auto&& other_ct : main_code->GetChildren()) {
+        if(other_ct->GetId() != ID_TABS) other_ct->Destroy();
+    }
 }
 
 void Tabs::SelectTab(wxMouseEvent& event) {

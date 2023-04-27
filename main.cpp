@@ -110,14 +110,6 @@ MainFrame::MainFrame(
     else if(wxFile::Exists("../icons/settings.png")) icons_dir = "../icons/";
     else wxLogWarning("Can't find icons dir!");
 
-    wxConfig *config = new wxConfig("ThunderCode");
-    wxString str;
-    if(config->Read("workspace", &str) ) {
-        wxString last_workspace = config->Read("workspace", str);
-        project_path = last_workspace;
-    }
-    delete config;
-
     sizer = new wxBoxSizer(wxVERTICAL);
     main_container = new wxPanel(this, ID_MAIN_CONTAINER);
     wxBoxSizer* main_container_sizer = new wxBoxSizer(wxHORIZONTAL);
@@ -171,6 +163,19 @@ MainFrame::MainFrame(
     this->SetOwnForegroundColour(wxColour(*wxWHITE));
     this->SetThemeEnabled(true);
     Maximize();
+
+    wxConfig *config = new wxConfig("ThunderCode");
+    wxString str;
+    if(config->Read("workspace", &str) ) {
+        wxString last_workspace = config->Read("workspace", str);
+        project_path = last_workspace;
+
+        project_name = wxFileNameFromPath(project_path.substr(0, project_path.size()-1));
+        if(tabs_container) {
+            tabs_container->ClearAllTabs();
+        }
+        files_tree->Update();
+    }
 }
 
 void MainFrame::OnQuit(wxCommandEvent& WXUNUSED(event)) {
