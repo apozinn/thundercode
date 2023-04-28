@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.12)
 
 project(ThunderCode)
-find_package(wxWidgets COMPONENTS core base REQUIRED)
+find_package(wxWidgets COMPONENTS core base stc REQUIRED)
 
 include(${wxWidgets_USE_FILE})
 
