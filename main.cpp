@@ -139,10 +139,6 @@ MainFrame::MainFrame(
 
     main_code_sizer->Add(tabs_container, 0, wxEXPAND);
     main_code_sizer->Add(empty_window, 1, wxEXPAND);
-
-    if(project_path.size()) {
-        empty_window->Hide();
-    } else {}
     
     main_code_sizer->Layout();
     main_code->SetSizerAndFit(main_code_sizer);
@@ -155,7 +151,7 @@ MainFrame::MainFrame(
     sizer->Add(main_container, 1, wxEXPAND);
     sizer->Add(status_bar, 0, wxEXPAND);
 
-    menu_bar = new MenuBar(ID_MENU_BAR);
+    menu_bar = new MenuBar();
     SetMenuBar(menu_bar);
     SetTitle("ThunderCode");
 
@@ -176,6 +172,11 @@ MainFrame::MainFrame(
         }
         files_tree->Update();
     }
+
+    wxAcceleratorEntry entries[1];
+    entries[0].Set(wxACCEL_ALT, WXK_ALT, ID_HIDDE_MENU_BAR);
+    wxAcceleratorTable accel(1, entries);
+    this->SetAcceleratorTable(accel);
 }
 
 void MainFrame::OnQuit(wxCommandEvent& WXUNUSED(event)) {
@@ -234,7 +235,13 @@ void MainFrame::OnHiddeFilesTree(wxCommandEvent& WXUNUSED(event)) {
 
 void MainFrame::OnHiddeSideNav(wxCommandEvent& WXUNUSED(event)) {}
 
-void MainFrame::OnHiddeMenuBar(wxCommandEvent& WXUNUSED(event)) {}
+void MainFrame::OnHiddeMenuBar(wxCommandEvent& WXUNUSED(event)) {
+    if(menu_bar) {
+        if(menu_bar->IsShown()) {
+            menu_bar->Hide();
+        } else menu_bar->Show();
+    }
+}
 
 void MainFrame::OnSashPaint( wxPaintEvent& event )
 {

@@ -134,8 +134,10 @@ void Tabs::ClearAllTabs() {
     auto main_code = FindWindowById(ID_MAIN_CODE);
     this->DestroyChildren();
     for(auto&& other_ct : main_code->GetChildren()) {
-        if(other_ct->GetId() != ID_TABS) other_ct->Destroy();
+        if(other_ct->GetId() != ID_TABS &&
+            other_ct->GetId() != ID_EMPYT_WINDOW) other_ct->Destroy();
     }
+    FindWindowById(ID_EMPYT_WINDOW)->Show();
 }
 
 void Tabs::SelectTab(wxMouseEvent& event) {

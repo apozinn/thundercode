@@ -2,7 +2,7 @@
 
 class MenuBar : public wxMenuBar {
 public:
-	MenuBar(wxWindowID ID) : wxMenuBar() {
+	MenuBar() : wxMenuBar() {
 		wxMenu *menuFile = new wxMenu;
 	    menuFile->Append(ID_NEW_FILE, _("&New File\tCtrl-N"));
 	    menuFile->Append(ID_OPEN_FOLDER, _("&Open folder\tCtrl+Shift+K"));
@@ -21,9 +21,9 @@ public:
 	    menuFind->Append(wxID_ANY, _("&Find"));
 
 	    wxMenu *menuView = new wxMenu;
-	    menuView->Append(ID_HIDDE_FILES_TREE, _("&Hidde files-tree\tCtrl-H"));
-	    menuView->Append(ID_HIDDE_SIDE_NAV, _("&Hidde Side-Nav\tCtrl-H"));
-	    menuView->Append(ID_HIDDE_MENU_BAR, _("&Hidde Menu\tCtrl-H"));
+	    menuView->Append(ID_HIDDE_FILES_TREE, _("&Hidde files-tree"));
+	    menuView->Append(ID_HIDDE_SIDE_NAV, _("&Hidde Side-Nav"));
+	    menuView->Append(ID_HIDDE_MENU_BAR, _("&Hidde Menu"));
 
 	    wxMenu *menuTools = new wxMenu;
 	    menuTools->Append(wxID_ANY, _("&Tools"));
