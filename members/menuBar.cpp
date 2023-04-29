@@ -24,6 +24,7 @@ public:
 	    menuView->Append(ID_HIDDE_FILES_TREE, _("&Hidde files-tree"));
 	    menuView->Append(ID_HIDDE_SIDE_NAV, _("&Hidde Side-Nav"));
 	    menuView->Append(ID_HIDDE_MENU_BAR, _("&Hidde Menu"));
+	    menuView->Append(ID_HIDDE_STATUS_BAR, _("&Hidde Status Bar"));
 
 	    wxMenu *menuTools = new wxMenu;
 	    menuTools->Append(wxID_ANY, _("&Tools"));

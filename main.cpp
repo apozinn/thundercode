@@ -74,6 +74,7 @@ public:
     void OnHiddeFilesTree(wxCommandEvent& event);
     void OnHiddeSideNav(wxCommandEvent& event);
     void OnHiddeMenuBar(wxCommandEvent& event);
+    void OnHiddeStatusBar(wxCommandEvent& event);
     void OnSashPaint( wxPaintEvent& event );
     void OnSashPosChange( wxSplitterEvent& event );
 private:
@@ -91,6 +92,7 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_MENU(ID_HIDDE_FILES_TREE, MainFrame::OnHiddeFilesTree)
     EVT_MENU(ID_HIDDE_SIDE_NAV, MainFrame::OnHiddeSideNav)
     EVT_MENU(ID_HIDDE_MENU_BAR, MainFrame::OnHiddeMenuBar)
+    EVT_MENU(ID_HIDDE_STATUS_BAR, MainFrame::OnHiddeStatusBar)
 wxEND_EVENT_TABLE()
 
 IMPLEMENT_APP(ThunderCode)
@@ -243,6 +245,17 @@ void MainFrame::OnHiddeMenuBar(wxCommandEvent& WXUNUSED(event)) {
         if(menu_bar->IsShown()) {
             menu_bar->Hide();
         } else menu_bar->Show();
+    }
+}
+
+void MainFrame::OnHiddeStatusBar(wxCommandEvent& WXUNUSED(event)) {
+    if(status_bar) {
+        if(status_bar->IsShown()) {
+            status_bar->Hide();
+        } else status_bar->Show();
+
+        this->GetSizer()->Layout();
+        this->Update();
     }
 }
 
