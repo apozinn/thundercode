@@ -82,6 +82,8 @@ CodeContainer::CodeContainer(wxWindow* parent, wxWindowID ID, wxString path) : w
     wxString text= this->GetText().Upper();
     this->highlightSTCsyntax(0,this->GetTextLength(),text);
     this->setfoldlevels(0,0,text);
+
+    this->LoadNewFile(path);
 }
 
 void CodeContainer::OnSave(wxCommandEvent& event) {

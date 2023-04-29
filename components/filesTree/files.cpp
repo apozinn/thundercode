@@ -145,13 +145,16 @@ void FilesTree::CreateDir(
 void FilesTree::OnFileSelect(wxMouseEvent& event) {
     wxObject* obj = event.GetEventObject();
     auto this_file = ((wxWindow*)obj)->GetParent();
-    wxString file_path = this_file->GetName();
-    auto main_code = FindWindowById(ID_MAIN_CODE);
+    wxString path = this_file->GetName();
+    this->OpenFile(path);
+}
 
+void FilesTree::OpenFile(wxString path) {
+    auto main_code = FindWindowById(ID_MAIN_CODE);
     if(!main_code->GetId()) return;
 
     auto tabsContainer = ((Tabs*)FindWindowById(ID_TABS));
-    auto codeContainer = ((CodeContainer*)FindWindowByLabel(file_path+"_codeContainer"));
+    auto codeContainer = ((CodeContainer*)FindWindowByLabel(path+"_codeContainer"));
 
     for(auto&& other_ct : main_code->GetChildren()) {
         if(other_ct->GetId() != ID_TABS) other_ct->Hide();
@@ -159,13 +162,13 @@ void FilesTree::OnFileSelect(wxMouseEvent& event) {
 
     {
         size_t last_dot;
-        last_dot = file_path.find_last_of(".");
+        last_dot = path.find_last_of(".");
         if(last_dot) {
-            std::string file_ext = file_path.ToStdString().substr(last_dot+1);
+            std::string file_ext = path.ToStdString().substr(last_dot+1);
             if(file_ext.size()) {
                 if(file_ext == "png") {
-                    wxImagePanel* img_file = new wxImagePanel(main_code, file_path, wxBITMAP_TYPE_ANY);
-                    img_file->SetLabel(file_path+"_imgContainer");
+                    wxImagePanel* img_file = new wxImagePanel(main_code, path, wxBITMAP_TYPE_ANY);
+                    img_file->SetLabel(path+"_imgContainer");
                     main_code->GetSizer()->Add(img_file, 0, wxALIGN_CENTER);
 
                     auto tab_size_comp = ((wxStaticText*)FindWindowById(ID_STTSBAR_TAB_SIZE));
@@ -175,20 +178,14 @@ void FilesTree::OnFileSelect(wxMouseEvent& event) {
                     if(file_ext_comp) file_ext_comp->SetLabel(file_ext);
                 } else {
                     if(!codeContainer) {
-                        codeContainer = new CodeContainer(main_code, wxID_ANY, file_path);
+                        codeContainer = new CodeContainer(main_code, wxID_ANY, path);
                         main_code->GetSizer()->Add(codeContainer, 1, wxEXPAND);
-                    }
-
-                    if(this_file && codeContainer) {
-                        if(!codeContainer->IsShown()) {
-                            codeContainer->Show();
-                        }
-                        codeContainer->LoadNewFile(file_path.substr(0, file_path.size()));
-                    }
+                    } else {
+                        if(!codeContainer->IsShown()) codeContainer->Show();                    }
                 }
 
                 if(tabsContainer) {
-                    tabsContainer->AddTab(wxFileNameFromPath(file_path.substr(0, file_path.size())), file_path);
+                    tabsContainer->AddTab(wxFileNameFromPath(path.substr(0, path.size())), path);
                 }
 
                 main_code->GetSizer()->Layout();
@@ -197,7 +194,6 @@ void FilesTree::OnFileSelect(wxMouseEvent& event) {
         }
     }
 }
-
 void FilesTree::ToggleDir(wxMouseEvent& event) {
     wxObject* obj = event.GetEventObject();
     auto dir_container = ((wxWindow*)obj)->GetGrandParent();

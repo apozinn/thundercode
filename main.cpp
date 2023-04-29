@@ -210,7 +210,14 @@ void MainFrame::OnOpenFolder(wxCommandEvent& WXUNUSED(event)) {
     }
 }
 
-void MainFrame::OnOpenFile(wxCommandEvent& WXUNUSED(event)) {}
+void MainFrame::OnOpenFile(wxCommandEvent& WXUNUSED(event)) {
+    wxFileDialog* dlg = new wxFileDialog(NULL, "Choose a file", "", "", "", wxFD_DEFAULT_STYLE | wxFD_FILE_MUST_EXIST);
+    dlg->ShowModal();
+    wxString path = dlg->GetPath();
+    if(path.size()) {
+        files_tree->OpenFile(path);
+    }
+}
 
 void MainFrame::OnHiddeFilesTree(wxCommandEvent& WXUNUSED(event)) {
     if(main_splitter->IsSplit()) {
