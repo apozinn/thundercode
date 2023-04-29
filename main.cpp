@@ -213,23 +213,10 @@ void MainFrame::OnOpenFolder(wxCommandEvent& WXUNUSED(event)) {
 void MainFrame::OnOpenFile(wxCommandEvent& WXUNUSED(event)) {}
 
 void MainFrame::OnHiddeFilesTree(wxCommandEvent& WXUNUSED(event)) {
-    if(main_splitter) {
-        if(files_tree) {
-            if(files_tree->IsShown()) {
-                files_tree->Hide();
-                main_splitter->SetMinimumPaneSize(0);
-                main_splitter->SetSashInvisible(true);
-            } else {
-                files_tree->Show(); 
-                main_splitter->SetMinimumPaneSize(250);
-                main_splitter->SetSashInvisible(false);
-            }
-            wxSizer* ms_sizer = main_splitter->GetSizer();
-            if(main_splitter) {
-                main_splitter->Refresh();
-                ms_sizer->Layout();
-            }
-        }
+    if(main_splitter->IsSplit()) {
+        main_splitter->Unsplit(files_tree);
+    } else {
+        main_splitter->SplitVertically(files_tree, main_code, 1);
     }
 }
 
