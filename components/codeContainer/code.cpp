@@ -142,4 +142,33 @@ void CodeContainer::OnChange(wxStyledTextEvent& event) {
     }
 }
 
-void CodeContainer::CharAdd(wxStyledTextEvent& event) {}
+void CodeContainer::CharAdd(wxStyledTextEvent& event) {
+    char chr = (char)event.GetKey();
+    int currentLine = GetCurrentLine();
+
+    if (chr == '\n') {
+        int lineInd = 0;
+        if (currentLine > 0) {
+            lineInd = GetLineIndentation(currentLine - 1);
+        }
+        if (lineInd == 0) return;
+        SetLineIndentation (currentLine, lineInd);
+        GotoPos(PositionFromLine (currentLine) + lineInd);
+    } else if (chr == '#') {
+        wxString s = "define?0 elif?0 else?0 endif?0 error?0 if?0 ifdef?0 "
+                     "ifndef?0 include?0 line?0 pragma?0 undef?0";
+        AutoCompShow(0,s);
+    }
+
+    if(chr == 'i') {
+        wxString s = "import?0 if?0";
+            AutoCompShow(0,s);
+    }
+
+    if(chr == '(') InsertText(GetCurrentPos(), ")");
+    if(chr == '{') InsertText(GetCurrentPos(), "}");
+    if(chr == '"') InsertText(GetCurrentPos(), "\"");
+    if(chr == '`') InsertText(GetCurrentPos(), "`");
+    if(chr == '[') InsertText(GetCurrentPos(), "]");
+    if(event.GetKey() == 39) InsertText(GetCurrentPos(), "'");
+}
