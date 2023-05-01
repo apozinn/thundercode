@@ -46,7 +46,7 @@ public:
 	void OnChange(wxStyledTextEvent& event);
     void CharAdd(wxStyledTextEvent& event);
 private:
-    wxColor m_GCodecolor{255,130,0};
+    wxColor m_GCodecolor{255,0,0};
     int m_stylemask=0;
     wxString filename;
     wxDECLARE_NO_COPY_CLASS(CodeContainer);

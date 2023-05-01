@@ -10,6 +10,8 @@
 #include "wx/settings.h"
 #include "code.hpp"
 
+#define MY_FOLDMARGIN 2
+
 wxBEGIN_EVENT_TABLE(CodeContainer, wxStyledTextCtrl)
 wxEND_EVENT_TABLE()
 
@@ -19,71 +21,115 @@ enum {
 
 CodeContainer::CodeContainer(wxWindow* parent, wxWindowID ID, wxString path) : wxStyledTextCtrl(parent, ID) 
 {
-    this->SetLabel(path+"_codeContainer");
-    this->SetName(path);
-	this->SetUseTabs(true);
-    this->SetTabWidth(4);
-    this->SetIndent(4);
-    this->SetTabIndents(true);
-    this->SetBackSpaceUnIndents(true);
-    this->SetViewEOL(false);
-    this->SetViewWhiteSpace(false);
-    this->SetIndentationGuides(true);
+    SetLabel(path+"_codeContainer");
+    SetName(path);
+	SetUseTabs(true);
+    SetTabWidth(4);
+    SetIndent(4);
+    SetTabIndents(true);
+    SetBackSpaceUnIndents(true);
+    SetIndentationGuides(true);
 
-    this->SetMarginWidth(0, this->TextWidth(wxSTC_STYLE_LINENUMBER, wxT("_9999")));
-    this->SetCaretForeground(wxColour(wxT("WHITE")));
+    //load file content
+    LoadNewFile(path);
 
-    this->StyleSetBackground(wxSTC_STYLE_DEFAULT, wxColor(70, 70, 70));
-    this->StyleSetForeground(wxSTC_STYLE_DEFAULT, wxColor(255, 255, 255));
+    //font styling
+    StyleSetBackground(wxSTC_STYLE_DEFAULT, wxColor(70, 70, 70));
+    StyleSetForeground(wxSTC_STYLE_DEFAULT, wxColor(255, 255, 255));
+    StyleSetFont(wxSTC_STYLE_DEFAULT, wxFontInfo(10).Family(wxFONTFAMILY_MODERN));
 
-	wxFont font(wxFontInfo(10).Family(wxFONTFAMILY_MODERN));
-    this->StyleSetFont(wxSTC_STYLE_DEFAULT, font);
-    this->SetMarginType(MARGIN_LINE_NUMBERS, wxSTC_MARGIN_NUMBER);
+    //clean style for load new font styles
+    StyleClearAll();
 
-    this->StyleClearAll();
+    //margins styling
+    SetMarginWidth(0, TextWidth(wxSTC_STYLE_LINENUMBER, wxT("_9999")));
+    SetMarginWidth(MY_FOLDMARGIN, 10);
+    SetMarginType(MARGIN_LINE_NUMBERS, wxSTC_MARGIN_NUMBER);
+    StyleSetForeground(wxSTC_STYLE_LINENUMBER, wxColor(45, 120, 210));
+    StyleSetBackground(wxSTC_STYLE_LINENUMBER, wxColor(70, 70, 70));
 
-    this->StyleSetForeground(wxSTC_STYLE_LINENUMBER, wxColor(45, 120, 210));
-    this->StyleSetBackground(wxSTC_STYLE_LINENUMBER, wxColor(70, 70, 70));
+    SetCaretForeground(wxColour(wxT("WHITE")));
+    SetLexer(wxSTC_LEX_CPP);
 
-    this->SetLexer(wxSTC_LEX_CONTAINER);
-    this->SetMarginMask(0,wxSTC_MASK_FOLDERS);
-    this->SetFoldMarginColour(true,wxColor(255,255,255));
-    this->SetFoldMarginHiColour(true,wxColor(233,233,233));
-    this->MarkerDefine(wxSTC_MARKNUM_FOLDEREND,wxSTC_MARK_BOXPLUSCONNECTED);
-    this->MarkerSetForeground(wxSTC_MARKNUM_FOLDEREND,wxColor(243,243,243));
-    this->MarkerSetBackground(wxSTC_MARKNUM_FOLDEREND,wxColor(128,128,128));
-    this->MarkerDefine(wxSTC_MARKNUM_FOLDEROPENMID,wxSTC_MARK_BOXMINUSCONNECTED);
-    this->MarkerSetForeground(wxSTC_MARKNUM_FOLDEROPENMID,wxColor(243,243,243));
-    this->MarkerSetBackground(wxSTC_MARKNUM_FOLDEROPENMID,wxColor(128,128,128));
-    this->MarkerDefine(wxSTC_MARKNUM_FOLDERMIDTAIL, wxSTC_MARK_TCORNER);
-    this->MarkerSetForeground(wxSTC_MARKNUM_FOLDERMIDTAIL,wxColor(243,243,243));
-    this->MarkerSetBackground(wxSTC_MARKNUM_FOLDERMIDTAIL,wxColor(128,128,128));
-    this->MarkerDefine(wxSTC_MARKNUM_FOLDERTAIL,wxSTC_MARK_LCORNER);
-    this->MarkerSetForeground(wxSTC_MARKNUM_FOLDERTAIL,wxColor(243,243,243));
-    this->MarkerSetBackground(wxSTC_MARKNUM_FOLDERTAIL,wxColor(128,128,128));
-    this->MarkerDefine(wxSTC_MARKNUM_FOLDERSUB,wxSTC_MARK_VLINE);
-    this->MarkerSetForeground(wxSTC_MARKNUM_FOLDERSUB,wxColor(243,243,243));
-    this->MarkerSetBackground(wxSTC_MARKNUM_FOLDERSUB,wxColor(128,128,128));
-    this->MarkerDefine(wxSTC_MARKNUM_FOLDER,wxSTC_MARK_BOXPLUS);
-    this->MarkerSetForeground(wxSTC_MARKNUM_FOLDER,wxColor(243,243,243));
-    this->MarkerSetBackground(wxSTC_MARKNUM_FOLDER,wxColor(128,128,128));
-    this->MarkerDefine(wxSTC_MARKNUM_FOLDEROPEN,wxSTC_MARK_BOXMINUS);
-    this->MarkerSetForeground(wxSTC_MARKNUM_FOLDEROPEN,wxColor(243,243,243));
-    this->MarkerSetBackground(wxSTC_MARKNUM_FOLDEROPEN,wxColor(128,128,128));
-    this->MarkerEnableHighlight(true);
-    this->SetMarginSensitive(0,true);
+    //  
+    StyleSetForeground(wxSTC_C_DEFAULT, wxColour(255, 255, 255));
+    StyleSetForeground(wxSTC_C_STRING, wxColour(240, 245, 0));
+    StyleSetForeground(wxSTC_C_STRINGEOL, wxColour(240, 245, 0));
+    StyleSetForeground(wxSTC_C_STRINGRAW, wxColour(240, 245, 0));
+    StyleSetForeground(wxSTC_C_HASHQUOTEDSTRING, wxColour(200, 245, 0));
+    StyleSetForeground(wxSTC_C_COMMENT, wxColour(115, 115, 115));
+    StyleSetForeground(wxSTC_C_COMMENTLINE, wxColour(115, 115, 115));
+    StyleSetForeground(wxSTC_C_COMMENTDOC, wxColour(115, 115, 115));
+    StyleSetForeground(wxSTC_C_COMMENTLINEDOC , wxColour(115, 115, 115));
+    StyleSetForeground(wxSTC_C_COMMENTDOCKEYWORD , wxColour(115, 115, 115));
+    StyleSetForeground(wxSTC_C_COMMENTDOCKEYWORDERROR , wxColour(115, 115, 115));
+    StyleSetForeground(wxSTC_C_NUMBER, wxColour(230, 230, 0));
+    StyleSetForeground(wxSTC_C_WORD, wxColour(230, 200, 0));
+    StyleSetForeground(wxSTC_C_WORD2, wxColour(230, 200, 0));
+    StyleSetForeground(wxSTC_C_CHARACTER, wxColour(230, 200, 0));
+    StyleSetForeground(wxSTC_C_UUID, wxColour(230, 200, 0));
+    StyleSetForeground(wxSTC_C_PREPROCESSOR , wxColour(196, 35, 217));
+    StyleSetForeground(wxSTC_C_PREPROCESSORCOMMENTDOC , wxColour(200, 80, 220));
+    StyleSetForeground(wxSTC_C_OPERATOR , wxColour(16, 230, 190));
+    StyleSetForeground(wxSTC_C_REGEX , wxColour(100, 230, 190));
+    StyleSetForeground(wxSTC_C_GLOBALCLASS , wxColour(100, 255, 200));
+    StyleSetForeground(wxSTC_C_TRIPLEVERBATIM , wxColour(100, 200, 200));
+    StyleSetForeground(wxSTC_C_PREPROCESSORCOMMENT , wxColour(200, 200, 200));
+    StyleSetForeground(wxSTC_C_USERLITERAL , wxColour(255, 255, 0));
+    StyleSetForeground(wxSTC_C_TASKMARKER , wxColour(255, 255, 100));
+    StyleSetForeground(wxSTC_C_ESCAPESEQUENCE , wxColour(255, 0, 100));
+    //
 
-    this->Bind(wxEVT_STC_MARGINCLICK, &CodeContainer::onMarginClick, this);
-    this->Bind(wxEVT_STC_STYLENEEDED, &CodeContainer::OnStyleNeeded, this);
-	this->Bind(wxEVT_STC_MODIFIED, &CodeContainer::OnChange, this);
-    this->Bind(wxEVT_STC_CHARADDED, &CodeContainer::CharAdd, this);
+    SetMarginMask(MY_FOLDMARGIN,wxSTC_MASK_FOLDERS);
+    SetFoldMarginColour(true,wxColor(70,70,70));
+    SetFoldMarginHiColour(true,wxColor(70,70,70));
 
-    this->StyleSetForeground(19,m_GCodecolor);
-    wxString text= this->GetText().Upper();
-    this->highlightSTCsyntax(0,this->GetTextLength(),text);
-    this->setfoldlevels(0,0,text);
+    //Set up the markers that will be shown in the fold margin
+    MarkerDefine(wxSTC_MARKNUM_FOLDEREND,wxSTC_MARK_BOXPLUSCONNECTED);
+    MarkerSetForeground(wxSTC_MARKNUM_FOLDEREND,wxColor(70,70,70));
+    MarkerSetBackground(wxSTC_MARKNUM_FOLDEREND,wxColor(128,128,128));
 
-    this->LoadNewFile(path);
+    MarkerDefine(wxSTC_MARKNUM_FOLDEROPENMID,wxSTC_MARK_BOXMINUSCONNECTED);
+    MarkerSetForeground(wxSTC_MARKNUM_FOLDEROPENMID,wxColor(70,70,70));
+    MarkerSetBackground(wxSTC_MARKNUM_FOLDEROPENMID,wxColor(128,128,128));
+
+    MarkerDefine(wxSTC_MARKNUM_FOLDERMIDTAIL, wxSTC_MARK_TCORNER);
+    MarkerSetForeground(wxSTC_MARKNUM_FOLDERMIDTAIL,wxColor(70,70,70));
+    MarkerSetBackground(wxSTC_MARKNUM_FOLDERMIDTAIL,wxColor(128,128,128));
+
+    MarkerDefine(wxSTC_MARKNUM_FOLDERTAIL,wxSTC_MARK_LCORNER);
+    MarkerSetForeground(wxSTC_MARKNUM_FOLDERTAIL,wxColor(70,70,70));
+    MarkerSetBackground(wxSTC_MARKNUM_FOLDERTAIL,wxColor(128,128,128));
+
+    MarkerDefine(wxSTC_MARKNUM_FOLDERSUB,wxSTC_MARK_VLINE);
+    MarkerSetForeground(wxSTC_MARKNUM_FOLDERSUB,wxColor(70,70,70));
+    MarkerSetBackground(wxSTC_MARKNUM_FOLDERSUB,wxColor(128,128,128));
+
+    MarkerDefine(wxSTC_MARKNUM_FOLDER,wxSTC_MARK_BOXPLUS);
+    MarkerSetForeground(wxSTC_MARKNUM_FOLDER,wxColor(70,70,70));
+    MarkerSetBackground(wxSTC_MARKNUM_FOLDER,wxColor(128,128,128));
+
+    MarkerDefine(wxSTC_MARKNUM_FOLDEROPEN,wxSTC_MARK_BOXMINUS);
+    MarkerSetForeground(wxSTC_MARKNUM_FOLDEROPEN,wxColor(70,70,70));
+    MarkerSetBackground(wxSTC_MARKNUM_FOLDEROPEN,wxColor(128,128,128));
+
+    MarkerEnableHighlight(true);
+    SetMarginSensitive(MY_FOLDMARGIN,true);
+
+    SetFoldLevel(0, 1024);
+    SetFoldLevel(1, 1024);
+    SetFoldLevel(2, 1024|wxSTC_FOLDLEVELHEADERFLAG);
+    SetFoldLevel(3, 1025);
+    SetFoldLevel(4, 1025);
+    SetFoldLevel(5, 1024);
+    SetFoldLevel(6, 1024|wxSTC_FOLDLEVELWHITEFLAG);
+
+    //events 
+    Bind(wxEVT_STC_MARGINCLICK, &CodeContainer::onMarginClick, this);
+    Bind(wxEVT_STC_STYLENEEDED, &CodeContainer::OnStyleNeeded, this);
+    Bind(wxEVT_STC_MODIFIED, &CodeContainer::OnChange, this);
+    Bind(wxEVT_STC_CHARADDED, &CodeContainer::CharAdd, this);
+    Bind(wxEVT_STC_MARGINCLICK, &CodeContainer::onMarginClick, this);
 }
 
 void CodeContainer::OnSave(wxCommandEvent& event) {
@@ -113,21 +159,27 @@ void CodeContainer::OnSave(wxCommandEvent& event) {
     }
 }
 
-void CodeContainer::onMarginClick(wxStyledTextEvent& event) {}
+void CodeContainer::onMarginClick(wxStyledTextEvent& event) {
+    int margin = event.GetMargin();
+    int position = event.GetPosition();
+    int line = LineFromPosition(position);
+    int foldLevel = GetFoldLevel(line);
+    bool headerFlag = (foldLevel & wxSTC_FOLDLEVELHEADERFLAG)!=0;
+
+    if(margin == MY_FOLDMARGIN && headerFlag) ToggleFold(line);
+}
 
 void CodeContainer::OnStyleNeeded(wxStyledTextEvent& event) {}
-
 void CodeContainer::highlightSTCsyntax(size_t fromPos,size_t toPos, wxString &text) {}
-
 void CodeContainer::setfoldlevels(size_t fromPos, int startfoldlevel, wxString& text) {}
 
 void CodeContainer::OnChange(wxStyledTextEvent& event) {
     wxString key = event.GetText();
-    if(this->GetModify()) {
+    if(GetModify()) {
         auto tabs = FindWindowById(ID_TABS);
         if(tabs) {
             for(auto&& tab : tabs->GetChildren()) {
-                if(tab->GetName() == this->GetFilename()) {
+                if(tab->GetName() == GetFilename()) {
                     auto close_ico = tab->GetChildren()[0]->GetChildren()[1];
                     auto unsaved_ico = tab->GetChildren()[0]->GetChildren()[2];
 
