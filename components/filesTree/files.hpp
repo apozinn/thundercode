@@ -32,7 +32,13 @@ public:
     	) {
 	        if(type == "dir") {
 	            this->CreateDir(parent, name, path);
-	        } else {
+	        }
+    	});
+
+    	fileManager->ListChildrens(
+        	path, [&](const std::string &path, const std::string &type, const std::string &name
+    	) {
+	        if(type == "file") {
 	            this->CreateFile(parent, name, path);
 	        }
     	});

@@ -147,6 +147,8 @@ void FilesTree::OnFileSelect(wxMouseEvent& event) {
     auto this_file = ((wxWindow*)obj)->GetParent();
     wxString path = this_file->GetName();
     this->OpenFile(path);
+
+    this_file->Lower();
 }
 
 void FilesTree::OpenFile(wxString path) {
@@ -208,8 +210,25 @@ void FilesTree::ToggleDir(wxMouseEvent& event) {
         ) {
             if(type == "dir") {
                 this->CreateDir(dir_childrens, name, path);                
-            } else {
-                this->CreateFile(dir_childrens, name, path);
+            }
+
+            auto next_parent = dir_childrens;
+            bool has_next_parent = true;
+            while(has_next_parent) {
+                if(next_parent->GetId() == ID_PROJECT_FILES_CTN) has_next_parent = false;
+                next_parent->SetSize(next_parent->GetSize().GetWidth(), next_parent->GetSize().GetHeight()+21);
+                next_parent->SetMinSize(wxSize(next_parent->GetSize().GetWidth(), next_parent->GetSize().GetHeight()+21));
+                if(next_parent->GetParent()) {
+                    next_parent = next_parent->GetParent();
+                } else has_next_parent = false;
+            }
+        });
+
+        fileManager->ListChildrens(
+            path.ToStdString(), [&](const std::string &path, const std::string &type, const std::string &name
+        ) {
+            if(type == "file") {
+                this->CreateFile(dir_childrens, name, path);                
             }
 
             auto next_parent = dir_childrens;
