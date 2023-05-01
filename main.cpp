@@ -175,6 +175,7 @@ MainFrame::MainFrame(
             tabs_container->ClearAllTabs();
         }
         files_tree->Update();
+        SetTitle("ThunderCode - "+project_name);
     }
 
     wxAcceleratorEntry entries[1];
@@ -211,6 +212,8 @@ void MainFrame::OnOpenFolder(wxCommandEvent& WXUNUSED(event)) {
         wxConfig *config = new wxConfig("ThunderCode");
         config->Write("workspace", project_path);
         delete config;
+
+        SetTitle("ThunderCode - "+project_name);
     }
 }
 

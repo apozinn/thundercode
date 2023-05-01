@@ -81,6 +81,8 @@ void FilesTree::CreateFile(
 
     wxPanel* file_container = new wxPanel(parent);
     file_container->SetName(path);
+    file_container->SetLabel("file_container");
+    file_container->Bind(wxEVT_LEFT_UP, &FilesTree::OnFileSelect, this);
     wxBoxSizer* file_ctn_sizer = new wxBoxSizer(wxHORIZONTAL);
 
     wxVector<wxBitmap> bitmaps;
@@ -89,14 +91,13 @@ void FilesTree::CreateFile(
     file_ctn_sizer->Add(file_icon, 0, wxEXPAND);
 
     wxStaticText* file_name = new wxStaticText(file_container, wxID_ANY, name);
+    file_name->SetName(path);
+    file_name->Bind(wxEVT_LEFT_UP, &FilesTree::OnFileSelect, this);
     file_name->SetFont(fontWithOtherSize(file_name, 18));
-    file_name->Connect(wxID_ANY, wxEVT_LEFT_UP, wxMouseEventHandler(FilesTree::OnFileSelect));
     file_ctn_sizer->Add(file_name, 0, wxEXPAND | wxLEFT | wxTOP, 2);
 
     file_container->SetSizerAndFit(file_ctn_sizer);
     parent_sizer->Add(file_container, 0, wxEXPAND | wxLEFT, 5);
-    parent_sizer->Layout();
-    parent->Update();
 }
 
 void FilesTree::CreateDir(
@@ -115,6 +116,8 @@ void FilesTree::CreateDir(
     wxBoxSizer* dir_ctn_sizer = new wxBoxSizer(wxVERTICAL);
 
     wxPanel* dir_props = new wxPanel(dir_container);
+    dir_props->SetLabel("dir_props");
+    dir_props->Bind(wxEVT_LEFT_UP, &FilesTree::ToggleDir, this);
     wxBoxSizer* props_sizer = new wxBoxSizer(wxHORIZONTAL);
     dir_ctn_sizer->Add(dir_props, 0, wxEXPAND);
 
@@ -124,8 +127,9 @@ void FilesTree::CreateDir(
     props_sizer->Add(dir_arrow, 0, wxEXPAND | wxTOP, 2);
 
     wxStaticText* dir_name = new wxStaticText(dir_props, wxID_ANY, name);
+    dir_name->SetName("dir_name");
+    dir_name->Bind(wxEVT_LEFT_UP, &FilesTree::ToggleDir, this);
     dir_name->SetFont(fontWithOtherSize(dir_name, 18));
-    dir_name->Connect(wxID_ANY, wxEVT_LEFT_UP, wxMouseEventHandler(FilesTree::ToggleDir));
     props_sizer->Add(dir_name, 0, wxEXPAND | wxLEFT, 4);
     dir_props->SetSizerAndFit(props_sizer);
 
@@ -136,19 +140,22 @@ void FilesTree::CreateDir(
 
     dir_container->SetSizerAndFit(dir_ctn_sizer);
     dir_childrens->Hide();
-
     parent_sizer->Add(dir_container, 0, wxEXPAND | wxLEFT, 5);
-    parent_sizer->Layout();
-    parent->Update();
 }
 
 void FilesTree::OnFileSelect(wxMouseEvent& event) {
-    wxObject* obj = event.GetEventObject();
-    auto this_file = ((wxWindow*)obj)->GetParent();
-    wxString path = this_file->GetName();
-    this->OpenFile(path);
+    auto file = ((wxWindow*)event.GetEventObject());
+    if(file->GetLabel() != "file_container") file = file->GetParent();
+    wxString path = file->GetName();
 
-    this_file->Lower();
+    if(path.size()) {
+        this->OpenFile(path);
+        if(selectedFile->GetId()) {
+            selectedFile->SetBackgroundColour(wxColor(45, 45, 45));
+        }
+        selectedFile = file;
+        selectedFile->SetBackgroundColour(wxColor(60, 60, 60));
+    }
 }
 
 void FilesTree::OpenFile(wxString path) {
@@ -197,8 +204,12 @@ void FilesTree::OpenFile(wxString path) {
     }
 }
 void FilesTree::ToggleDir(wxMouseEvent& event) {
-    wxObject* obj = event.GetEventObject();
-    auto dir_container = ((wxWindow*)obj)->GetGrandParent();
+    auto dir_container = ((wxWindow*)event.GetEventObject());
+    if(dir_container->GetLabel() == "dir_props") {
+        dir_container = dir_container->GetParent();
+    } else if(dir_container->GetName() == "dir_name") {
+        dir_container = dir_container->GetGrandParent();
+    }
 
     if(dir_container) {
         auto dir_arrow_ctn = ((wxStaticBitmap*)dir_container->GetChildren()[0]->GetChildren()[0]);

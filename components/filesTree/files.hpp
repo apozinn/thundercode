@@ -17,6 +17,7 @@ class FilesTree : public wxPanel {
     wxScrolled<wxPanel>* files_container;
     wxBoxSizer* file_ctn_sizer;
     wxScrolled<wxPanel>* project_files_ctn;
+    wxWindow* selectedFile;
 public:
 	FileManager* fileManager = new FileManager();
 	FilesTree(wxWindow* parent, wxWindowID ID);

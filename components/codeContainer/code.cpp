@@ -34,22 +34,53 @@ CodeContainer::CodeContainer(wxWindow* parent, wxWindowID ID, wxString path) : w
     LoadNewFile(path);
 
     //font styling
+    #ifdef __WXGTK__
+        wxFont font(10, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+        font.SetFaceName(wxT("Monospace"));
+    #else
+        wxFont font(10, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+    #endif
+
     StyleSetBackground(wxSTC_STYLE_DEFAULT, wxColor(70, 70, 70));
     StyleSetForeground(wxSTC_STYLE_DEFAULT, wxColor(255, 255, 255));
-    StyleSetFont(wxSTC_STYLE_DEFAULT, wxFontInfo(10).Family(wxFONTFAMILY_MODERN));
+    StyleSetFont(wxSTC_STYLE_DEFAULT, font);
 
     //clean style for load new font styles
     StyleClearAll();
 
     //margins styling
-    SetMarginWidth(0, TextWidth(wxSTC_STYLE_LINENUMBER, wxT("_9999")));
+    SetMarginWidth(0, TextWidth(wxSTC_STYLE_LINENUMBER, wxT("_99999")));
     SetMarginWidth(MY_FOLDMARGIN, 10);
     SetMarginType(MARGIN_LINE_NUMBERS, wxSTC_MARGIN_NUMBER);
     StyleSetForeground(wxSTC_STYLE_LINENUMBER, wxColor(45, 120, 210));
     StyleSetBackground(wxSTC_STYLE_LINENUMBER, wxColor(70, 70, 70));
 
+    SetMarginType(1, wxSTC_MARGIN_SYMBOL);
+    SetMarginMask(1, wxSTC_MASK_FOLDERS);
+    SetMarginWidth(1, 16);
+    SetMarginSensitive(1, true);
+
+    //fold
+    SetProperty(wxT("fold"), wxT("1"));
+    SetProperty(wxT("fold.comment"), wxT("1"));
+    SetProperty(wxT("fold.compact"), wxT("1"));
+    SetProperty(wxT("fold.preprocessor"), wxT("1"));
+    SetProperty(wxT("fold.html"), wxT("1"));
+    SetProperty(wxT("fold.html.preprocessor"), wxT("1"));
+    SetFoldFlags(wxSTC_FOLDFLAG_LINEBEFORE_CONTRACTED | wxSTC_FOLDFLAG_LINEAFTER_CONTRACTED);
+
+    SetMarginWidth(2, 0);
     SetCaretForeground(wxColour(wxT("WHITE")));
     SetLexer(wxSTC_LEX_CPP);
+    SetKeyWords(0, wxT("asm auto bool break case catch char class const const_cast \
+                              continue default delete do double dynamic_cast else enum explicit \
+                              export extern false float for friend goto if inline int long \
+                              mutable namespace new operator private protected public register \
+                              reinterpret_cast return short signed sizeof static static_cast \
+                              struct switch template throw true try typedef typeid \
+                              typename union unsigned using virtual void volatile wchar_t \
+                              while"));
+    SetKeyWords(1, wxT("this"));
 
     //  
     StyleSetForeground(wxSTC_C_DEFAULT, wxColour(255, 255, 255));
@@ -64,11 +95,11 @@ CodeContainer::CodeContainer(wxWindow* parent, wxWindowID ID, wxString path) : w
     StyleSetForeground(wxSTC_C_COMMENTDOCKEYWORD , wxColour(115, 115, 115));
     StyleSetForeground(wxSTC_C_COMMENTDOCKEYWORDERROR , wxColour(115, 115, 115));
     StyleSetForeground(wxSTC_C_NUMBER, wxColour(230, 230, 0));
-    StyleSetForeground(wxSTC_C_WORD, wxColour(230, 200, 0));
-    StyleSetForeground(wxSTC_C_WORD2, wxColour(230, 200, 0));
+    StyleSetForeground(wxSTC_C_WORD, wxColour(206, 42, 235));
+    StyleSetForeground(wxSTC_C_WORD2, wxColour(17, 118, 250));
     StyleSetForeground(wxSTC_C_CHARACTER, wxColour(230, 200, 0));
     StyleSetForeground(wxSTC_C_UUID, wxColour(230, 200, 0));
-    StyleSetForeground(wxSTC_C_PREPROCESSOR , wxColour(196, 35, 217));
+    StyleSetForeground(wxSTC_C_PREPROCESSOR , wxColour(117, 66, 245));
     StyleSetForeground(wxSTC_C_PREPROCESSORCOMMENTDOC , wxColour(200, 80, 220));
     StyleSetForeground(wxSTC_C_OPERATOR , wxColour(16, 230, 190));
     StyleSetForeground(wxSTC_C_REGEX , wxColour(100, 230, 190));
@@ -160,13 +191,14 @@ void CodeContainer::OnSave(wxCommandEvent& event) {
 }
 
 void CodeContainer::onMarginClick(wxStyledTextEvent& event) {
-    int margin = event.GetMargin();
-    int position = event.GetPosition();
-    int line = LineFromPosition(position);
-    int foldLevel = GetFoldLevel(line);
-    bool headerFlag = (foldLevel & wxSTC_FOLDLEVELHEADERFLAG)!=0;
+    if (event.GetMargin() == 1) {
+        int lineClick = LineFromPosition(event.GetPosition());
+        int levelClick = GetFoldLevel(lineClick);
 
-    if(margin == MY_FOLDMARGIN && headerFlag) ToggleFold(line);
+        if ((levelClick & wxSTC_FOLDLEVELHEADERFLAG) > 0) {
+            ToggleFold(lineClick);
+        }
+    }
 }
 
 void CodeContainer::OnStyleNeeded(wxStyledTextEvent& event) {}
