@@ -2,13 +2,13 @@
 #include "../codeContainer/code.hpp"
 #include "../../members/emptyWindow.cpp"
 
-Tabs::Tabs(wxPanel* parent, wxWindowID ID) : wxScrolled<wxPanel>(parent, ID) 
-{
+Tabs::Tabs(wxPanel* parent, wxWindowID ID) : wxScrolled<wxPanel>(parent, ID) {
 	this->SetBackgroundColour(wxColor(55, 55, 55));
 	sizer = new wxBoxSizer(wxVERTICAL);
     this->AddTab("ThunderCode", "initial_tab");
 	this->SetSizerAndFit(sizer);
     this->SetScrollRate(20, 20);
+    EnableScrolling(true, false);
 }
 
 void Tabs::AddTab(wxString tab_name, wxString path) {
@@ -69,6 +69,7 @@ void Tabs::AddTab(wxString tab_name, wxString path) {
     sizer->Add(new_tab, 0);
     selected_tab = path;
     this->FitInside();
+    Scroll(1000, 0);
 }
 
 void Tabs::ClearTab(wxString tab_path) {

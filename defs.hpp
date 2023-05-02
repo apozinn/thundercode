@@ -40,6 +40,7 @@ enum {
     ID_FOCUS_PAGE,
     ID_STTSBAR_FILE_EXT,
     ID_STTSBAR_TAB_SIZE,
+    ID_STTSBAR_CODELOCALE,
 };
 
 wxString project_path;

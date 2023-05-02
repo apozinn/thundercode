@@ -32,6 +32,11 @@ StatusBar::StatusBar(wxFrame* parent, wxWindowID ID) : wxPanel(parent, ID)
 	wxPanel* right_ctn = new wxPanel(this);
 	wxBoxSizer* right_ctn_sizer = new wxBoxSizer(wxHORIZONTAL);
 
+	wxStaticText* code_locale = new wxStaticText(right_ctn, ID_STTSBAR_CODELOCALE, "");
+	code_locale->SetFont(fontWithOtherSize(code_locale, 15));
+	code_locale->SetMinSize(wxSize(105, 15));
+	right_ctn_sizer->Add(code_locale, 0, wxALIGN_CENTER | wxRIGHT, 4);
+
 	wxStaticText* tab_size = new wxStaticText(right_ctn, ID_STTSBAR_TAB_SIZE, "");
 	tab_size->SetFont(fontWithOtherSize(tab_size, 15));
 	tab_size->SetMinSize(wxSize(60, 15));

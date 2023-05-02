@@ -52,7 +52,7 @@ CodeContainer::CodeContainer(wxWindow* parent, wxWindowID ID, wxString path) : w
     SetMarginWidth(0, TextWidth(wxSTC_STYLE_LINENUMBER, wxT("_99999")));
     SetMarginWidth(MY_FOLDMARGIN, 10);
     SetMarginType(MARGIN_LINE_NUMBERS, wxSTC_MARGIN_NUMBER);
-    StyleSetForeground(wxSTC_STYLE_LINENUMBER, wxColor(45, 120, 210));
+    StyleSetForeground(wxSTC_STYLE_LINENUMBER, wxColor(128, 128, 128));
     StyleSetBackground(wxSTC_STYLE_LINENUMBER, wxColor(70, 70, 70));
 
     SetMarginType(1, wxSTC_MARGIN_SYMBOL);
@@ -161,6 +161,7 @@ CodeContainer::CodeContainer(wxWindow* parent, wxWindowID ID, wxString path) : w
     Bind(wxEVT_STC_MODIFIED, &CodeContainer::OnChange, this);
     Bind(wxEVT_STC_CHARADDED, &CodeContainer::CharAdd, this);
     Bind(wxEVT_STC_MARGINCLICK, &CodeContainer::onMarginClick, this);
+    Bind(wxEVT_LEFT_UP, &CodeContainer::onClick, this);
 }
 
 void CodeContainer::OnSave(wxCommandEvent& event) {
@@ -255,4 +256,12 @@ void CodeContainer::CharAdd(wxStyledTextEvent& event) {
     if(chr == '`') InsertText(GetCurrentPos(), "`");
     if(chr == '[') InsertText(GetCurrentPos(), "]");
     if(event.GetKey() == 39) InsertText(GetCurrentPos(), "'");
+}
+
+void CodeContainer::onClick(wxMouseEvent& event) {
+    auto code_locale = ((wxStaticText*)FindWindowById(ID_STTSBAR_CODELOCALE));
+    if(code_locale) {
+        code_locale->SetLabel("Line "+std::to_string(GetCurrentLine()+1)+", Column "+std::to_string(GetColumn(GetCurrentPos())));
+    }
+    event.Skip();
 }

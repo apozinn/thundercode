@@ -36,6 +36,11 @@ public:
 
         parent_sizer->Layout();
         parent_sizer->Fit(parent);
+
+        auto code_locale = ((wxStaticText*)FindWindowById(ID_STTSBAR_CODELOCALE));
+        if(code_locale) {
+            code_locale->SetLabel("Line "+std::to_string(GetCurrentLine())+", Column "+std::to_string(GetColumn(GetCurrentPos())));
+        }
     }
     void SetFilename(wxString n_filename) {filename = n_filename;};
     wxString GetFilename() {return filename;};
@@ -45,9 +50,8 @@ public:
     void setfoldlevels(size_t fromPos,int startfoldlevel,wxString &text);
 	void OnChange(wxStyledTextEvent& event);
     void CharAdd(wxStyledTextEvent& event);
+    void onClick(wxMouseEvent& event);
 private:
-    wxColor m_GCodecolor{255,0,0};
-    int m_stylemask=0;
     wxString filename;
     wxDECLARE_NO_COPY_CLASS(CodeContainer);
     wxDECLARE_EVENT_TABLE();

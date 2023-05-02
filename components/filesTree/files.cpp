@@ -66,6 +66,7 @@ void FilesTree::Update() {
 
     project_files_ctn->FitInside();
     project_files_ctn->SetScrollRate(20, 20);
+    selectedFile = new wxPanel(this);
 }
 
 void FilesTree::CreateFile(
@@ -150,7 +151,7 @@ void FilesTree::OnFileSelect(wxMouseEvent& event) {
 
     if(path.size()) {
         this->OpenFile(path);
-        if(selectedFile->GetId()) {
+        if(selectedFile) {
             selectedFile->SetBackgroundColour(wxColor(45, 45, 45));
         }
         selectedFile = file;
