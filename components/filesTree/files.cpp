@@ -27,6 +27,7 @@ FilesTree::FilesTree(wxWindow* parent, wxWindowID ID) : wxPanel(parent, ID)
     wxBoxSizer* pjt_files_sizer = new wxBoxSizer(wxVERTICAL);
 
     wxPanel* project_tools = new wxPanel(project_files, ID_PROJECT_TOOLS_BAR);
+    project_tools->Bind(wxEVT_LEFT_UP, &FilesTree::ToggleDir, this);
     pjt_files_sizer->Add(project_tools, 0, wxEXPAND);
     wxBoxSizer* pjt_tools_sizer = new wxBoxSizer(wxHORIZONTAL);
 
@@ -36,7 +37,7 @@ FilesTree::FilesTree(wxWindow* parent, wxWindowID ID) : wxPanel(parent, ID)
     pjt_tools_sizer->Add(pjt_arrow, 0, wxEXPAND | wxBOTTOM, 2);
 
     wxStaticText* pjt_name = new wxStaticText(project_tools, ID_PJT_TOOLS_PJTNAME, project_name);
-    pjt_name->Connect(wxID_ANY, wxEVT_LEFT_UP, wxMouseEventHandler(FilesTree::ToggleDir));
+    pjt_name->Bind(wxEVT_LEFT_UP, &FilesTree::ToggleDir, this);
     pjt_name->SetFont(fontWithOtherSize(pjt_name, 16));
     pjt_tools_sizer->Add(pjt_name, 1, wxEXPAND | wxLEFT, 4);
     project_tools->SetSizerAndFit(pjt_tools_sizer);
@@ -82,7 +83,7 @@ void FilesTree::CreateFile(
 
     wxPanel* file_container = new wxPanel(parent);
     file_container->SetName(path);
-    file_container->SetLabel("file_container");
+    file_container->SetLabel(path+"_file_container");
     file_container->Bind(wxEVT_LEFT_UP, &FilesTree::OnFileSelect, this);
     wxBoxSizer* file_ctn_sizer = new wxBoxSizer(wxHORIZONTAL);
 
@@ -146,7 +147,7 @@ void FilesTree::CreateDir(
 
 void FilesTree::OnFileSelect(wxMouseEvent& event) {
     auto file = ((wxWindow*)event.GetEventObject());
-    if(file->GetLabel() != "file_container") file = file->GetParent();
+    if(file->GetLabel().find("file_container") == std::string::npos) file = file->GetParent();
     wxString path = file->GetName();
 
     if(path.size()) {
@@ -206,6 +207,28 @@ void FilesTree::OpenFile(wxString path) {
 }
 void FilesTree::ToggleDir(wxMouseEvent& event) {
     auto dir_container = ((wxWindow*)event.GetEventObject());
+
+    if(dir_container->GetId() == ID_PROJECT_TOOLS_BAR || dir_container->GetId() == ID_PJT_TOOLS_PJTNAME) {
+        dir_container = project_files_ctn;
+    }
+
+    if(dir_container == project_files_ctn) {
+        auto dir_arrow_ctn = ((wxStaticBitmap*)FindWindowById(ID_PJT_TOOLS_ARROW));
+        auto arrow_bit = dir_arrow_ctn->GetBitmap();
+        wxVector<wxBitmap> bitmaps;
+
+        if(dir_container->IsShown()) {
+            dir_container->Hide();
+            bitmaps.push_back(wxBitmap(arrow_bit.ConvertToImage().Rotate90(true), -1));            
+        } else {
+            dir_container->Show();
+            bitmaps.push_back(wxBitmap(arrow_bit.ConvertToImage().Rotate90(false), -1));
+        }
+
+        dir_arrow_ctn->SetBitmap(wxBitmapBundle::FromBitmaps(bitmaps));
+        return;
+    }
+
     if(dir_container->GetLabel() == "dir_props") {
         dir_container = dir_container->GetParent();
     } else if(dir_container->GetName() == "dir_name") {

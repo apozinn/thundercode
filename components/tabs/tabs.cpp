@@ -1,5 +1,6 @@
 #include "tabs.hpp"
 #include "../codeContainer/code.hpp"
+#include "../filesTree/files.hpp"
 #include "../../members/emptyWindow.cpp"
 
 Tabs::Tabs(wxPanel* parent, wxWindowID ID) : wxScrolled<wxPanel>(parent, ID) {
@@ -95,6 +96,20 @@ void Tabs::ClearTab(wxString tab_path) {
                         selected_tab = next_tab->GetName();
                     }
 
+                    auto file_ctn = FindWindowByLabel(selected_tab+"_file_container");
+                    if(file_ctn) {
+                        auto fileContainer = ((FilesTree*)FindWindowById(ID_FILES_TREE));
+                        if(fileContainer) {
+                            if(!prev_tab && !next_tab) {
+                                fileContainer->selectedFile->SetBackgroundColour(wxColor(45, 45, 45));
+                            } else {
+                                fileContainer->selectedFile->SetBackgroundColour(wxColor(45, 45, 45));
+                                fileContainer->SetSelectedFile(file_ctn);
+                                file_ctn->SetBackgroundColour(wxColor(60, 60, 60));
+                            }
+                        }
+                    }
+
                     auto new_ct = FindWindowByLabel(selected_tab+"_codeContainer");
                     auto new_it = FindWindowByLabel(selected_tab+"_imgContainer");
 
@@ -116,6 +131,11 @@ void Tabs::ClearTab(wxString tab_path) {
                         auto file_ext_comp = ((wxStaticText*)FindWindowById(ID_STTSBAR_FILE_EXT));
                         if(file_ext_comp) {
                             file_ext_comp->SetLabel("");
+                        }
+
+                        auto file_clocale_comp = ((wxStaticText*)FindWindowById(ID_STTSBAR_CODELOCALE));
+                        if(file_clocale_comp) {
+                            file_clocale_comp->SetLabel("");
                         }
                     }
                 }

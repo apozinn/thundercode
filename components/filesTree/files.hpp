@@ -17,8 +17,8 @@ class FilesTree : public wxPanel {
     wxScrolled<wxPanel>* files_container;
     wxBoxSizer* file_ctn_sizer;
     wxScrolled<wxPanel>* project_files_ctn;
-    wxWindow* selectedFile;
 public:
+    wxWindow* selectedFile;
 	FileManager* fileManager = new FileManager();
 	FilesTree(wxWindow* parent, wxWindowID ID);
 	void Update();
@@ -43,6 +43,9 @@ public:
 	            this->CreateFile(parent, name, path);
 	        }
     	});
+	}
+	void SetSelectedFile(wxWindow* new_window) {
+		selectedFile = new_window;
 	}
 	wxDECLARE_NO_COPY_CLASS(FilesTree);
 };
