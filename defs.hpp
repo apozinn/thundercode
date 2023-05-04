@@ -41,6 +41,7 @@ enum {
     ID_STTSBAR_FILE_EXT,
     ID_STTSBAR_TAB_SIZE,
     ID_STTSBAR_CODELOCALE,
+    ID_FOCUS_MODE,
 };
 
 wxString project_path;

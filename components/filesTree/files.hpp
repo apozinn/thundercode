@@ -27,6 +27,7 @@ public:
 	void OnFileSelect(wxMouseEvent& event);
 	void ToggleDir(wxMouseEvent& event);
 	void OpenFile(wxString path);
+	void onTopMenuClick(wxMouseEvent& event);
 	void Create(std::string path, wxWindow* parent) {
 		fileManager->ListChildrens(
         	path, [&](const std::string &path, const std::string &type, const std::string &name

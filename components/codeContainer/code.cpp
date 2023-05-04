@@ -94,7 +94,8 @@ CodeContainer::CodeContainer(wxWindow* parent, wxWindowID ID, wxString path) : w
     StyleSetForeground(wxSTC_C_COMMENTLINEDOC , wxColour(115, 115, 115));
     StyleSetForeground(wxSTC_C_COMMENTDOCKEYWORD , wxColour(115, 115, 115));
     StyleSetForeground(wxSTC_C_COMMENTDOCKEYWORDERROR , wxColour(115, 115, 115));
-    StyleSetForeground(wxSTC_C_NUMBER, wxColour(230, 230, 0));
+    StyleSetForeground(wxSTC_C_NUMBER, wxColour(255, 155, 0));
+
     StyleSetForeground(wxSTC_C_WORD, wxColour(206, 42, 235));
     StyleSetForeground(wxSTC_C_WORD2, wxColour(17, 118, 250));
     StyleSetForeground(wxSTC_C_CHARACTER, wxColour(230, 200, 0));
@@ -234,11 +235,11 @@ void CodeContainer::CharAdd(wxStyledTextEvent& event) {
     if (chr == '\n') {
         int lineInd = 0;
         if (currentLine > 0) {
-            lineInd = GetLineIndentation(currentLine - 1);
+            lineInd = GetLineIndentation(currentLine-1);
         }
         if (lineInd == 0) return;
-        SetLineIndentation (currentLine, lineInd);
-        GotoPos(PositionFromLine (currentLine) + lineInd);
+        SetLineIndentation(currentLine, lineInd);
+        GotoPos(PositionFromLine(currentLine) + lineInd-3);
     } else if (chr == '#') {
         wxString s = "define?0 elif?0 else?0 endif?0 error?0 if?0 ifdef?0 "
                      "ifndef?0 include?0 line?0 pragma?0 undef?0";

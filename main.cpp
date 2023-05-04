@@ -63,7 +63,7 @@ class MainFrame: public wxFrame {
     wxPanel* main_code;
     Tabs* tabs_container;
     MenuBar* menu_bar;
-    EmptyWindow* empty_window;
+    EmptyWindow* empty_window
 public:
     MainFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
     void OnQuit(wxCommandEvent& event);
@@ -95,6 +95,7 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_MENU(ID_HIDDE_MENU_BAR, MainFrame::OnHiddeMenuBar)
     EVT_MENU(ID_HIDDE_STATUS_BAR, MainFrame::OnHiddeStatusBar)
     EVT_MENU(ID_HIDDE_TABS, MainFrame::OnHiddeTabs)
+    EVT_MENU(ID_FOCUS_MODE, SideNavigation::OnFocusMode)
 wxEND_EVENT_TABLE()
 
 IMPLEMENT_APP(ThunderCode)
@@ -108,7 +109,7 @@ bool ThunderCode::OnInit() {
 
 MainFrame::MainFrame(
     const wxString& title, const wxPoint& pos, const wxSize& size
-) : wxFrame( NULL, ID_MAIN_FRAME, title, pos, size)
+) : wxFrame(NULL, ID_MAIN_FRAME, title, pos, size)
 {
     if(wxFile::Exists("./icons/settings.png")) icons_dir = "./icons/";
     else if(wxFile::Exists("../icons/settings.png")) icons_dir = "../icons/";

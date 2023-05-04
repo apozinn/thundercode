@@ -19,6 +19,7 @@ FilesTree::FilesTree(wxWindow* parent, wxWindowID ID) : wxPanel(parent, ID)
     top_ctn_sizer->Add(top_ctn_pjt, 1, wxEXPAND | wxTOP, 4);
 
     wxStaticText* top_ctn_menu = new wxStaticText(top_content, ID_FILES_TREE_TOP_MENU, "...");
+    top_ctn_menu->Bind(wxEVT_LEFT_UP, &FilesTree::onTopMenuClick, this);
     top_ctn_sizer->Add(top_ctn_menu, 0, wxEXPAND);
     top_content->SetSizerAndFit(top_ctn_sizer);
     aaa_sizer->Add(top_content, 0, wxEXPAND | wxTOP | wxBOTTOM, 8);
@@ -67,7 +68,7 @@ void FilesTree::Update() {
 
     project_files_ctn->FitInside();
     project_files_ctn->SetScrollRate(20, 20);
-    selectedFile = new wxPanel(this);
+    selectedFile = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(0, 0));
 }
 
 void FilesTree::CreateFile(
@@ -306,4 +307,13 @@ void FilesTree::ToggleDir(wxMouseEvent& event) {
             dir_container->GetParent()->Update();
         }
     }
+}
+
+void FilesTree::onTopMenuClick(wxMouseEvent& event) {
+    wxMenu* menuFile = new wxMenu;
+    menuFile->Append(wxID_ANY, _("&New File"));
+    menuFile->Append(ID_OPEN_FOLDER, _("&New Folder"));
+    menuFile->Append(wxID_ANY, _("&Rename"));
+    menuFile->Append(ID_OPEN_FOLDER, _("&Open terminal"));
+    PopupMenu(menuFile);
 }

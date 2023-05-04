@@ -2,7 +2,6 @@
 #include "../../sidePages/search/search.cpp"
 #include "../../sidePages/builder/builder.cpp"
 #include "../../sidePages/extensions/extensions.cpp"
-// #include "../../sidePages/settings/settings.cpp"
 #include "../../sidePages/focus/focus.cpp"
 
 SideNavigation::SideNavigation(wxPanel* parent, wxWindowID ID) : wxPanel(parent, ID) 
@@ -133,96 +132,124 @@ void SideNavigation::SelectPage(wxMouseEvent& event) {
         wxString page_name = target->GetName();
 
         if(page_name.size() && page_name != "panel") {
-            auto side_bar = FindWindowById(ID_FILES_TREE);
-            auto side_bar_sizer = side_bar->GetSizer();
-            if(!side_bar) {
-                return;
-            }
+            auto files_container = FindWindowById(ID_FILES_TREE);
+            auto files_container_sizer = files_container->GetSizer();
+            auto main_container = FindWindowById(ID_MAIN_CONTAINER);
 
-            for(auto& children : side_bar->GetChildren()) {
-                children->Hide();
-            }
-
-            if(page_name == "code_page") {
-                FindWindowById(ID_MAIN_SPLITTER)->Show();
-                if(FindWindowById(ID_SETTINGS_PAGE)) {
-                    if(settings_page->IsShown()) settings_page->Hide();
-                }
-                FindWindowById(ID_TRIPLE_A)->Show();
-            }
-
-            if(page_name == "search_page") {
-                if(FindWindowById(ID_SEARCH_PAGE_INPUT)) {
-                    auto input = FindWindowById(ID_SEARCH_PAGE_INPUT);
-                    input->Show();
-                } else {
-                    SidePage_Search* search_page = new SidePage_Search(side_bar, ID_SEARCH_PAGE_INPUT);
-                    side_bar_sizer->Add(search_page, 1, wxEXPAND | wxLEFT, 5);
-                    side_bar->Update();
-                    side_bar_sizer->Layout();
-                }
-            }
-
-            if(page_name == "builder_page") {
-                if(FindWindowById(ID_BUILDER_PAGE)) {
-                    auto builder_pg = FindWindowById(ID_BUILDER_PAGE);
-                    builder_pg->Show();
-                } else {
-                    SidePage_Builder* builder_page = new SidePage_Builder(side_bar, ID_BUILDER_PAGE);
-                    side_bar_sizer->Add(builder_page, 1, wxEXPAND | wxLEFT, 5);
-                    side_bar->Update();
-                    side_bar_sizer->Layout();
-                }
-            }
-
-            if(page_name == "extensions_page") {
-                if(FindWindowById(ID_EXTENSIONS_PAGE)) {
-                    auto extensions_pg = FindWindowById(ID_EXTENSIONS_PAGE);
-                    extensions_pg->Show();
-                } else {
-                    SidePage_Extensions* extensions_page = new SidePage_Extensions(side_bar, ID_EXTENSIONS_PAGE);
-                    side_bar_sizer->Add(extensions_page, 1, wxEXPAND | wxLEFT, 5);
-                    side_bar->Update();
-                    side_bar_sizer->Layout();
-                }
-            }
-
-            if(page_name == "settings_page") {
-                auto main_container = FindWindowById(ID_MAIN_CONTAINER);
-                if(main_container) {
-                    auto main_ctn_sizer = main_container->GetSizer();
-                    settings_page = ((SettingsPage*)FindWindowById(ID_SETTINGS_PAGE));
-                    FindWindowById(ID_MAIN_SPLITTER)->Hide();
-                    if(settings_page) {
-                        if(!settings_page->IsShown()) settings_page->Show();
-                    } else {
-                        settings_page = new SettingsPage(main_container, ID_SETTINGS_PAGE);
-                        main_ctn_sizer->Add(settings_page, 1, wxEXPAND);
-                    }
-
-                    main_ctn_sizer->Layout();
-                    main_container->Update();
-                }
-            }
+            if(!files_container || !main_container) return;
 
             if(page_name == "focus_page") {
-                if(FindWindowById(ID_FOCUS_PAGE)) {
-                    auto focus_pg = FindWindowById(ID_FOCUS_PAGE);
-                    focus_pg->Show();
+                return;
+                auto main_container = FindWindowById(ID_MAIN_CONTAINER);
+                auto files_container = FindWindowById(ID_FILES_TREE);
+                auto main_splitter = ((wxSplitterWindow*)FindWindowById(ID_MAIN_SPLITTER));
+                auto status_bar = FindWindowById(ID_STATUS_BAR);
+                auto tabs = FindWindowById(ID_TABS);
+                auto side_navaigation = FindWindowById(ID_SIDE_NAVIGATION);
+                auto main_code = FindWindowById(ID_MAIN_CODE);
+
+                if(
+                    !main_container ||
+                    !files_container ||
+                    !main_splitter ||
+                    !status_bar ||
+                    !tabs ||
+                    !side_navaigation ||
+                    !main_code
+                ) return;
+
+                auto main_frame = status_bar->GetParent();
+
+                if(focusModeIsEnable) {
+                    side_navaigation->Show();
+                    main_splitter->SplitVertically(files_container, main_code, 1);
+                    tabs->Show();
+                    status_bar->Show();
+                    focusModeIsEnable = false;
                 } else {
-                    SidePage_Focus* focus_page = new SidePage_Focus(side_bar, ID_FOCUS_PAGE);
-                    side_bar_sizer->Add(focus_page, 1, wxEXPAND | wxLEFT, 5);
-                    side_bar->Update();
-                    side_bar_sizer->Layout();
+                    side_navaigation->Hide();
+                    main_splitter->Unsplit(files_container);
+                    tabs->Hide();
+                    status_bar->Hide();
+                    focusModeIsEnable = true;
+                }
+
+                main_container->GetSizer()->Layout();
+                main_container->Update();
+                
+                if(main_frame) {
+                    // main_frame->GetSizer()->Layout();
+                    // main_frame->GetParent()->Update();
+                }
+            } else {
+                for(auto& children : files_container->GetChildren()) {
+                    children->Hide();
+                }
+
+                if(page_name == "code_page") {
+                    FindWindowById(ID_MAIN_SPLITTER)->Show();
+                    if(FindWindowById(ID_SETTINGS_PAGE)) {
+                        if(settings_page->IsShown()) settings_page->Hide();
+                    }
+                    FindWindowById(ID_TRIPLE_A)->Show();
+                }
+
+                if(page_name == "search_page") {
+                    if(FindWindowById(ID_SEARCH_PAGE_INPUT)) {
+                        auto input = FindWindowById(ID_SEARCH_PAGE_INPUT);
+                        input->Show();
+                    } else {
+                        SidePage_Search* search_page = new SidePage_Search(files_container, ID_SEARCH_PAGE_INPUT);
+                        files_container_sizer->Add(search_page, 1, wxEXPAND | wxLEFT, 5);
+                        files_container->Update();
+                        files_container_sizer->Layout();
+                    }
+                }
+
+                if(page_name == "builder_page") {
+                    if(FindWindowById(ID_BUILDER_PAGE)) {
+                        auto builder_pg = FindWindowById(ID_BUILDER_PAGE);
+                        builder_pg->Show();
+                    } else {
+                        SidePage_Builder* builder_page = new SidePage_Builder(files_container, ID_BUILDER_PAGE);
+                        files_container_sizer->Add(builder_page, 1, wxEXPAND | wxLEFT, 5);
+                        files_container->Update();
+                        files_container_sizer->Layout();
+                    }
+                }
+
+                if(page_name == "extensions_page") {
+                    if(FindWindowById(ID_EXTENSIONS_PAGE)) {
+                        auto extensions_pg = FindWindowById(ID_EXTENSIONS_PAGE);
+                        extensions_pg->Show();
+                    } else {
+                        SidePage_Extensions* extensions_page = new SidePage_Extensions(files_container, ID_EXTENSIONS_PAGE);
+                        files_container_sizer->Add(extensions_page, 1, wxEXPAND | wxLEFT, 5);
+                        files_container->Update();
+                        files_container_sizer->Layout();
+                    }
+                }
+
+                if(page_name == "settings_page") {
+                    if(main_container) {
+                        auto main_ctn_sizer = main_container->GetSizer();
+                        settings_page = ((SettingsPage*)FindWindowById(ID_SETTINGS_PAGE));
+                        FindWindowById(ID_MAIN_SPLITTER)->Hide();
+                        if(settings_page) {
+                            if(!settings_page->IsShown()) settings_page->Show();
+                        } else {
+                            settings_page = new SettingsPage(main_container, ID_SETTINGS_PAGE);
+                            main_ctn_sizer->Add(settings_page, 1, wxEXPAND);
+                        }
+    					
+                        main_ctn_sizer->Layout();
+                        main_container->Update();
+                    }
                 }
             }
 
-            for(
-                auto& children : FindWindowById(ID_SIDE_NAVIGATION)->GetChildren()
-            ) {
-                for(
-                    auto& c_ : children->GetChildren()
-                ) {
+            for(auto& children : GetChildren()) {
+                for(auto& c_ : children->GetChildren()) {
                     if(c_->GetName() != page_name) {
                         c_->GetChildren()[0]->SetBackgroundColour(wxColor(36, 36, 36));
                     } else {
@@ -236,12 +263,55 @@ void SideNavigation::SelectPage(wxMouseEvent& event) {
 
 void SideNavigation::OnHover(wxMouseEvent& event) {
     auto target = ((wxPanel*)event.GetEventObject());
-
     if(target) {}
 }
 
 void SideNavigation::OnEndHover(wxMouseEvent& event) {
     auto target = ((wxPanel*)event.GetEventObject());
-
     if(target) {}
+}
+
+void SideNavigation::OnFocusMode(wxCommandEvent& WXUNUSED(event)) {
+    return;
+    auto main_container = FindWindowById(ID_MAIN_CONTAINER);
+    auto files_container = FindWindowById(ID_FILES_TREE);
+    auto main_splitter = ((wxSplitterWindow*)FindWindowById(ID_MAIN_SPLITTER));
+    auto status_bar = FindWindowById(ID_STATUS_BAR);
+    auto tabs = FindWindowById(ID_TABS);
+    auto side_navaigation = FindWindowById(ID_SIDE_NAVIGATION);
+    auto main_code = FindWindowById(ID_MAIN_CODE);
+
+    if(
+        !main_container ||
+        !files_container ||
+        !main_splitter ||
+        !status_bar ||
+        !tabs ||
+        !side_navaigation ||
+        !main_code
+    ) return;
+
+    auto main_frame = status_bar->GetParent();
+
+    if(focusModeIsEnable) {
+        side_navaigation->Show();
+        main_splitter->SplitVertically(files_container, main_code, 1);
+        tabs->Show();
+        status_bar->Show();
+        focusModeIsEnable = false;
+    } else {
+        side_navaigation->Hide();
+        main_splitter->Unsplit(files_container);
+        tabs->Hide();
+        status_bar->Hide();
+        focusModeIsEnable = true;
+    }
+
+    main_container->GetSizer()->Layout();
+    main_container->Update();
+
+     if(main_frame) {
+        // main_frame->GetSizer()->Layout();
+        // main_frame->GetParent()->Update();
+    }
 }
