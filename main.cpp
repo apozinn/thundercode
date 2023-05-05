@@ -63,7 +63,7 @@ class MainFrame: public wxFrame {
     wxPanel* main_code;
     Tabs* tabs_container;
     MenuBar* menu_bar;
-    EmptyWindow* empty_window
+    EmptyWindow* empty_window;
 public:
     MainFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
     void OnQuit(wxCommandEvent& event);
@@ -101,11 +101,12 @@ wxEND_EVENT_TABLE()
 IMPLEMENT_APP(ThunderCode)
 
 bool ThunderCode::OnInit() {
+
     MainFrame* frame = new MainFrame(_("ThunderCode"), wxPoint(50, 50),  wxSize(900, 800));
     frame->Show(true);
     SetTopWindow(frame);
     return true;
-} 
+}
 
 MainFrame::MainFrame(
     const wxString& title, const wxPoint& pos, const wxSize& size

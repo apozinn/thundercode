@@ -231,16 +231,37 @@ void CodeContainer::OnChange(wxStyledTextEvent& event) {
 void CodeContainer::CharAdd(wxStyledTextEvent& event) {
     char chr = (char)event.GetKey();
     int currentLine = GetCurrentLine();
+	char previous_char = (char)GetCharAt(GetCurrentPos()-2);
+	std::cout << previous_char << " pc\n";
 
     if (chr == '\n') {
-        int lineInd = 0;
-        if (currentLine > 0) {
-            lineInd = GetLineIndentation(currentLine-1);
+        int currentLineInd;
+        int nextLineInd;
+
+        if(currentLine > 0) {
+            currentLineInd = GetLineIndentation(currentLine-1);
+            nextLineInd = GetLineIndentation(currentLine+1);
         }
-        if (lineInd == 0) return;
-        SetLineIndentation(currentLine, lineInd);
-        GotoPos(PositionFromLine(currentLine) + lineInd-3);
-    } else if (chr == '#') {
+
+        if(previous_char == '{' && !nextLineInd) {
+            SetLineIndentation(currentLine, currentLineInd+GetIndent());
+            GotoPos(GetCurrentPos() + currentLineInd+GetIndent()-3);
+            InsertText(GetCurrentPos(), "\n");
+        } else {
+            if(currentLineInd && nextLineInd) {
+                if(currentLineInd == nextLineInd) {
+                    SetLineIndentation(currentLine, currentLineInd);
+                    GotoPos(PositionFromLine(currentLine) + currentLineInd-3);
+                } else if(nextLineInd > currentLineInd) {
+                    SetLineIndentation(currentLine, nextLineInd);
+                    GotoPos(PositionFromLine(currentLine) + nextLineInd-3);
+                }
+            }
+        }
+
+    } 
+
+    if (chr == '#') {
         wxString s = "define?0 elif?0 else?0 endif?0 error?0 if?0 ifdef?0 "
                      "ifndef?0 include?0 line?0 pragma?0 undef?0";
         AutoCompShow(0,s);
