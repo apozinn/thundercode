@@ -32,20 +32,20 @@ StatusBar::StatusBar(wxFrame* parent, wxWindowID ID) : wxPanel(parent, ID)
 	wxPanel* right_ctn = new wxPanel(this);
 	wxBoxSizer* right_ctn_sizer = new wxBoxSizer(wxHORIZONTAL);
 
-	wxStaticText* code_locale = new wxStaticText(right_ctn, ID_STTSBAR_CODELOCALE, "");
-	code_locale->SetFont(fontWithOtherSize(code_locale, 15));
-	code_locale->SetMinSize(wxSize(110, 15));
-	right_ctn_sizer->Add(code_locale, 0, wxALIGN_CENTER | wxRIGHT, 4);
+	first_comp = new wxStaticText(right_ctn, ID_STTSBAR_CODELOCALE, "");
+	first_comp->SetFont(fontWithOtherSize(first_comp, 15));
+	first_comp->SetMinSize(wxSize(110, 15));
+	right_ctn_sizer->Add(first_comp, 0, wxALIGN_CENTER | wxRIGHT, 4);
 
-	wxStaticText* tab_size = new wxStaticText(right_ctn, ID_STTSBAR_TAB_SIZE, "");
-	tab_size->SetFont(fontWithOtherSize(tab_size, 15));
-	tab_size->SetMinSize(wxSize(60, 15));
-	right_ctn_sizer->Add(tab_size, 0, wxALIGN_CENTER | wxRIGHT, 4);
+	second_comp = new wxStaticText(right_ctn, ID_STTSBAR_TAB_SIZE, "");
+	second_comp->SetFont(fontWithOtherSize(second_comp, 15));
+	second_comp->SetMinSize(wxSize(60, 15));
+	right_ctn_sizer->Add(second_comp, 0, wxALIGN_CENTER | wxRIGHT, 4);
 
-	wxStaticText* file_ext = new wxStaticText(right_ctn, ID_STTSBAR_FILE_EXT, "");
-	file_ext->SetFont(fontWithOtherSize(file_ext, 15));
-	file_ext->SetMinSize(wxSize(30, 15));
-	right_ctn_sizer->Add(file_ext, 0, wxALIGN_CENTER | wxRIGHT, 4);
+	third_comp = new wxStaticText(right_ctn, ID_STTSBAR_FILE_EXT, "");
+	third_comp->SetFont(fontWithOtherSize(third_comp, 15));
+	third_comp->SetMinSize(wxSize(30, 15));
+	right_ctn_sizer->Add(third_comp, 0, wxALIGN_CENTER | wxRIGHT, 4);
 
 	wxVector<wxBitmap> bitmaps_suggest;
     bitmaps_suggest.push_back(wxBitmap(icons_dir+"suggest.png", wxBITMAP_TYPE_PNG));
@@ -66,4 +66,18 @@ StatusBar::StatusBar(wxFrame* parent, wxWindowID ID) : wxPanel(parent, ID)
 
 	sizer->SetSizeHints(this);
 	this->SetSizerAndFit(sizer);
+}
+
+void StatusBar::UpdateComps(wxString path, std::string format) {
+	wxFileName file_props = wxFileName(path);
+	if(format == "image") {
+		wxBitmap img(path);
+		wxImage img_ = img.ConvertToImage();
+		first_comp->SetLabel(std::to_string(img_.GetHeight())+"x"+std::to_string(img_.GetWidth())+" pixels");
+		second_comp->SetLabel(file_props.GetSize().ToString());
+	} else {
+		second_comp->SetLabel("Spaces: 4");
+	}
+
+	third_comp->SetLabel(file_props.HasExt() ? file_props.GetExt() : "Unk");
 }

@@ -83,24 +83,41 @@ void FilesTree::CreateFile(
     }
 
     wxPanel* file_container = new wxPanel(parent);
+    file_container->SetMinSize(wxSize(file_container->GetSize().GetWidth(), 20));
+    file_container->SetSize(file_container->GetSize().GetWidth(), 20);
     file_container->SetName(path);
     file_container->SetLabel(path+"_file_container");
     file_container->Bind(wxEVT_LEFT_UP, &FilesTree::OnFileSelect, this);
     wxBoxSizer* file_ctn_sizer = new wxBoxSizer(wxHORIZONTAL);
 
     wxVector<wxBitmap> bitmaps;
-    bitmaps.push_back(wxBitmap(icons_dir+"pass.png", wxBITMAP_TYPE_PNG));
+    auto last_dot = path.find_last_of(".");
+    if(last_dot != std::string::npos) {
+        std::string file_ext = path.ToStdString().substr(last_dot+1);
+        if(file_ext.size() && file_ext != path) {
+            if(file_ext == "png" || file_ext == "jpg" || file_ext == "jpeg") {
+                bitmaps.push_back(wxBitmap(icons_dir+"file_image.png", wxBITMAP_TYPE_PNG));
+            } else {
+                bitmaps.push_back(wxBitmap(icons_dir+"file_code.png", wxBITMAP_TYPE_PNG));
+            }
+        }
+    }
+
+    if(!bitmaps.size()) {
+        bitmaps.push_back(wxBitmap(icons_dir+"file_noext.png", wxBITMAP_TYPE_PNG));
+    }
+
     wxStaticBitmap* file_icon = new wxStaticBitmap(file_container, wxID_ANY, wxBitmapBundle::FromBitmaps(bitmaps));
-    file_ctn_sizer->Add(file_icon, 0, wxEXPAND);
+    file_ctn_sizer->Add(file_icon, 0, wxALIGN_CENTRE_VERTICAL | wxLEFT, 3);
 
     wxStaticText* file_name = new wxStaticText(file_container, wxID_ANY, name);
     file_name->SetName(path);
     file_name->Bind(wxEVT_LEFT_UP, &FilesTree::OnFileSelect, this);
     file_name->SetFont(fontWithOtherSize(file_name, 18));
-    file_ctn_sizer->Add(file_name, 0, wxEXPAND | wxLEFT | wxTOP, 2);
+    file_ctn_sizer->Add(file_name, 0, wxALIGN_CENTRE_VERTICAL | wxLEFT, 3);
 
     file_container->SetSizerAndFit(file_ctn_sizer);
-    parent_sizer->Add(file_container, 0, wxEXPAND | wxLEFT, 5);
+    parent_sizer->Add(file_container, 0, wxEXPAND | wxLEFT, 2);
 }
 
 void FilesTree::CreateDir(
@@ -115,6 +132,8 @@ void FilesTree::CreateDir(
     }
 
     wxPanel* dir_container = new wxPanel(parent);
+    dir_container->SetMinSize(wxSize(dir_container->GetSize().GetWidth(), 20));
+    dir_container->SetSize(dir_container->GetSize().GetWidth(), 20);
     dir_container->SetName(path);
     wxBoxSizer* dir_ctn_sizer = new wxBoxSizer(wxVERTICAL);
 
@@ -122,7 +141,7 @@ void FilesTree::CreateDir(
     dir_props->SetLabel("dir_props");
     dir_props->Bind(wxEVT_LEFT_UP, &FilesTree::ToggleDir, this);
     wxBoxSizer* props_sizer = new wxBoxSizer(wxHORIZONTAL);
-    dir_ctn_sizer->Add(dir_props, 0, wxEXPAND);
+    dir_ctn_sizer->Add(dir_props, 0, wxEXPAND | wxLEFT, 3);
 
     wxVector<wxBitmap> bitmaps;
     bitmaps.push_back(wxBitmap(icons_dir+"dir_arrow.png", wxBITMAP_TYPE_PNG));
@@ -143,7 +162,7 @@ void FilesTree::CreateDir(
 
     dir_container->SetSizerAndFit(dir_ctn_sizer);
     dir_childrens->Hide();
-    parent_sizer->Add(dir_container, 0, wxEXPAND | wxLEFT, 5);
+    parent_sizer->Add(dir_container, 0, wxEXPAND | wxLEFT, 2);
 }
 
 void FilesTree::OnFileSelect(wxMouseEvent& event) {
@@ -163,48 +182,35 @@ void FilesTree::OnFileSelect(wxMouseEvent& event) {
 
 void FilesTree::OpenFile(wxString path) {
     auto main_code = FindWindowById(ID_MAIN_CODE);
-    if(!main_code->GetId()) return;
-
     auto tabsContainer = ((Tabs*)FindWindowById(ID_TABS));
     auto codeContainer = ((CodeContainer*)FindWindowByLabel(path+"_codeContainer"));
+    auto status_bar = ((StatusBar*)FindWindowById(ID_STATUS_BAR));
 
-    for(auto&& other_ct : main_code->GetChildren()) {
+    wxFileName file_props = wxFileName(path);
+    for(auto&& other_ct : main_code->GetChildren()) 
         if(other_ct->GetId() != ID_TABS) other_ct->Hide();
-    }
 
-    {
-        size_t last_dot;
-        last_dot = path.find_last_of(".");
-        if(last_dot) {
-            std::string file_ext = path.ToStdString().substr(last_dot+1);
-            if(file_ext.size()) {
-                if(file_ext == "png") {
-                    wxImagePanel* img_file = new wxImagePanel(main_code, path, wxBITMAP_TYPE_ANY);
-                    img_file->SetLabel(path+"_imgContainer");
-                    main_code->GetSizer()->Add(img_file, 0, wxALIGN_CENTER);
-
-                    auto tab_size_comp = ((wxStaticText*)FindWindowById(ID_STTSBAR_TAB_SIZE));
-                    auto file_ext_comp = ((wxStaticText*)FindWindowById(ID_STTSBAR_FILE_EXT));
-
-                    if(tab_size_comp) tab_size_comp->SetLabel("Tab Size: 4");
-                    if(file_ext_comp) file_ext_comp->SetLabel(file_ext);
-                } else {
-                    if(!codeContainer) {
-                        codeContainer = new CodeContainer(main_code, wxID_ANY, path);
-                        main_code->GetSizer()->Add(codeContainer, 1, wxEXPAND);
-                    } else {
-                        if(!codeContainer->IsShown()) codeContainer->Show();                    }
-                }
-
-                if(tabsContainer) {
-                    tabsContainer->AddTab(wxFileNameFromPath(path.substr(0, path.size())), path);
-                }
-
-                main_code->GetSizer()->Layout();
-                main_code->Update();
+    if(file_props.HasExt()) {
+        wxString ext = file_props.GetExt();
+        if(ext == "png" || ext == "jpg" || ext == "jpeg") {
+            status_bar->UpdateComps(path, "image");
+            wxImagePanel* img_file = new wxImagePanel(main_code, path, wxBITMAP_TYPE_ANY);
+            img_file->SetLabel(path+"_imgContainer");
+            main_code->GetSizer()->Add(img_file, 0, wxALIGN_CENTER);
+        } else {
+            status_bar->UpdateComps(path);
+            if(!codeContainer) {
+                codeContainer = new CodeContainer(main_code, wxID_ANY, path);
+                main_code->GetSizer()->Add(codeContainer, 1, wxEXPAND);
+            } else {
+                if(!codeContainer->IsShown()) codeContainer->Show();
             }
         }
     }
+
+    tabsContainer->AddTab(wxFileNameFromPath(path.substr(0, path.size())), path);
+    main_code->GetSizer()->Layout();
+    main_code->Update();
 }
 void FilesTree::ToggleDir(wxMouseEvent& event) {
     auto dir_container = ((wxWindow*)event.GetEventObject());

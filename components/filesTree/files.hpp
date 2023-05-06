@@ -10,6 +10,7 @@
 #include "../../utils/randoms.hpp"
 #include "../../utils/fileManager.hpp"
 #include "../../members/imagePanel.cpp"
+#include "../statusBar/status.hpp"
 
 class FilesTree : public wxPanel {
 	wxPanel* files_tree;
