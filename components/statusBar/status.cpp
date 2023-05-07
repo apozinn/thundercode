@@ -74,7 +74,9 @@ void StatusBar::UpdateComps(wxString path, std::string format) {
 		wxBitmap img(path);
 		wxImage img_ = img.ConvertToImage();
 		first_comp->SetLabel(std::to_string(img_.GetHeight())+"x"+std::to_string(img_.GetWidth())+" pixels");
-		second_comp->SetLabel(file_props.GetSize().ToString());
+
+		char s[32] = "";
+		second_comp->SetLabel(FormatBytes(file_props.GetSize().ToULong(), s));
 	} else {
 		second_comp->SetLabel("Spaces: 4");
 	}
