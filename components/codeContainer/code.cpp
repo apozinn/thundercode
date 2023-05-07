@@ -226,6 +226,8 @@ void CodeContainer::OnChange(wxStyledTextEvent& event) {
             }
         }
     }
+
+    SetStatus(1);
 }
 
 void CodeContainer::CharAdd(wxStyledTextEvent& event) {

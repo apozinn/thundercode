@@ -83,3 +83,9 @@ void StatusBar::UpdateComps(wxString path, std::string format) {
 
 	third_comp->SetLabel(file_props.HasExt() ? file_props.GetExt() : "Unk");
 }
+
+void StatusBar::ClearLabels() {
+	first_comp->SetLabel("");
+	second_comp->SetLabel("");
+	third_comp->SetLabel("");
+}

@@ -56,7 +56,6 @@ class ThunderCode: public wxApp {
 class MainFrame: public wxFrame {
     wxBoxSizer* sizer;
     wxPanel* main_container;
-    StatusBar* status_bar;
     wxSplitterWindow* main_splitter;
     SideNavigation* side_navigation;
     FilesTree* files_tree;
@@ -65,6 +64,7 @@ class MainFrame: public wxFrame {
     MenuBar* menu_bar;
     EmptyWindow* empty_window;
 public:
+    StatusBar* status_bar;
     MainFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
     void OnQuit(wxCommandEvent& event);
     void OnAbout(wxCommandEvent& event);
@@ -76,8 +76,9 @@ public:
     void OnHiddeMenuBar(wxCommandEvent& event);
     void OnHiddeStatusBar(wxCommandEvent& event);
     void OnHiddeTabs(wxCommandEvent& event);
-    void OnSashPaint( wxPaintEvent& event );
-    void OnSashPosChange( wxSplitterEvent& event );
+    void OnSashPaint(wxPaintEvent& event);
+    void OnSashPosChange(wxSplitterEvent& event);
+    void CloseAllFiles(wxCommandEvent& event);
 private:
     wxDECLARE_NO_COPY_CLASS(MainFrame);
     wxDECLARE_EVENT_TABLE();
@@ -96,12 +97,12 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_MENU(ID_HIDDE_STATUS_BAR, MainFrame::OnHiddeStatusBar)
     EVT_MENU(ID_HIDDE_TABS, MainFrame::OnHiddeTabs)
     EVT_MENU(ID_FOCUS_MODE, SideNavigation::OnFocusMode)
+    EVT_MENU(ID_CLOSE_ALL_FILES, MainFrame::CloseAllFiles)
 wxEND_EVENT_TABLE()
 
 IMPLEMENT_APP(ThunderCode)
 
 bool ThunderCode::OnInit() {
-
     MainFrame* frame = new MainFrame(_("ThunderCode"), wxPoint(50, 50),  wxSize(900, 800));
     frame->Show(true);
     SetTopWindow(frame);
@@ -302,3 +303,28 @@ void MainFrame::OnSashPaint( wxPaintEvent& event )
 }
 
 void MainFrame::OnSashPosChange( wxSplitterEvent& event ) { main_splitter->Refresh(); }
+
+void MainFrame::CloseAllFiles(wxCommandEvent& WXUNUSED(event)) {
+    if(tabs_container) {
+        for(auto&& tab : tabs_container->GetChildren()) {
+            wxString tab_path = tab->GetName();
+            if(FindWindowByLabel(tab_path+"_codeContainer")) {
+                FindWindowByLabel(tab_path+"_codeContainer")->Destroy();
+            }
+            if(FindWindowByLabel(tab_path+"_imageContainer")) {
+                FindWindowByLabel(tab_path+"_imageContainer")->Destroy();
+            }
+            
+            tab->Destroy();
+        }
+
+        tabs_container->Hide();
+        FindWindowById(ID_EMPYT_WINDOW)->Show();
+        status_bar->ClearLabels();
+
+        if(files_tree) {
+            files_tree->selectedFile->SetBackgroundColour(wxColor(45, 45, 45));
+            files_tree->SetSelectedFile(new wxPanel(files_tree, wxID_ANY, wxDefaultPosition, wxSize(0, 0)));
+        }
+    }
+}

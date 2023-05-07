@@ -190,8 +190,8 @@ void FilesTree::OpenFile(wxString path) {
     for(auto&& other_ct : main_code->GetChildren()) 
         if(other_ct->GetId() != ID_TABS) other_ct->Hide();
 
-    if(file_props.HasExt()) {
-        wxString ext = file_props.GetExt();
+    wxString ext = file_props.GetExt();
+    if(ext.size()) {
         if(ext == "png" || ext == "jpg" || ext == "jpeg") {
             wxImage image(path);
             if(image.GetWidth() > 1000 || image.GetHeight() > 1000) {
@@ -204,13 +204,21 @@ void FilesTree::OpenFile(wxString path) {
             main_code->GetSizer()->Add(image_container, 1, wxALIGN_CENTER);
             status_bar->UpdateComps(path, "image");
         } else {
-            status_bar->UpdateComps(path);
+            status_bar->UpdateComps(path, "text");
             if(!codeContainer) {
                 codeContainer = new CodeContainer(main_code, wxID_ANY, path);
                 main_code->GetSizer()->Add(codeContainer, 1, wxEXPAND);
             } else {
-                if(!codeContainer->IsShown()) codeContainer->Show();
+                if(!codeContainer->IsShown());
             }
+        }
+    } else {
+        status_bar->UpdateComps(path, "text");
+        if(!codeContainer) {
+            codeContainer = new CodeContainer(main_code, wxID_ANY, path);
+            main_code->GetSizer()->Add(codeContainer, 1, wxEXPAND);
+        } else {
+            if(!codeContainer->IsShown());
         }
     }
 

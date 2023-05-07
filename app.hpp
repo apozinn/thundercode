@@ -22,5 +22,7 @@ const char *FormatBytes(long long bytes, char *str)
     for (i = 0; i < 5 && bytes >= 1024; i++, bytes /= 1024)
         dblByte = bytes / 1024.0;
  
+    sprintf(str, "%.2f", dblByte);
+ 
     return strcat(strcat(str, " "), sizes[i]);
 }

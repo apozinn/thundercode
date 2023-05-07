@@ -110,33 +110,15 @@ void Tabs::ClearTab(wxString tab_path) {
                         }
                     }
 
-                    auto new_ct = FindWindowByLabel(selected_tab+"_codeContainer");
-                    auto new_it = FindWindowByLabel(selected_tab+"_imgContainer");
-
-                    if(new_ct) {
-                        new_ct->Show();
-                    } else if(new_it) {
-                        new_it->Show();
-                    }
-
+                    auto new_codeContainer = FindWindowByLabel(selected_tab+"_codeContainer");
+                    if(new_codeContainer) new_codeContainer->SHow();
+                    auto new_imageContainer = FindWindowByLabel(selected_tab+"_imgContainer");
+                    if(new_imageContainer) new_imageContainer->Show();
+                    
                     if(!prev_tab && !next_tab) {
                         this->Hide();
                         FindWindowById(ID_EMPYT_WINDOW)->Show();
-
-                        auto tab_size_comp = ((wxStaticText*)FindWindowById(ID_STTSBAR_TAB_SIZE));
-                        if(tab_size_comp) {
-                            tab_size_comp->SetLabel("");
-                        }
-
-                        auto file_ext_comp = ((wxStaticText*)FindWindowById(ID_STTSBAR_FILE_EXT));
-                        if(file_ext_comp) {
-                            file_ext_comp->SetLabel("");
-                        }
-
-                        auto file_clocale_comp = ((wxStaticText*)FindWindowById(ID_STTSBAR_CODELOCALE));
-                        if(file_clocale_comp) {
-                            file_clocale_comp->SetLabel("");
-                        }
+                        ((StatusBar*)FindWindowById(ID_STATUS_BAR))->ClearLabels();
                     }
                 }
 
@@ -179,6 +161,7 @@ void Tabs::SelectTab(wxMouseEvent& event) {
 
     auto codeContainer = ((CodeContainer*)FindWindowByLabel(tab_path+"_codeContainer"));
     auto imageContainer = ((wxStaticBitmap*)FindWindowByLabel(tab_path+"_imageContainer"));
+    auto status_bar = ((StatusBar*)FindWindowById(ID_STATUS_BAR));
 
     for(auto&& other_ct : main_code->GetChildren()) {
         if(other_ct->GetId() != ID_TABS) other_ct->Hide();
@@ -186,10 +169,12 @@ void Tabs::SelectTab(wxMouseEvent& event) {
 
     if(codeContainer) {
         codeContainer->Show();
+        status_bar->UpdateComps(tab_path, "text");
     }
 
     if(imageContainer) {
         imageContainer->Show();
+        status_bar->UpdateComps(tab_path, "image");
     }
 
     main_code->GetSizer()->Layout();
