@@ -112,6 +112,7 @@ MainFrame::MainFrame(
     const wxString& title, const wxPoint& pos, const wxSize& size
 ) : wxFrame(NULL, ID_MAIN_FRAME, title, pos, size)
 {
+    wxInitAllImageHandlers();
     if(wxFile::Exists("./icons/settings.png")) icons_dir = "./icons/";
     else if(wxFile::Exists("../icons/settings.png")) icons_dir = "../icons/";
     else wxLogWarning("Can't find icons dir!");

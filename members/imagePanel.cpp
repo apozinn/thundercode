@@ -13,6 +13,7 @@ class wxImagePanel : public wxPanel {
         void paintEvent(wxPaintEvent & evt);
         void paintNow();
         void render(wxDC& dc);
+        void RescaleToBestSize(int min, int max);
         DECLARE_EVENT_TABLE()
 };
 
@@ -44,5 +45,24 @@ void wxImagePanel::render(wxDC&  dc)
         }
     } else {
         dc.DrawBitmap(image, 0, 0, false);
+    }
+}
+
+void wxImagePanel::RescaleToBestSize(int min, int max) {
+    wxImage img = image.ConvertToImage();
+    if(img.IsOk()) {
+        if(img.GetWidth() < min || img.GetHeight() < min) {
+            image = wxBitmap(img.Rescale(img.GetWidth()*2, img.GetHeight()*2));
+            this->SetMinSize(wxSize(img.GetWidth()/2, img.GetHeight()/2));
+            this->SetSize(img.GetWidth()/2, img.GetHeight()/2);
+        }
+
+        if(img.GetWidth() > max || img.GetHeight() > max) {
+            image = wxBitmap(img.Rescale(img.GetWidth()/2, img.GetHeight()/2));
+            this->SetMinSize(wxSize(img.GetWidth()/2, img.GetHeight()/2));
+            this->SetSize(img.GetWidth()/2, img.GetHeight()/2);
+        }
+
+        this->Update();
     }
 }

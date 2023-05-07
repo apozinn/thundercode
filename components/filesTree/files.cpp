@@ -195,8 +195,12 @@ void FilesTree::OpenFile(wxString path) {
         if(ext == "png" || ext == "jpg" || ext == "jpeg") {
             status_bar->UpdateComps(path, "image");
             wxImagePanel* img_file = new wxImagePanel(main_code, path, wxBITMAP_TYPE_ANY);
+            img_file->RescaleToBestSize(20, 800);
             img_file->SetLabel(path+"_imgContainer");
-            main_code->GetSizer()->Add(img_file, 0, wxALIGN_CENTER);
+
+            main_code->GetSizer()->AddStretchSpacer();
+            main_code->GetSizer()->Add(img_file, 1, wxEXPAND);
+            main_code->GetSizer()->AddStretchSpacer();
         } else {
             status_bar->UpdateComps(path);
             if(!codeContainer) {
@@ -212,6 +216,7 @@ void FilesTree::OpenFile(wxString path) {
     main_code->GetSizer()->Layout();
     main_code->Update();
 }
+
 void FilesTree::ToggleDir(wxMouseEvent& event) {
     auto dir_container = ((wxWindow*)event.GetEventObject());
 
