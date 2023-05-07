@@ -193,14 +193,16 @@ void FilesTree::OpenFile(wxString path) {
     if(file_props.HasExt()) {
         wxString ext = file_props.GetExt();
         if(ext == "png" || ext == "jpg" || ext == "jpeg") {
+            wxImage image(path);
+            if(image.GetWidth() > 1000 || image.GetHeight() > 1000) {
+                image.Rescale(image.GetWidth()/2, image.GetHeight()/2);
+            }
+            wxVector<wxBitmap> bitmaps;
+            bitmaps.push_back(wxBitmap(image));
+            wxStaticBitmap* image_container = new wxStaticBitmap(main_code, wxID_ANY, wxBitmapBundle::FromBitmaps(bitmaps));
+            image_container->SetLabel(path+"_imageContainer");
+            main_code->GetSizer()->Add(image_container, 1, wxALIGN_CENTER);
             status_bar->UpdateComps(path, "image");
-            wxImagePanel* img_file = new wxImagePanel(main_code, path, wxBITMAP_TYPE_ANY);
-            img_file->RescaleToBestSize(20, 800);
-            img_file->SetLabel(path+"_imgContainer");
-
-            main_code->GetSizer()->AddStretchSpacer();
-            main_code->GetSizer()->Add(img_file, 1, wxEXPAND);
-            main_code->GetSizer()->AddStretchSpacer();
         } else {
             status_bar->UpdateComps(path);
             if(!codeContainer) {

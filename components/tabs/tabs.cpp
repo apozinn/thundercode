@@ -178,17 +178,22 @@ void Tabs::SelectTab(wxMouseEvent& event) {
     }
 
     auto codeContainer = ((CodeContainer*)FindWindowByLabel(tab_path+"_codeContainer"));
+    auto imageContainer = ((wxStaticBitmap*)FindWindowByLabel(tab_path+"_imageContainer"));
+
     for(auto&& other_ct : main_code->GetChildren()) {
         if(other_ct->GetId() != ID_TABS) other_ct->Hide();
     }
 
     if(codeContainer) {
-        if(!codeContainer->IsShown()) {
-            codeContainer->Show();
-        }
-        main_code->GetSizer()->Layout();
-        main_code->Update();
+        codeContainer->Show();
     }
+
+    if(imageContainer) {
+        imageContainer->Show();
+    }
+
+    main_code->GetSizer()->Layout();
+    main_code->Update();
 }
 
 void Tabs::CloseTab(wxMouseEvent& event) {
