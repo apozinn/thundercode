@@ -111,7 +111,7 @@ void Tabs::ClearTab(wxString tab_path) {
                     }
 
                     auto new_codeContainer = FindWindowByLabel(selected_tab+"_codeContainer");
-                    if(new_codeContainer) new_codeContainer->SHow();
+                    if(new_codeContainer) new_codeContainer->Show();
                     auto new_imageContainer = FindWindowByLabel(selected_tab+"_imgContainer");
                     if(new_imageContainer) new_imageContainer->Show();
                     
