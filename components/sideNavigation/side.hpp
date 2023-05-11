@@ -1,5 +1,7 @@
 #pragma once
-
+#include "../../sidePages/search/search.cpp"
+#include "../../sidePages/builder/builder.cpp"
+#include "../../sidePages/extensions/extensions.cpp"
 #include "../../pages/settings/settings.cpp"
 
 class SideNavigation : public wxPanel {

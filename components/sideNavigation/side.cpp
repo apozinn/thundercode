@@ -1,8 +1,4 @@
 #include "side.hpp"
-#include "../../sidePages/search/search.cpp"
-#include "../../sidePages/builder/builder.cpp"
-#include "../../sidePages/extensions/extensions.cpp"
-#include "../../sidePages/focus/focus.cpp"
 
 SideNavigation::SideNavigation(wxPanel* parent, wxWindowID ID) : wxPanel(parent, ID) 
 {
