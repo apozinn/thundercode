@@ -63,6 +63,7 @@ class MainFrame: public wxFrame {
     Tabs* tabs_container;
     MenuBar* menu_bar;
     EmptyWindow* empty_window;
+    wxPanel* side_container;
 public:
     StatusBar* status_bar;
     MainFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
@@ -132,9 +133,17 @@ MainFrame::MainFrame(
 
     main_container_sizer->Add(main_splitter, 1, wxEXPAND);
     wxBoxSizer* main_splitter_sizer = new wxBoxSizer(wxHORIZONTAL);
+
+    side_container = new wxPanel(main_splitter, ID_SIDE_CONTAINER);
+    side_container->SetBackgroundColour(wxColor(45, 45, 45));
+    wxBoxSizer* side_ctn_sizer = new wxBoxSizer(wxVERTICAL);
+
+    main_splitter_sizer->Add(side_container, 0, wxEXPAND);
     
-    files_tree = new FilesTree(main_splitter, ID_FILES_TREE);
-    main_splitter_sizer->Add(files_tree, 0, wxEXPAND);
+    files_tree = new FilesTree(side_container, ID_FILES_TREE);
+    side_ctn_sizer->Add(files_tree, 1, wxEXPAND | wxLEFT, 5);
+
+    side_container->SetSizerAndFit(side_ctn_sizer);
     
     main_code = new wxPanel(main_splitter, ID_MAIN_CODE);
     main_code->SetBackgroundColour(wxColor(55, 55, 55));
@@ -152,7 +161,7 @@ MainFrame::MainFrame(
     main_code->SetSizerAndFit(main_code_sizer);
     main_splitter->SetSizerAndFit(main_splitter_sizer);
     main_splitter->SetMinimumPaneSize(250);
-    main_splitter->SplitVertically(files_tree, main_code, 1);
+    main_splitter->SplitVertically(side_container, main_code, 1);
     
     status_bar = new StatusBar(this, ID_STATUS_BAR);
     main_container->SetSizerAndFit(main_container_sizer);
@@ -232,9 +241,9 @@ void MainFrame::OnOpenFile(wxCommandEvent& WXUNUSED(event)) {
 
 void MainFrame::OnHiddeFilesTree(wxCommandEvent& WXUNUSED(event)) {
     if(main_splitter->IsSplit()) {
-        main_splitter->Unsplit(files_tree);
+        main_splitter->Unsplit(side_container);
     } else {
-        main_splitter->SplitVertically(files_tree, main_code, 1);
+        main_splitter->SplitVertically(side_container, main_code, 1);
     }
 }
 

@@ -43,6 +43,7 @@ enum {
     ID_STTSBAR_CODELOCALE,
     ID_FOCUS_MODE,
     ID_CLOSE_ALL_FILES,
+    ID_SIDE_CONTAINER,
 };
 
 wxString project_path;

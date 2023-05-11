@@ -7,10 +7,7 @@ FilesTree::FilesTree(wxWindow* parent, wxWindowID ID) : wxPanel(parent, ID)
     this->SetBackgroundColour(wxColor(45, 45, 45));
     sizer = new wxBoxSizer(wxVERTICAL);
 
-    wxPanel* aaa = new wxPanel(this, ID_TRIPLE_A);
-    wxBoxSizer* aaa_sizer = new wxBoxSizer(wxVERTICAL);
-
-    wxPanel* top_content = new wxPanel(aaa);
+    wxPanel* top_content = new wxPanel(this);
     wxBoxSizer* top_ctn_sizer = new wxBoxSizer(wxHORIZONTAL);
 
     wxStaticText* top_ctn_pjt = new wxStaticText(top_content, wxID_ANY, "EXPLORATOR");
@@ -22,9 +19,9 @@ FilesTree::FilesTree(wxWindow* parent, wxWindowID ID) : wxPanel(parent, ID)
     top_ctn_menu->Bind(wxEVT_LEFT_UP, &FilesTree::onTopMenuClick, this);
     top_ctn_sizer->Add(top_ctn_menu, 0, wxEXPAND);
     top_content->SetSizerAndFit(top_ctn_sizer);
-    aaa_sizer->Add(top_content, 0, wxEXPAND | wxTOP | wxBOTTOM, 8);
+    sizer->Add(top_content, 0, wxEXPAND | wxTOP | wxBOTTOM, 8);
 
-    wxPanel* project_files = new wxPanel(aaa, ID_PROJECT_FILES);
+    wxPanel* project_files = new wxPanel(this, ID_PROJECT_FILES);
     wxBoxSizer* pjt_files_sizer = new wxBoxSizer(wxVERTICAL);
 
     wxPanel* project_tools = new wxPanel(project_files, ID_PROJECT_TOOLS_BAR);
@@ -47,13 +44,9 @@ FilesTree::FilesTree(wxWindow* parent, wxWindowID ID) : wxPanel(parent, ID)
     pjt_files_sizer->Add(project_files_ctn, 1, wxEXPAND | wxLEFT, 3);
     auto pjt_files_ctn_sizer = new wxBoxSizer(wxVERTICAL);
     project_files_ctn->SetSizerAndFit(pjt_files_ctn_sizer);
-
     project_files->SetSizerAndFit(pjt_files_sizer);
-    aaa_sizer->Add(project_files, 1, wxEXPAND);
-
-    aaa->SetSizerAndFit(aaa_sizer);
-
-    sizer->Add(aaa, 1, wxEXPAND | wxLEFT, 5);
+    
+    sizer->Add(project_files, 1, wxEXPAND);
     this->SetSizerAndFit(sizer);
     if(!project_path.size()) pjt_arrow->Hide();
 }

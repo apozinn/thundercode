@@ -18,5 +18,6 @@ public:
 	void OnEndHover(wxMouseEvent& event);
 	void SelectPage(wxMouseEvent& event);
 	void OnFocusMode(wxCommandEvent& event);
+	void ToggleFocusMode();
 	wxDECLARE_NO_COPY_CLASS(SideNavigation);
 };
