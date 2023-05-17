@@ -1,9 +1,13 @@
 #pragma once
 
+#include <dirent.h>
+#include <errno.h>
+#include <sys/types.h>
+#include <stdio.h>
 #include <iostream>
 #include <string>
 #include <functional>
-#include <dirent.h>
+#include <bits/stdc++.h>
 
 namespace fs = std::filesystem;
 
@@ -26,11 +30,24 @@ public:
 
 	void ListChildrens(const std::string &path, std::function<void(const std::string&, const std::string&, const std::string&)> cb) {
 	    if (auto dir = opendir(path.c_str())) {
+	    	std::vector<std::string> dir_content;
 	        while (auto f = readdir(dir)) {
 	            if (!f->d_name || f->d_name[0] == '.') continue;
-	            if (f->d_type == DT_DIR) cb(path + f->d_name + "/", "dir", f->d_name);
-	            if (f->d_type == DT_REG) cb(path + f->d_name, "file", f->d_name);
+	            if (f->d_type == DT_DIR) {
+		            dir_content.push_back(f->d_name);
+	            }
+	            if (f->d_type == DT_REG) {
+		            dir_content.push_back(f->d_name);
+	            }
 	        }
+
+			std::sort(dir_content.begin(), dir_content.end());
+
+
+	        for(auto dc : dir_content) {
+	        	std::cout << dc << " dc\n";
+	        }
+
 	        closedir(dir);
 	    }
 	}

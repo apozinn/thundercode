@@ -54,8 +54,10 @@ FilesTree::FilesTree(wxWindow* parent, wxWindowID ID) : wxPanel(parent, ID)
 void FilesTree::Update() {
     project_files_ctn->DestroyChildren();
     project_files_ctn->SetName(project_path);
-    FindWindowById(ID_PJT_TOOLS_PJTNAME)->SetLabel(project_name);
-    FindWindowById(ID_PJT_TOOLS_ARROW)->Show();
+    if(auto project_name_comp = FindWindowById(ID_PJT_TOOLS_PJTNAME)) 
+        project_name_comp->SetLabel(project_name);
+    if(auto project_arrow = FindWindowById(ID_PJT_TOOLS_ARROW)) 
+        project_arrow->Show();
 
     this->Create(project_path.ToStdString(), project_files_ctn);
 
@@ -222,9 +224,9 @@ void FilesTree::OpenFile(wxString path) {
 
 void FilesTree::ToggleDir(wxMouseEvent& event) {
     auto dir_container = ((wxWindow*)event.GetEventObject());
-
-    if(dir_container->GetId() == ID_PROJECT_TOOLS_BAR || dir_container->GetId() == ID_PJT_TOOLS_PJTNAME) {
-        dir_container = project_files_ctn;
+    if(dir_container->GetId() == ID_PROJECT_TOOLS_BAR 
+        || dir_container->GetId() == ID_PJT_TOOLS_PJTNAME) {
+            dir_container = project_files_ctn;
     }
 
     if(dir_container == project_files_ctn) {
@@ -258,8 +260,13 @@ void FilesTree::ToggleDir(wxMouseEvent& event) {
         fileManager->ListChildrens(
             path.ToStdString(), [&](const std::string &path, const std::string &type, const std::string &name
         ) {
+                std::cout << type << " t\n";
             if(type == "dir") {
                 this->CreateDir(dir_childrens, name, path);                
+            } 
+
+            if(type == "file") {
+                this->CreateFile(dir_childrens, name, path);                
             }
 
             auto next_parent = dir_childrens;
@@ -274,7 +281,7 @@ void FilesTree::ToggleDir(wxMouseEvent& event) {
             }
         });
 
-        fileManager->ListChildrens(
+        /*fileManager->ListChildrens(
             path.ToStdString(), [&](const std::string &path, const std::string &type, const std::string &name
         ) {
             if(type == "file") {
@@ -291,7 +298,7 @@ void FilesTree::ToggleDir(wxMouseEvent& event) {
                     next_parent = next_parent->GetParent();
                 } else has_next_parent = false;
             }
-        });
+        });*/
 
         if(dir_childrens && dir_arrow_ctn) {
             auto arrow_bit = dir_arrow_ctn->GetBitmap();
