@@ -30,24 +30,46 @@ public:
 	void OpenFile(wxString path);
 	void onTopMenuClick(wxMouseEvent& event);
 	void Create(std::string path, wxWindow* parent) {
-		fileManager->ListChildrens(
-        	path, [&](const std::string &path, const std::string &type, const std::string &name
-    	) {
+		std::vector<std::string> folders_buffer;
+		std::vector<std::string> files_buffer;
+
+		fileManager->ListChildrens(path, [&](const std::string &path, const std::string &type, const std::string &name) {
 	        if(type == "dir") {
-	            this->CreateDir(parent, name, path);
-	        }
+	        	folders_buffer.push_back(name);
+	        } else files_buffer.push_back(name);
+
+            auto next_parent = parent;
+            bool has_next_parent = true;
+            while(has_next_parent) {
+                next_parent->SetSize(next_parent->GetSize().GetWidth(), next_parent->GetSize().GetHeight()+21);
+                next_parent->SetMinSize(wxSize(next_parent->GetSize().GetWidth(), next_parent->GetSize().GetHeight()+21));
+
+                 if(next_parent->GetParent() && next_parent->GetId() != ID_PROJECT_FILES_CTN) {
+                    next_parent = next_parent->GetParent();
+                } else has_next_parent = false;
+            }
     	});
 
-    	fileManager->ListChildrens(
-        	path, [&](const std::string &path, const std::string &type, const std::string &name
-    	) {
-	        if(type == "file") {
-	            this->CreateFile(parent, name, path);
-	        }
-    	});
+    	std::sort(folders_buffer.begin(), folders_buffer.end());
+    	std::sort(files_buffer.begin(), files_buffer.end());
+
+    	for(auto&& f_ : folders_buffer) {
+    		fileManager->ListChildrens(path, [&](const std::string &path, const std::string &type, const std::string &name) {
+		        if(type == "dir") {
+		        	if(name == f_) this->CreateDir(parent, name, path);
+		        }
+    		});
+    	}
+
+    	for(auto&& f_ : files_buffer) {
+    		fileManager->ListChildrens(path, [&](const std::string &path, const std::string &type, const std::string &name) {
+		        if(type == "file") {
+		        	if(name == f_) this->CreateFile(parent, name, path);
+		        }
+    		});
+    	}
 	}
-	void SetSelectedFile(wxWindow* new_window) {
-		selectedFile = new_window;
-	}
+
+	void SetSelectedFile(wxWindow* new_window) {selectedFile = new_window;}
 	wxDECLARE_NO_COPY_CLASS(FilesTree);
 };

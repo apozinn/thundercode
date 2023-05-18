@@ -257,48 +257,7 @@ void FilesTree::ToggleDir(wxMouseEvent& event) {
         auto dir_childrens = dir_container->GetChildren()[1];
         wxString path = dir_container->GetName();
 
-        fileManager->ListChildrens(
-            path.ToStdString(), [&](const std::string &path, const std::string &type, const std::string &name
-        ) {
-                std::cout << type << " t\n";
-            if(type == "dir") {
-                this->CreateDir(dir_childrens, name, path);                
-            } 
-
-            if(type == "file") {
-                this->CreateFile(dir_childrens, name, path);                
-            }
-
-            auto next_parent = dir_childrens;
-            bool has_next_parent = true;
-            while(has_next_parent) {
-                if(next_parent->GetId() == ID_PROJECT_FILES_CTN) has_next_parent = false;
-                next_parent->SetSize(next_parent->GetSize().GetWidth(), next_parent->GetSize().GetHeight()+21);
-                next_parent->SetMinSize(wxSize(next_parent->GetSize().GetWidth(), next_parent->GetSize().GetHeight()+21));
-                if(next_parent->GetParent()) {
-                    next_parent = next_parent->GetParent();
-                } else has_next_parent = false;
-            }
-        });
-
-        /*fileManager->ListChildrens(
-            path.ToStdString(), [&](const std::string &path, const std::string &type, const std::string &name
-        ) {
-            if(type == "file") {
-                this->CreateFile(dir_childrens, name, path);                
-            }
-
-            auto next_parent = dir_childrens;
-            bool has_next_parent = true;
-            while(has_next_parent) {
-                if(next_parent->GetId() == ID_PROJECT_FILES_CTN) has_next_parent = false;
-                next_parent->SetSize(next_parent->GetSize().GetWidth(), next_parent->GetSize().GetHeight()+21);
-                next_parent->SetMinSize(wxSize(next_parent->GetSize().GetWidth(), next_parent->GetSize().GetHeight()+21));
-                if(next_parent->GetParent()) {
-                    next_parent = next_parent->GetParent();
-                } else has_next_parent = false;
-            }
-        });*/
+        Create(path.ToStdString(), dir_childrens);
 
         if(dir_childrens && dir_arrow_ctn) {
             auto arrow_bit = dir_arrow_ctn->GetBitmap();
@@ -308,10 +267,10 @@ void FilesTree::ToggleDir(wxMouseEvent& event) {
                 dir_childrens->Hide();
                 bitmaps.push_back(wxBitmap(arrow_bit.ConvertToImage().Rotate90(false), -1));
 
-                dir_container->SetSize(dir_container->GetSize().GetWidth(), 18);
-                dir_container->SetMinSize(wxSize(dir_container->GetSize().GetWidth(), 18));
-                dir_childrens->SetSize(dir_childrens->GetSize().GetWidth(), 18);
-                dir_childrens->SetMinSize(wxSize(dir_childrens->GetSize().GetWidth(), 18));
+                dir_container->SetSize(dir_container->GetSize().GetWidth(), 20);
+                dir_container->SetMinSize(wxSize(dir_container->GetSize().GetWidth(), 20));
+                dir_childrens->SetSize(dir_childrens->GetSize().GetWidth(), 20);
+                dir_childrens->SetMinSize(wxSize(dir_childrens->GetSize().GetWidth(), 20));
             } else {
                 dir_childrens->Show();
                 bitmaps.push_back(wxBitmap(arrow_bit.ConvertToImage().Rotate90(true), -1));
