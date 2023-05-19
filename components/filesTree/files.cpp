@@ -257,8 +257,6 @@ void FilesTree::ToggleDir(wxMouseEvent& event) {
         auto dir_childrens = dir_container->GetChildren()[1];
         wxString path = dir_container->GetName();
 
-        Create(path.ToStdString(), dir_childrens);
-
         if(dir_childrens && dir_arrow_ctn) {
             auto arrow_bit = dir_arrow_ctn->GetBitmap();
             wxVector<wxBitmap> bitmaps;
@@ -271,7 +269,10 @@ void FilesTree::ToggleDir(wxMouseEvent& event) {
                 dir_container->SetMinSize(wxSize(dir_container->GetSize().GetWidth(), 20));
                 dir_childrens->SetSize(dir_childrens->GetSize().GetWidth(), 20);
                 dir_childrens->SetMinSize(wxSize(dir_childrens->GetSize().GetWidth(), 20));
+
+                FitContainer(dir_childrens);
             } else {
+                Create(path.ToStdString(), dir_childrens);
                 dir_childrens->Show();
                 bitmaps.push_back(wxBitmap(arrow_bit.ConvertToImage().Rotate90(true), -1));
             }
