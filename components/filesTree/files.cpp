@@ -264,28 +264,20 @@ void FilesTree::ToggleDir(wxMouseEvent& event) {
             if(dir_childrens->IsShown()) {
                 dir_childrens->Hide();
                 bitmaps.push_back(wxBitmap(arrow_bit.ConvertToImage().Rotate90(false), -1));
-
-                dir_container->SetSize(dir_container->GetSize().GetWidth(), 20);
-                dir_container->SetMinSize(wxSize(dir_container->GetSize().GetWidth(), 20));
-                dir_childrens->SetSize(dir_childrens->GetSize().GetWidth(), 20);
-                dir_childrens->SetMinSize(wxSize(dir_childrens->GetSize().GetWidth(), 20));
-
-                FitContainer(dir_childrens);
             } else {
                 Create(path.ToStdString(), dir_childrens);
                 dir_childrens->Show();
                 bitmaps.push_back(wxBitmap(arrow_bit.ConvertToImage().Rotate90(true), -1));
             }
 
+            FitContainer(dir_childrens);
             dir_arrow_ctn->SetBitmap(wxBitmapBundle::FromBitmaps(bitmaps));
-            auto dir_ctn_sizer = dir_container->GetSizer();
-            dir_container->Update();
-            dir_container->Layout();
-            dir_ctn_sizer->Layout();
 
-            dir_container->GetParent()->GetSizer()->Layout();
-            dir_container->GetParent()->Layout();
-            dir_container->GetParent()->Update();
+            dir_childrens->GetSizer()->Layout();
+            dir_childrens->Update();
+
+            dir_container->GetSizer()->Layout();
+            dir_container->Update();
         }
     }
 }

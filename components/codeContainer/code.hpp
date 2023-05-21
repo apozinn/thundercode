@@ -2,6 +2,10 @@
 #include <wx/stc/stc.h>
 #include "../statusBar/status.hpp"
 
+#include "../../main.hpp"
+
+#include <wx/app.h> 
+
 class CodeContainer : public wxStyledTextCtrl {
     wxStyledTextCtrl* m_activeSTC;
 public:
@@ -17,6 +21,10 @@ public:
             ((wxStaticText*)FindWindowById(ID_STTSBAR_CODELOCALE))->SetLabel(
                 "Line "+std::to_string(GetCurrentLine())+", Column "+std::to_string(GetColumn(GetCurrentPos()))
             );
+        }
+
+        if(auto mainFrame = ((wxFrame*)FindWindowById(ID_STATUS_BAR)->GetParent())) {
+            mainFrame->SetTitle(wxFileNameFromPath(path) + " (" + project_name + ") - ThunderCode");
         }
     }
     void SetFilename(wxString n_filename) {filename = n_filename;};

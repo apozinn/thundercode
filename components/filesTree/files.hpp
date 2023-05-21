@@ -42,31 +42,10 @@ public:
     	std::sort(folders_buffer.begin(), folders_buffer.end());
     	std::sort(files_buffer.begin(), files_buffer.end());
 
-    	auto resize_parents = [&]() {
-    		auto next_parent = parent;
-            bool has_next_parent = true;
-            while(has_next_parent) {
-            	int height = 20;
-            	for(auto&& children : next_parent->GetChildren()) {
-            		height = height+children->GetSize().GetHeight();
-            	}
-
-                next_parent->SetSize(next_parent->GetSize().GetWidth(), height);
-                next_parent->SetMinSize(wxSize(next_parent->GetSize().GetWidth(), height));
-
-                 if(next_parent->GetParent() && next_parent->GetId() != ID_PROJECT_FILES_CTN) {
-                    next_parent = next_parent->GetParent();
-                } else has_next_parent = false;
-            }
-    	};
-
     	for(auto&& f_ : folders_buffer) {
     		fileManager->ListChildrens(path, [&](const std::string &path, const std::string &type, const std::string &name) {
 		        if(type == "dir") {
-		        	if(name == f_) {
-		        		this->CreateDir(parent, name, path);
-		        		resize_parents();
-		        	}
+		        	if(name == f_) this->CreateDir(parent, name, path);
 		        }
     		});
     	}
@@ -74,10 +53,7 @@ public:
     	for(auto&& f_ : files_buffer) {
     		fileManager->ListChildrens(path, [&](const std::string &path, const std::string &type, const std::string &name) {
 		        if(type == "file") {
-		        	if(name == f_) {
-		        		this->CreateFile(parent, name, path);
-		        		resize_parents();
-		        	}
+		        	if(name == f_) this->CreateFile(parent, name, path);
 		        }
     		});
     	}
@@ -86,7 +62,21 @@ public:
 	void SetSelectedFile(wxWindow* new_window) {selectedFile = new_window;}
 
 	void FitContainer(wxWindow* window) {
-		std::cout << window->GetParent()->GetClientSize().GetHeight() << " / " << window->GetParent()->GetSize().GetHeight() << "\n";
+		auto next_parent = window;
+        bool has_next_parent = true;
+        while(has_next_parent) {
+        	int height = 0;
+        	for(auto&& children : next_parent->GetChildren()) {
+        		if(children->IsShown()) height = height+children->GetSize().GetHeight();
+        	}
+
+            next_parent->SetSize(next_parent->GetSize().GetWidth(), height);
+            next_parent->SetMinSize(wxSize(next_parent->GetSize().GetWidth(), height));
+
+             if(next_parent->GetParent() && next_parent->GetId() != ID_PROJECT_FILES_CTN) {
+                next_parent = next_parent->GetParent();
+            } else has_next_parent = false;
+        }
 	}
 
 	wxDECLARE_NO_COPY_CLASS(FilesTree);
