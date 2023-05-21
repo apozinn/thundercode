@@ -3,7 +3,7 @@
 <p align="center">Fast, lightweight and cross-platform</p>
 
 # 
-<img src="https://imgur.com/4r2lCy7.png">
+<img src="https://imgur.com/a/s9kYXBW.png">
 
 Written in c++. Thundercode was created to be fast, efficient and cross-platform(with a native look thanks to [wxWidgets](https://wxwidgets.org)).
 
