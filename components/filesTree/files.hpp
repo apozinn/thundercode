@@ -60,7 +60,6 @@ public:
 	}
 
 	void SetSelectedFile(wxWindow* new_window) {selectedFile = new_window;}
-
 	void FitContainer(wxWindow* window) {
 		auto next_parent = window;
         bool has_next_parent = true;
@@ -78,6 +77,6 @@ public:
             } else has_next_parent = false;
         }
 	}
-
+	void OnPaint(wxPaintEvent& event);
 	wxDECLARE_NO_COPY_CLASS(FilesTree);
 };

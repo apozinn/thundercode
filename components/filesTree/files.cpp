@@ -2,6 +2,8 @@
 #include "../codeContainer/code.hpp"
 #include "../tabs/tabs.hpp"
 
+#include <wx/graphics.h>
+
 FilesTree::FilesTree(wxWindow* parent, wxWindowID ID) : wxPanel(parent, ID) 
 {
     this->SetBackgroundColour(wxColor(45, 45, 45));
@@ -41,7 +43,7 @@ FilesTree::FilesTree(wxWindow* parent, wxWindowID ID) : wxPanel(parent, ID)
     project_tools->SetSizerAndFit(pjt_tools_sizer);
 
     project_files_ctn = new wxScrolled<wxPanel>(project_files, ID_PROJECT_FILES_CTN);
-    pjt_files_sizer->Add(project_files_ctn, 1, wxEXPAND | wxLEFT, 3);
+    pjt_files_sizer->Add(project_files_ctn, 1, wxEXPAND);
     auto pjt_files_ctn_sizer = new wxBoxSizer(wxVERTICAL);
     project_files_ctn->SetSizerAndFit(pjt_files_ctn_sizer);
     project_files->SetSizerAndFit(pjt_files_sizer);
@@ -103,7 +105,7 @@ void FilesTree::CreateFile(
     }
 
     wxStaticBitmap* file_icon = new wxStaticBitmap(file_container, wxID_ANY, wxBitmapBundle::FromBitmaps(bitmaps));
-    file_ctn_sizer->Add(file_icon, 0, wxALIGN_CENTRE_VERTICAL | wxLEFT, 3);
+    file_ctn_sizer->Add(file_icon, 0, wxALIGN_CENTRE_VERTICAL | wxLEFT, 8);
 
     wxStaticText* file_name = new wxStaticText(file_container, wxID_ANY, name);
     file_name->SetName(path);
@@ -136,7 +138,7 @@ void FilesTree::CreateDir(
     dir_props->SetLabel("dir_props");
     dir_props->Bind(wxEVT_LEFT_UP, &FilesTree::ToggleDir, this);
     wxBoxSizer* props_sizer = new wxBoxSizer(wxHORIZONTAL);
-    dir_ctn_sizer->Add(dir_props, 0, wxEXPAND | wxLEFT, 3);
+    dir_ctn_sizer->Add(dir_props, 0, wxEXPAND | wxLEFT, 8);
 
     wxVector<wxBitmap> bitmaps;
     bitmaps.push_back(wxBitmap(icons_dir+"dir_arrow.png", wxBITMAP_TYPE_PNG));
@@ -151,9 +153,11 @@ void FilesTree::CreateDir(
     dir_props->SetSizerAndFit(props_sizer);
 
     wxPanel* dir_childrens = new wxPanel(dir_container);
+    dir_childrens->Bind(wxEVT_PAINT, &FilesTree::OnPaint, ((FilesTree*)dir_childrens));
     wxBoxSizer* dir_childrens_sizer = new wxBoxSizer(wxVERTICAL);
     dir_childrens->SetSizerAndFit(dir_childrens_sizer);
-    dir_ctn_sizer->Add(dir_childrens, 0, wxEXPAND);
+
+    dir_ctn_sizer->Add(dir_childrens, 0, wxEXPAND | wxLEFT, 10);
 
     dir_container->SetSizerAndFit(dir_ctn_sizer);
     dir_childrens->Hide();
@@ -289,4 +293,24 @@ void FilesTree::onTopMenuClick(wxMouseEvent& event) {
     menuFile->Append(wxID_ANY, _("&Rename"));
     menuFile->Append(ID_OPEN_FOLDER, _("&Open terminal"));
     PopupMenu(menuFile);
+}
+
+void FilesTree::OnPaint(wxPaintEvent& event) {
+    auto curent_dir = ((wxPanel*)event.GetEventObject());
+    if(curent_dir) {
+        wxClientDC dc(this);
+        wxGraphicsContext *gc = wxGraphicsContext::Create(dc);
+
+        if(gc) {
+            gc->SetPen(gc->CreatePen(wxGraphicsPenInfo(wxColor(128, 128, 128)).Width(1.25).Style(wxPENSTYLE_DOT)));
+            gc->SetBrush(wxColor(128, 128, 128));
+
+            wxGraphicsPath path = gc->CreatePath();
+            path.MoveToPoint(0.0, 0.0);
+            path.AddLineToPoint(0.0, static_cast<double>(curent_dir->GetSize().GetHeight()));
+
+            gc->StrokePath(path);
+            delete gc;
+        }    
+    }
 }
