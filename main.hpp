@@ -49,6 +49,7 @@
 #include "./components/tabs/tabs.cpp"
 #include "./members/menuBar.cpp"
 #include "./members/emptyWindow.cpp"
+#include "./members/openFolderLink.cpp"
 
 class ThunderCode: public wxApp {
     virtual bool OnInit();
@@ -68,13 +69,15 @@ class MainFrame: public wxFrame {
     MenuBar* menu_bar;
     EmptyWindow* empty_window;
     wxPanel* side_container;
+    OpenFolderLink* open_folder_link;
 public:
     StatusBar* status_bar;
     MainFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
     void OnQuit(wxCommandEvent& event);
     void OnAbout(wxCommandEvent& event);
     void OnNewFile(wxCommandEvent& event);
-    void OnOpenFolder(wxCommandEvent& event);
+    void OnOpenFolderMenu(wxCommandEvent& event);
+    void OnOpenFolderClick(wxMouseEvent& event);
     void OnOpenFile(wxCommandEvent& event);
     void OnHiddeFilesTree(wxCommandEvent& event);
     void OnHiddeSideNav(wxCommandEvent& event);
@@ -84,6 +87,7 @@ public:
     void OnSashPaint(wxPaintEvent& event);
     void OnSashPosChange(wxSplitterEvent& event);
     void CloseAllFiles(wxCommandEvent& event);
+    void OpenFolderDialog();
 private:
     wxDECLARE_NO_COPY_CLASS(MainFrame);
     wxDECLARE_EVENT_TABLE();
@@ -94,7 +98,7 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_MENU(wxID_ABOUT, MainFrame::OnAbout)
     EVT_MENU(wxID_SAVE, CodeContainer::OnSave)
     EVT_MENU(ID_NEW_FILE, MainFrame::OnNewFile)
-    EVT_MENU(ID_OPEN_FOLDER, MainFrame::OnOpenFolder)
+    EVT_MENU(ID_OPEN_FOLDER, MainFrame::OnOpenFolderMenu)
     EVT_MENU(ID_OPEN_FILE, MainFrame::OnOpenFile)
     EVT_MENU(ID_HIDDE_FILES_TREE, MainFrame::OnHiddeFilesTree)
     EVT_MENU(ID_HIDDE_SIDE_NAV, MainFrame::OnHiddeSideNav)

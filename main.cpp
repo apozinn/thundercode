@@ -35,12 +35,10 @@ MainFrame::MainFrame(
     side_container = new wxPanel(main_splitter, ID_SIDE_CONTAINER);
     side_container->SetBackgroundColour(wxColor(45, 45, 45));
     wxBoxSizer* side_ctn_sizer = new wxBoxSizer(wxVERTICAL);
-
     main_splitter_sizer->Add(side_container, 0, wxEXPAND);
     
     files_tree = new FilesTree(side_container, ID_FILES_TREE);
     side_ctn_sizer->Add(files_tree, 1, wxEXPAND | wxLEFT, 5);
-
     side_container->SetSizerAndFit(side_ctn_sizer);
     
     main_code = new wxPanel(main_splitter, ID_MAIN_CODE);
@@ -87,6 +85,14 @@ MainFrame::MainFrame(
         }
         files_tree->Update();
         SetTitle("ThunderCode - "+project_name);
+    } else {
+        if(auto pjt_ctn = FindWindowById(ID_PROJECT_FILES_CTN)) {
+            open_folder_link = new OpenFolderLink(pjt_ctn, ID_OPEN_FOLDER_LINK);
+            open_folder_link->Bind(wxEVT_LEFT_UP, &MainFrame::OnOpenFolderClick, this);
+            for(auto&& children : open_folder_link->GetChildren()) 
+                children->Bind(wxEVT_LEFT_UP, &MainFrame::OnOpenFolderClick, this);
+            pjt_ctn->GetSizer()->Add(open_folder_link, 1, wxEXPAND);
+        }
     }
 
     wxAcceleratorEntry entries[1];
@@ -104,11 +110,7 @@ void MainFrame::OnAbout(wxCommandEvent& WXUNUSED(event)) {
         wxOK | wxICON_INFORMATION, this);
 }
 
-void MainFrame::OnNewFile(wxCommandEvent& WXUNUSED(event)) {
-    tabs_container->AddTab("Untitled", project_path);
-}
-
-void MainFrame::OnOpenFolder(wxCommandEvent& WXUNUSED(event)) {
+void MainFrame::OpenFolderDialog() {
     wxDirDialog* dlg = new wxDirDialog( NULL, "Choose project directory", "", wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
     dlg->ShowModal();
     wxString path = dlg->GetPath();
@@ -126,6 +128,18 @@ void MainFrame::OnOpenFolder(wxCommandEvent& WXUNUSED(event)) {
 
         SetTitle("ThunderCode - "+project_name);
     }
+}
+
+void MainFrame::OnNewFile(wxCommandEvent& WXUNUSED(event)) {
+    tabs_container->AddTab("Untitled", project_path);
+}
+
+void MainFrame::OnOpenFolderMenu(wxCommandEvent& WXUNUSED(event)) {
+    OpenFolderDialog();
+}
+
+void MainFrame::OnOpenFolderClick(wxMouseEvent& event) {
+    OpenFolderDialog();
 }
 
 void MainFrame::OnOpenFile(wxCommandEvent& WXUNUSED(event)) {
