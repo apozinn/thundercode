@@ -50,6 +50,7 @@
 #include "./members/menuBar.cpp"
 #include "./members/emptyWindow.cpp"
 #include "./members/openFolderLink.cpp"
+#include "./members/controlPanel.cpp"
 
 class ThunderCode: public wxApp {
     virtual bool OnInit();
@@ -70,6 +71,7 @@ class MainFrame: public wxFrame {
     EmptyWindow* empty_window;
     wxPanel* side_container;
     OpenFolderLink* open_folder_link;
+    ControlPanel* control_panel;
 public:
     StatusBar* status_bar;
     MainFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
@@ -88,6 +90,7 @@ public:
     void OnSashPosChange(wxSplitterEvent& event);
     void CloseAllFiles(wxCommandEvent& event);
     void OpenFolderDialog();
+    void ToggleControlPanel(wxCommandEvent& event);
 private:
     wxDECLARE_NO_COPY_CLASS(MainFrame);
     wxDECLARE_EVENT_TABLE();
@@ -107,4 +110,5 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_MENU(ID_HIDDE_TABS, MainFrame::OnHiddeTabs)
     EVT_MENU(ID_FOCUS_MODE, SideNavigation::OnFocusMode)
     EVT_MENU(ID_CLOSE_ALL_FILES, MainFrame::CloseAllFiles)
+    EVT_MENU(ID_TOGGLE_CONTROL_PANEL, MainFrame::ToggleControlPanel)
 wxEND_EVENT_TABLE()

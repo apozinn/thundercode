@@ -95,9 +95,11 @@ MainFrame::MainFrame(
         }
     }
 
-    wxAcceleratorEntry entries[1];
+    wxAcceleratorEntry entries[2];
     entries[0].Set(wxACCEL_ALT, WXK_ALT, ID_HIDDE_MENU_BAR);
-    wxAcceleratorTable accel(1, entries);
+    entries[1].Set(wxACCEL_CTRL, WXK_SHIFT, ID_TOGGLE_CONTROL_PANEL);
+    entries[1].FromString("Ctrl+Shift+P");
+    wxAcceleratorTable accel(2, entries);
     this->SetAcceleratorTable(accel);
 }
 
@@ -247,5 +249,13 @@ void MainFrame::CloseAllFiles(wxCommandEvent& WXUNUSED(event)) {
             files_tree->selectedFile->SetBackgroundColour(wxColor(45, 45, 45));
             files_tree->SetSelectedFile(new wxPanel(files_tree, wxID_ANY, wxDefaultPosition, wxSize(0, 0)));
         }
+    }
+}
+
+void MainFrame::ToggleControlPanel(wxCommandEvent& event) {
+    if(FindWindowById(ID_CONTROL_PANEL)) {
+        control_panel->Destroy();
+    } else {
+        control_panel = new ControlPanel(this, ID_CONTROL_PANEL);
     }
 }
