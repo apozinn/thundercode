@@ -43,18 +43,16 @@ MainFrame::MainFrame(
     
     main_code = new wxPanel(main_splitter, ID_MAIN_CODE);
     main_code->SetBackgroundColour(wxColor(55, 55, 55));
-    main_splitter_sizer->Add(main_code, 1, wxEXPAND);
     wxBoxSizer* main_code_sizer = new wxBoxSizer(wxVERTICAL);
 
-    tabs_container = new Tabs(main_code, ID_TABS);
-    tabs_container->DestroyChildren();
+    tabs = new Tabs(main_code, ID_TABS);
     empty_window = new EmptyWindow(main_code, ID_EMPYT_WINDOW);
 
-    main_code_sizer->Add(tabs_container, 0, wxEXPAND);
+    main_code_sizer->Add(tabs, 0, wxEXPAND);
     main_code_sizer->Add(empty_window, 1, wxEXPAND);
     
-    main_code_sizer->Layout();
     main_code->SetSizerAndFit(main_code_sizer);
+    main_splitter_sizer->Add(main_code, 1, wxEXPAND);
     main_splitter->SetSizerAndFit(main_splitter_sizer);
     main_splitter->SetMinimumPaneSize(250);
     main_splitter->SplitVertically(side_container, main_code, 1);
@@ -80,8 +78,8 @@ MainFrame::MainFrame(
         project_path = last_workspace;
 
         project_name = wxFileNameFromPath(project_path.substr(0, project_path.size()-1));
-        if(tabs_container) {
-            tabs_container->ClearAllTabs();
+        if(tabs) {
+            tabs->CloseAll();
         }
         files_tree->Update();
         SetTitle("ThunderCode - "+project_name);
@@ -119,8 +117,8 @@ void MainFrame::OpenFolderDialog() {
     if(path.size()) {
         project_path = path+"/";
         project_name = wxFileNameFromPath(path);
-        if(tabs_container) {
-            tabs_container->ClearAllTabs();
+        if(tabs) {
+            tabs->CloseAll();
         }
         files_tree->Update();
 
@@ -133,7 +131,7 @@ void MainFrame::OpenFolderDialog() {
 }
 
 void MainFrame::OnNewFile(wxCommandEvent& WXUNUSED(event)) {
-    tabs_container->AddTab("Untitled", project_path);
+    tabs->Add("Untitled", project_path);
 }
 
 void MainFrame::OnOpenFolderMenu(wxCommandEvent& WXUNUSED(event)) {
@@ -192,10 +190,10 @@ void MainFrame::OnHiddeStatusBar(wxCommandEvent& WXUNUSED(event)) {
 }
 
 void MainFrame::OnHiddeTabs(wxCommandEvent& WXUNUSED(event)) {
-    if(tabs_container) {
-        if(tabs_container->IsShown()) {
-            tabs_container->Hide();
-        } else tabs_container->Show();
+    if(tabs) {
+        if(tabs->IsShown()) {
+            tabs->Hide();
+        } else tabs->Show();
 
         main_code->GetSizer()->Layout();
         main_code->Update();
@@ -228,8 +226,8 @@ void MainFrame::OnSashPaint( wxPaintEvent& event )
 void MainFrame::OnSashPosChange( wxSplitterEvent& event ) { main_splitter->Refresh(); }
 
 void MainFrame::CloseAllFiles(wxCommandEvent& WXUNUSED(event)) {
-    if(tabs_container) {
-        for(auto&& tab : tabs_container->GetChildren()) {
+    if(tabs) {
+        for(auto&& tab : tabs->GetChildren()) {
             wxString tab_path = tab->GetName();
             if(FindWindowByLabel(tab_path+"_codeContainer")) {
                 FindWindowByLabel(tab_path+"_codeContainer")->Destroy();
@@ -241,7 +239,7 @@ void MainFrame::CloseAllFiles(wxCommandEvent& WXUNUSED(event)) {
             tab->Destroy();
         }
 
-        tabs_container->Hide();
+        tabs->Hide();
         FindWindowById(ID_EMPYT_WINDOW)->Show();
         status_bar->ClearLabels();
 

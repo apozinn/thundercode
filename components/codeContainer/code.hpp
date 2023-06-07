@@ -2,10 +2,6 @@
 #include <wx/stc/stc.h>
 #include "../statusBar/status.hpp"
 
-#include "../../main.hpp"
-
-#include <wx/app.h> 
-
 class CodeContainer : public wxStyledTextCtrl {
     wxStyledTextCtrl* m_activeSTC;
 public:

@@ -66,7 +66,7 @@ class MainFrame: public wxFrame {
     SideNavigation* side_navigation;
     FilesTree* files_tree;
     wxPanel* main_code;
-    Tabs* tabs_container;
+    Tabs* tabs;
     MenuBar* menu_bar;
     EmptyWindow* empty_window;
     wxPanel* side_container;

@@ -1,7 +1,6 @@
 #include "./files.hpp"
 #include "../codeContainer/code.hpp"
 #include "../tabs/tabs.hpp"
-
 #include <wx/graphics.h>
 
 FilesTree::FilesTree(wxWindow* parent, wxWindowID ID) : wxPanel(parent, ID) 
@@ -221,7 +220,7 @@ void FilesTree::OpenFile(wxString path) {
         }
     }
 
-    tabsContainer->AddTab(wxFileNameFromPath(path.substr(0, path.size())), path);
+    tabsContainer->Add(wxFileNameFromPath(path.substr(0, path.size())), path);
     main_code->GetSizer()->Layout();
     main_code->Update();
 }

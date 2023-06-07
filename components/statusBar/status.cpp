@@ -4,6 +4,7 @@ StatusBar::StatusBar(wxFrame* parent, wxWindowID ID) : wxPanel(parent, ID)
 {
 	this->SetBackgroundColour(wxColor(45,120,210));
 	sizer = new wxBoxSizer(wxHORIZONTAL);
+	wxFont new_font = fontWithOtherSize(this, 15);
 
 	wxPanel* left_ctn = new wxPanel(this);
 	wxBoxSizer* left_ctn_sizer = new wxBoxSizer(wxHORIZONTAL);
@@ -17,7 +18,7 @@ StatusBar::StatusBar(wxFrame* parent, wxWindowID ID) : wxPanel(parent, ID)
 	error_ctn_sizer->Add(error_ico, 0, wxALIGN_CENTER);
 
 	wxStaticText* error_count = new wxStaticText(error_ctn, wxID_ANY, "0");
-	error_count->SetFont(fontWithOtherSize(error_count, 15));
+	error_count->SetFont(new_font);
 	error_count->SetMinSize(wxSize(error_count->GetSize().GetWidth(), 15));
 	error_ctn_sizer->Add(error_count, 0, wxALIGN_CENTER | wxLEFT, 3);
 
@@ -33,17 +34,17 @@ StatusBar::StatusBar(wxFrame* parent, wxWindowID ID) : wxPanel(parent, ID)
 	wxBoxSizer* right_ctn_sizer = new wxBoxSizer(wxHORIZONTAL);
 
 	first_comp = new wxStaticText(right_ctn, ID_STTSBAR_CODELOCALE, "");
-	first_comp->SetFont(fontWithOtherSize(first_comp, 15));
+	first_comp->SetFont(new_font);
 	first_comp->SetMinSize(wxSize(110, 15));
 	right_ctn_sizer->Add(first_comp, 0, wxALIGN_CENTER | wxRIGHT, 4);
 
 	second_comp = new wxStaticText(right_ctn, ID_STTSBAR_TAB_SIZE, "");
-	second_comp->SetFont(fontWithOtherSize(second_comp, 15));
+	second_comp->SetFont(new_font);
 	second_comp->SetMinSize(wxSize(60, 15));
 	right_ctn_sizer->Add(second_comp, 0, wxALIGN_CENTER | wxRIGHT, 4);
 
 	third_comp = new wxStaticText(right_ctn, ID_STTSBAR_FILE_EXT, "");
-	third_comp->SetFont(fontWithOtherSize(third_comp, 15));
+	third_comp->SetFont(new_font);
 	third_comp->SetMinSize(wxSize(30, 15));
 	right_ctn_sizer->Add(third_comp, 0, wxALIGN_CENTER | wxRIGHT, 4);
 
@@ -89,3 +90,5 @@ void StatusBar::ClearLabels() {
 	second_comp->SetLabel("");
 	third_comp->SetLabel("");
 }
+
+void StatusBar::ResizeComps() {}

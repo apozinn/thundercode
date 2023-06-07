@@ -8,7 +8,7 @@ wxString stringToWxString(std::string str) {
     return r_str;
 }
 
-wxFont fontWithOtherSize(wxStaticText* cmp, int size) {
+wxFont fontWithOtherSize(wxWindow* cmp, int size) {
     wxFont font = cmp->GetFont(); 
     font.SetPixelSize(wxSize(size, size));
     return font;

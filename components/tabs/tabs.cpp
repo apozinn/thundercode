@@ -1,18 +1,15 @@
 #include "tabs.hpp"
-#include "../codeContainer/code.hpp"
-#include "../filesTree/files.hpp"
-#include "../../members/emptyWindow.cpp"
 
 Tabs::Tabs(wxPanel* parent, wxWindowID ID) : wxScrolled<wxPanel>(parent, ID) {
-	this->SetBackgroundColour(wxColor(55, 55, 55));
-	sizer = new wxBoxSizer(wxVERTICAL);
-    this->AddTab("ThunderCode", "initial_tab");
-	this->SetSizerAndFit(sizer);
+    this->SetBackgroundColour(wxColor(55, 55, 55));
+    sizer = new wxBoxSizer(wxVERTICAL);
+    this->Add("ThunderCode", "initial_tab");
+    this->SetSizerAndFit(sizer);
     this->SetScrollRate(20, 20);
     EnableScrolling(true, false);
 }
 
-void Tabs::AddTab(wxString tab_name, wxString path) {
+void Tabs::Add(wxString tab_name, wxString path) {
     sizer = this->GetSizer();
     if(!sizer) {
         wxBoxSizer* n_s = new wxBoxSizer(wxHORIZONTAL);
@@ -35,7 +32,7 @@ void Tabs::AddTab(wxString tab_name, wxString path) {
 
     wxPanel* new_tab = new wxPanel(this);
     new_tab->SetName(path);
-    new_tab->Bind(wxEVT_LEFT_UP, &Tabs::SelectTab, this);
+    new_tab->Bind(wxEVT_LEFT_UP, &Tabs::Select, this);
     wxBoxSizer* new_tab_sizer = new wxBoxSizer(wxVERTICAL);
 
     wxPanel* tab_infos = new wxPanel(new_tab);
@@ -44,13 +41,13 @@ void Tabs::AddTab(wxString tab_name, wxString path) {
     wxStaticText* name = new wxStaticText(tab_infos, wxID_ANY, tab_name);
     name->SetName(path);
     name->SetFont(fontWithOtherSize(name, 17));
-    name->Bind(wxEVT_LEFT_UP, &Tabs::SelectTab, this);
+    name->Bind(wxEVT_LEFT_UP, &Tabs::Select, this);
     tab_infos_sizer->Add(name, 0, wxEXPAND | wxRIGHT, 5);
 
     wxVector<wxBitmap> bitmaps;
     bitmaps.push_back(wxBitmap(wxBitmap(icons_dir+"close.png", wxBITMAP_TYPE_PNG)));
     wxStaticBitmap* close_icon = new wxStaticBitmap(tab_infos, wxID_ANY, wxBitmapBundle::FromBitmaps(bitmaps));
-    close_icon->Bind(wxEVT_LEFT_UP, &Tabs::CloseTab, this);
+    close_icon->Bind(wxEVT_LEFT_UP, &Tabs::OnCloseTab, this);
     tab_infos_sizer->Add(close_icon, 0, wxALIGN_CENTER);
 
     wxVector<wxBitmap> bitmaps_c;
@@ -73,7 +70,7 @@ void Tabs::AddTab(wxString tab_name, wxString path) {
     Scroll(1000, 0);
 }
 
-void Tabs::ClearTab(wxString tab_path) {
+void Tabs::Close(wxString tab_path) {
     auto codeContainer = ((CodeContainer*)FindWindowByLabel(tab_path+"_codeContainer"));
     auto imgContainer = ((wxPanel*)FindWindowByLabel(tab_path+"_imgContainer"));
 
@@ -133,7 +130,7 @@ void Tabs::ClearTab(wxString tab_path) {
     }
 }
 
-void Tabs::ClearAllTabs() {
+void Tabs::CloseAll() {
     auto main_code = FindWindowById(ID_MAIN_CODE);
     this->DestroyChildren();
     for(auto&& other_ct : main_code->GetChildren()) {
@@ -143,7 +140,7 @@ void Tabs::ClearAllTabs() {
     FindWindowById(ID_EMPYT_WINDOW)->Show();
 }
 
-void Tabs::SelectTab(wxMouseEvent& event) {
+void Tabs::Select(wxMouseEvent& event) {
     auto this_tab = ((Tabs*)event.GetEventObject());
     wxString tab_path = this_tab->GetName();
     auto main_code = FindWindowById(ID_MAIN_CODE);
@@ -181,8 +178,8 @@ void Tabs::SelectTab(wxMouseEvent& event) {
     main_code->Update();
 }
 
-void Tabs::CloseTab(wxMouseEvent& event) {
-	wxObject* obj = event.GetEventObject();
+void Tabs::OnCloseTab(wxMouseEvent& event) {
+    wxObject* obj = event.GetEventObject();
     auto this_tab = ((wxWindow*)obj)->GetGrandParent();
-    if(this_tab) Tabs::ClearTab(this_tab->GetName());
+    if(this_tab) Tabs::Close(this_tab->GetName());
 }

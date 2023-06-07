@@ -38,6 +38,7 @@ public:
 
 		for(const auto& ctrl_menu : menus) {
 			wxPanel* menu = new wxPanel(menus_container);
+			menu->SetLabel(std::to_string(ctrl_menu.ID));
 			if(ctrl_menu.ID == 1) {
 				menu->SetBackgroundColour(wxColor(56, 56, 56));
 				selectedMenu = menu;
@@ -65,11 +66,12 @@ public:
     	menus_container->SetScrollRate(20, 20);
 		sizer->Add(menus_container, 1, wxEXPAND);
 
-		wxAcceleratorEntry entries[3];
+		wxAcceleratorEntry entries[4];
 	    entries[0].Set(wxACCEL_NORMAL, WXK_ESCAPE, ID_EXIT_CONTROL_PANEL);
 	    entries[1].Set(wxACCEL_NORMAL, WXK_UP, ID_CONTROL_PANEL_UP);
 	    entries[2].Set(wxACCEL_NORMAL, WXK_DOWN, ID_CONTROL_PANEL_DOWN);
-	    wxAcceleratorTable accel(3, entries);
+	    entries[3].Set(wxACCEL_NORMAL, WXK_RETURN, ID_CONTROL_PANEL_SELECT);
+	    wxAcceleratorTable accel(4, entries);
 	    SetAcceleratorTable(accel);
 
 	    SetSizerAndFit(sizer);
@@ -116,6 +118,19 @@ public:
 			}
 		}
 	}
+	void Select(wxCommandEvent& event) {
+		auto id = selectedMenu->GetLabel();
+		if(id == "1") {
+			if(auto side_navigation = FindWindowById(ID_SIDE_NAVIGATION)) {
+				((SideNavigation*)side_navigation)->ToggleFocusMode();
+			}
+		}
+
+		{
+			FindWindowById(ID_STATUS_BAR)->SetFocus();
+			Destroy();
+		}
+	}
 private:
 	std::vector<ControlMenu> menus {
 		{"Enter Focus Mode", "Shift+F11", 1},
@@ -130,4 +145,5 @@ wxBEGIN_EVENT_TABLE(ControlPanel, wxPanel)
     EVT_MENU(ID_EXIT_CONTROL_PANEL, ControlPanel::Close)
     EVT_MENU(ID_CONTROL_PANEL_UP, ControlPanel::UpSelection)
     EVT_MENU(ID_CONTROL_PANEL_DOWN, ControlPanel::DownSelection)
+    EVT_MENU(ID_CONTROL_PANEL_SELECT, ControlPanel::Select)
 wxEND_EVENT_TABLE()
