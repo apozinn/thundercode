@@ -21,7 +21,6 @@ StatusBar::StatusBar(wxFrame* parent, wxWindowID ID) : wxPanel(parent, ID)
 	error_count->SetFont(new_font);
 	error_count->SetMinSize(wxSize(error_count->GetSize().GetWidth(), 15));
 	error_ctn_sizer->Add(error_count, 0, wxALIGN_CENTER | wxLEFT, 3);
-
 	error_ctn->SetSizerAndFit(error_ctn_sizer);
 
 	left_ctn_sizer->Add(error_ctn);
@@ -48,20 +47,7 @@ StatusBar::StatusBar(wxFrame* parent, wxWindowID ID) : wxPanel(parent, ID)
 	third_comp->SetMinSize(wxSize(30, 15));
 	right_ctn_sizer->Add(third_comp, 0, wxALIGN_CENTER | wxRIGHT, 4);
 
-	wxVector<wxBitmap> bitmaps_suggest;
-    bitmaps_suggest.push_back(wxBitmap(icons_dir+"suggest.png", wxBITMAP_TYPE_PNG));
-    wxStaticBitmap* suggest_ico = new wxStaticBitmap(right_ctn, wxID_ANY, wxBitmapBundle::FromBitmaps(bitmaps_suggest));
-    suggest_ico->SetMinSize(wxSize(16, 16));
-	right_ctn_sizer->Add(suggest_ico, 0, wxALIGN_CENTER | wxRIGHT, 4);
-
-	wxVector<wxBitmap> bitmaps_sup;
-    bitmaps_sup.push_back(wxBitmap(icons_dir+"support.png", wxBITMAP_TYPE_PNG));
-    wxStaticBitmap* sup_ico = new wxStaticBitmap(right_ctn, wxID_ANY, wxBitmapBundle::FromBitmaps(bitmaps_sup));
-    sup_ico->SetMinSize(wxSize(16, 16));
-	right_ctn_sizer->Add(sup_ico, 0, wxALIGN_CENTER);
-
 	right_ctn_sizer->SetSizeHints(right_ctn);
-
 	right_ctn->SetSizerAndFit(right_ctn_sizer);
 	sizer->Add(right_ctn, 0, wxEXPAND | wxALL, 3);
 

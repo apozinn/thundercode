@@ -78,12 +78,11 @@ MainFrame::MainFrame(
         project_path = last_workspace;
 
         project_name = wxFileNameFromPath(project_path.substr(0, project_path.size()-1));
-        if(tabs) {
-            tabs->CloseAll();
-        }
+        tabs->CloseAll();
         files_tree->Update();
         SetTitle("ThunderCode - "+project_name);
     } else {
+        tabs->CloseAll();
         if(auto pjt_ctn = FindWindowById(ID_PROJECT_FILES_CTN)) {
             open_folder_link = new OpenFolderLink(pjt_ctn, ID_OPEN_FOLDER_LINK);
             open_folder_link->Bind(wxEVT_LEFT_UP, &MainFrame::OnOpenFolderClick, this);
