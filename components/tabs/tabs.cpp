@@ -1,26 +1,32 @@
 #include "tabs.hpp"
 
-Tabs::Tabs(wxPanel* parent, wxWindowID ID) : wxScrolled<wxPanel>(parent, ID) {
-    this->SetBackgroundColour(wxColor(55, 55, 55));
-    sizer = new wxBoxSizer(wxVERTICAL);
-    this->Add("ThunderCode", "initial_tab");
-    this->SetSizerAndFit(sizer);
-    this->SetScrollRate(20, 20);
-    EnableScrolling(true, false);
+Tabs::Tabs(wxPanel* parent, wxWindowID ID) : wxPanel(parent, ID) {
+    SetBackgroundColour(wxColor(55, 55, 55));
+    sizer = new wxBoxSizer(wxHORIZONTAL);
+
+    tabs_container = new wxScrolled<wxPanel>(this);
+    tabs_ctn_sizer = new wxBoxSizer(wxHORIZONTAL);
+    tabs_container->SetSizerAndFit(tabs_ctn_sizer);
+
+    wxVector<wxBitmap> bitmaps;
+    bitmaps.push_back(wxBitmap(icons_dir+"menu_down.png", wxBITMAP_TYPE_PNG));
+    menu = new wxStaticBitmap(this, wxID_ANY, wxBitmapBundle::FromBitmaps(bitmaps));
+    menu->Bind(wxEVT_LEFT_UP, &Tabs::OnMenu, this);
+
+    sizer->Add(tabs_container, 1, wxEXPAND);
+    sizer->Add(menu, 0, wxALIGN_CENTER | wxRIGHT, 10);
+    Add("ThunderCode", "initial_tab");
+
+    SetSizerAndFit(sizer);
+    tabs_container->SetScrollRate(20, 20);
+    tabs_container->EnableScrolling(true, false);
 }
 
-void Tabs::Add(wxString tab_name, wxString path) {
-    sizer = this->GetSizer();
-    if(!sizer) {
-        wxBoxSizer* n_s = new wxBoxSizer(wxHORIZONTAL);
-        this->SetSizerAndFit(n_s);
-        sizer = n_s;
-    }
-    
-    if(!this->IsShown()) this->Show();
+void Tabs::Add(wxString tab_name, wxString path) {    
+    if(!IsShown()) Show();
 
     bool exists = false;
-    for(auto& a_tab : this->GetChildren()) {
+    for(auto& a_tab : tabs_container->GetChildren()) {
         if(a_tab->GetName() == path) {
             a_tab->GetChildren()[1]->SetBackgroundColour(wxColor(255, 0, 180));
             exists = true;
@@ -30,7 +36,7 @@ void Tabs::Add(wxString tab_name, wxString path) {
     }
     if(exists) return;
 
-    wxPanel* new_tab = new wxPanel(this);
+    wxPanel* new_tab = new wxPanel(tabs_container);
     new_tab->SetName(path);
     new_tab->Bind(wxEVT_LEFT_UP, &Tabs::Select, this);
     wxBoxSizer* new_tab_sizer = new wxBoxSizer(wxVERTICAL);
@@ -64,10 +70,12 @@ void Tabs::Add(wxString tab_name, wxString path) {
     new_tab_sizer->Add(active_bar, 0, wxEXPAND);
 
     new_tab->SetSizerAndFit(new_tab_sizer);
-    sizer->Add(new_tab, 0);
+    tabs_ctn_sizer->Add(new_tab, 0);
     selected_tab = path;
-    this->FitInside();
-    Scroll(1000, 0);
+    tabs_container->FitInside();
+    tabs_container->Scroll(1000, 0);
+
+    SetMinSize(wxSize(GetSize().GetWidth(), new_tab->GetSize().GetHeight()));
 }
 
 void Tabs::Close(wxString tab_path) {
@@ -132,7 +140,8 @@ void Tabs::Close(wxString tab_path) {
 
 void Tabs::CloseAll() {
     auto main_code = FindWindowById(ID_MAIN_CODE);
-    this->DestroyChildren();
+    tabs_container->DestroyChildren();
+    Hide();
     for(auto&& other_ct : main_code->GetChildren()) {
         if(other_ct->GetId() != ID_TABS &&
             other_ct->GetId() != ID_EMPYT_WINDOW) other_ct->Destroy();
@@ -182,4 +191,13 @@ void Tabs::OnCloseTab(wxMouseEvent& event) {
     wxObject* obj = event.GetEventObject();
     auto this_tab = ((wxWindow*)obj)->GetGrandParent();
     if(this_tab) Tabs::Close(this_tab->GetName());
+}
+
+void Tabs::OnMenu(wxMouseEvent& event) {
+    wxMenu* tabsMenu = new wxMenu;
+    tabsMenu->Append(ID_CLOSE_ALL_FILES, _("&Close All"));
+    tabsMenu->Append(wxID_ANY, _("&First Tab"));
+    tabsMenu->Append(wxID_ANY, _("&Last Tab"));
+    tabsMenu->Append(wxID_ANY, _("&Close Saved"));
+    PopupMenu(tabsMenu);
 }

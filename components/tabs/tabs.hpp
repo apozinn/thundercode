@@ -5,9 +5,12 @@
 #include "../filesTree/files.hpp"
 #include "../../members/emptyWindow.cpp"
 
-class Tabs : public wxScrolled<wxPanel> {
+class Tabs : public wxPanel {
 	wxSizer* sizer;
 	wxString selected_tab;
+	wxStaticBitmap* menu;
+	wxScrolled<wxPanel>* tabs_container;
+	wxBoxSizer* tabs_ctn_sizer;
 public:
 	Tabs(wxPanel* parent, wxWindowID ID);
 	void Add(wxString tab_name, wxString path);
@@ -15,5 +18,6 @@ public:
 	void CloseAll();
 	void Select(wxMouseEvent& event);
 	void OnCloseTab(wxMouseEvent& event);
+	void OnMenu(wxMouseEvent& event);
 	wxDECLARE_NO_COPY_CLASS(Tabs);
 };

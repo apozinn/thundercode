@@ -50,7 +50,7 @@ MainFrame::MainFrame(
 
     main_code_sizer->Add(tabs, 0, wxEXPAND);
     main_code_sizer->Add(empty_window, 1, wxEXPAND);
-    
+
     main_code->SetSizerAndFit(main_code_sizer);
     main_splitter_sizer->Add(main_code, 1, wxEXPAND);
     main_splitter->SetSizerAndFit(main_splitter_sizer);
