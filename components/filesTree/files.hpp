@@ -4,13 +4,19 @@
 #include <wx/filename.h>
 #include <wx/scrolwin.h>
 #include <wx/wfstream.h>
+#include <wx/fswatcher.h>
 #include <wx/txtstrm.h>
 #include <wx/statbmp.h>
+#include "wx/listctrl.h"
+#include "wx/cmdline.h"
 
 #include "../../utils/randoms.hpp"
 #include "../../utils/fileManager.hpp"
 #include "../../members/imagePanel.cpp"
 #include "../statusBar/status.hpp"
+#include "../codeContainer/code.hpp"
+#include "../tabs/tabs.hpp"
+#include <wx/graphics.h>
 
 class FilesTree : public wxPanel {
 	wxPanel* files_tree;
@@ -18,6 +24,64 @@ class FilesTree : public wxPanel {
     wxScrolled<wxPanel>* files_container;
     wxBoxSizer* file_ctn_sizer;
     wxScrolled<wxPanel>* project_files_ctn;
+    wxFileSystemWatcher* m_watcher;
+    wxString m_dirToWatch;
+
+    wxTextCtrl *m_evtConsole;         // events console
+    wxListView *m_filesList;          // list of watched paths
+
+     virtual void OnEventLoopEnter(wxEventLoopBase* WXUNUSED(loop))
+    {
+        if ( CreateWatcherIfNecessary() )
+        {
+            if ( !m_dirToWatch.empty() )
+                AddDirectory(m_dirToWatch);
+        }
+    }
+
+    virtual void OnInitCmdLine(wxCmdLineParser& parser)
+    {
+        OnInitCmdLine(parser);
+        parser.AddParam("directory to watch",
+                        wxCMD_LINE_VAL_STRING,
+                        wxCMD_LINE_PARAM_OPTIONAL);
+    }
+
+    virtual bool OnCmdLineParsed(wxCmdLineParser& parser)
+    {
+        if ( !OnCmdLineParsed(parser) )
+            return false;
+
+        if ( parser.GetParamCount() )
+            m_dirToWatch = parser.GetParam();
+
+        return true;
+    }
+
+     void AddDirectory(const wxString& dir);
+
+    bool CreateWatcherIfNecessary();
+
+    const wxString LOG_FORMAT = " %-12s %-36s    %-36s";
+
+    static wxString GetFSWEventChangeTypeName(int changeType)
+{
+    switch (changeType)
+    {
+    case wxFSW_EVENT_CREATE:
+        return "CREATE";
+    case wxFSW_EVENT_DELETE:
+        return "DELETE";
+    case wxFSW_EVENT_RENAME:
+        return "RENAME";
+    case wxFSW_EVENT_MODIFY:
+        return "MODIFY";
+    case wxFSW_EVENT_ACCESS:
+        return "ACCESS";
+    }
+
+    return "INVALID_TYPE";
+}
 public:
     wxWindow* selectedFile;
 	FileManager* fileManager = new FileManager();
@@ -29,6 +93,8 @@ public:
 	void ToggleDir(wxMouseEvent& event);
 	void OpenFile(wxString path);
 	void onTopMenuClick(wxMouseEvent& event);
+    void onFileRightClick(wxMouseEvent& event);
+    void onDirRightClick(wxMouseEvent& event);
 	void Create(std::string path, wxWindow* parent) {
 		std::vector<std::string> folders_buffer;
 		std::vector<std::string> files_buffer;
@@ -78,5 +144,11 @@ public:
         }
 	}
 	void OnPaint(wxPaintEvent& event);
+	void UpdateTree(wxFileSystemWatcherEvent& event);
+
+	void OnFileSystemEvent(wxFileSystemWatcherEvent& event);
+    void LogEvent(const wxFileSystemWatcherEvent& event);
+    void CreateWatcher();
+
 	wxDECLARE_NO_COPY_CLASS(FilesTree);
 };

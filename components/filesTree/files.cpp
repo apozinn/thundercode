@@ -1,7 +1,4 @@
 #include "./files.hpp"
-#include "../codeContainer/code.hpp"
-#include "../tabs/tabs.hpp"
-#include <wx/graphics.h>
 
 FilesTree::FilesTree(wxWindow* parent, wxWindowID ID) : wxPanel(parent, ID) 
 {
@@ -50,6 +47,7 @@ FilesTree::FilesTree(wxWindow* parent, wxWindowID ID) : wxPanel(parent, ID)
     sizer->Add(project_files, 1, wxEXPAND);
     this->SetSizerAndFit(sizer);
     if(!project_path.size()) pjt_arrow->Hide();
+    Bind(wxEVT_FSWATCHER, &FilesTree::UpdateTree, this);
 }
 
 void FilesTree::Update() {
@@ -65,6 +63,8 @@ void FilesTree::Update() {
     project_files_ctn->FitInside();
     project_files_ctn->SetScrollRate(20, 20);
     selectedFile = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(0, 0));
+
+    // CreateWatcher();
 }
 
 void FilesTree::CreateFile(
@@ -79,6 +79,7 @@ void FilesTree::CreateFile(
     }
 
     wxPanel* file_container = new wxPanel(parent);
+    file_container->Bind(wxEVT_RIGHT_UP, &FilesTree::onFileRightClick, this);
     file_container->SetMinSize(wxSize(file_container->GetSize().GetWidth(), 20));
     file_container->SetSize(file_container->GetSize().GetWidth(), 20);
     file_container->SetName(path);
@@ -109,6 +110,7 @@ void FilesTree::CreateFile(
     wxStaticText* file_name = new wxStaticText(file_container, wxID_ANY, name);
     file_name->SetName(path);
     file_name->Bind(wxEVT_LEFT_UP, &FilesTree::OnFileSelect, this);
+    file_name->Bind(wxEVT_RIGHT_UP, &FilesTree::onFileRightClick, this);
     file_name->SetFont(fontWithOtherSize(file_name, 18));
     file_ctn_sizer->Add(file_name, 0, wxALIGN_CENTRE_VERTICAL | wxLEFT, 3);
 
@@ -136,6 +138,7 @@ void FilesTree::CreateDir(
     wxPanel* dir_props = new wxPanel(dir_container);
     dir_props->SetLabel("dir_props");
     dir_props->Bind(wxEVT_LEFT_UP, &FilesTree::ToggleDir, this);
+    dir_props->Bind(wxEVT_RIGHT_UP, &FilesTree::onDirRightClick, this);
     wxBoxSizer* props_sizer = new wxBoxSizer(wxHORIZONTAL);
     dir_ctn_sizer->Add(dir_props, 0, wxEXPAND | wxLEFT, 8);
 
@@ -147,6 +150,7 @@ void FilesTree::CreateDir(
     wxStaticText* dir_name = new wxStaticText(dir_props, wxID_ANY, name);
     dir_name->SetName("dir_name");
     dir_name->Bind(wxEVT_LEFT_UP, &FilesTree::ToggleDir, this);
+    dir_name->Bind(wxEVT_RIGHT_UP, &FilesTree::onDirRightClick, this);
     dir_name->SetFont(fontWithOtherSize(dir_name, 18));
     props_sizer->Add(dir_name, 0, wxEXPAND | wxLEFT, 4);
     dir_props->SetSizerAndFit(props_sizer);
@@ -288,9 +292,26 @@ void FilesTree::ToggleDir(wxMouseEvent& event) {
 void FilesTree::onTopMenuClick(wxMouseEvent& event) {
     wxMenu* menuFile = new wxMenu;
     menuFile->Append(wxID_ANY, _("&New File"));
-    menuFile->Append(ID_OPEN_FOLDER, _("&New Folder"));
+    menuFile->Append(wxID_ANY, _("&New Folder"));
     menuFile->Append(wxID_ANY, _("&Rename"));
-    menuFile->Append(ID_OPEN_FOLDER, _("&Open terminal"));
+    menuFile->Append(wxID_ANY, _("&Open terminal"));
+    PopupMenu(menuFile);
+}
+
+void FilesTree::onFileRightClick(wxMouseEvent& event) {
+    wxMenu* menuFile = new wxMenu;
+    menuFile->Append(wxID_ANY, _("&Rename"));
+    menuFile->Append(wxID_ANY, _("&Delete File"));
+    PopupMenu(menuFile);
+}
+
+void FilesTree::onDirRightClick(wxMouseEvent& event) {
+    wxMenu* menuFile = new wxMenu;
+    menuFile->Append(wxID_ANY, _("&Rename"));
+    menuFile->Append(wxID_ANY, _("&New File"));
+    menuFile->Append(wxID_ANY, _("&New Folder"));
+    menuFile->Append(wxID_ANY, _("&Open Folder"));
+    menuFile->Append(wxID_ANY, _("&Delete Folder"));
     PopupMenu(menuFile);
 }
 
@@ -311,5 +332,57 @@ void FilesTree::OnPaint(wxPaintEvent& event) {
             gc->StrokePath(path);
             delete gc;
         }    
+    }
+}
+
+void FilesTree::UpdateTree(wxFileSystemWatcherEvent& event) {}
+
+bool FilesTree::CreateWatcherIfNecessary()
+{
+    if (m_watcher)
+        return false;
+
+    CreateWatcher();
+    Connect(wxEVT_FSWATCHER,
+            wxFileSystemWatcherEventHandler(FilesTree::OnFileSystemEvent));
+
+    return true;
+}
+
+void FilesTree::OnFileSystemEvent(wxFileSystemWatcherEvent& event)
+{
+    // TODO remove when code is rock-solid
+    wxLogDebug(wxTRACE_FSWATCHER, "*** %s ***", event.ToString());
+    LogEvent(event);
+}
+
+void FilesTree::LogEvent(const wxFileSystemWatcherEvent& event)
+{
+    wxString entry = wxString::Format(LOG_FORMAT + "\n",
+                            GetFSWEventChangeTypeName(event.GetChangeType()),
+                            event.GetPath().GetFullPath(),
+                            event.GetNewPath().GetFullPath());
+    m_evtConsole->AppendText(entry);
+}
+
+void FilesTree::CreateWatcher()
+{
+    wxCHECK_RET(!m_watcher, "Watcher already initialized");
+    m_watcher = new wxFileSystemWatcher();
+    m_watcher->SetOwner(this);
+    m_watcher->AddTree(wxFileName::DirName(project_path)); 
+}
+
+void FilesTree::AddDirectory(const wxString& dir)
+{
+    wxLogDebug("Adding directory: '%s'", dir);
+
+    if (!m_watcher->Add(wxFileName::DirName(dir), wxFSW_EVENT_ALL))
+    {
+        wxLogError("Error adding '%s' to watched paths", dir);
+    }
+    else
+    {
+        m_filesList->InsertItem(m_filesList->GetItemCount(), dir);
     }
 }

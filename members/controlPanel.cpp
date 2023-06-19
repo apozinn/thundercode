@@ -1,3 +1,5 @@
+#include "notifyPanel.cpp"
+
 struct ControlMenu {
 	const char* name;
 	const char* shortkut;
@@ -126,16 +128,27 @@ public:
 			}
 		}
 
-		{
-			FindWindowById(ID_STATUS_BAR)->SetFocus();
-			Destroy();
+		if(id == "4") {
+			std::vector<NotifyInteractions> ntf_interactions {
+				{"Cancel", "cancel"},
+				{"Ok", "ok"},
+			};
+			auto notify_panel = new NotifyPanel(
+				((wxWindow*)FindWindowById(ID_STATUS_BAR)->GetParent()), 
+				"Executando teste de painel de Notificações", 
+				ntf_interactions
+			);
 		}
+
+		FindWindowById(ID_STATUS_BAR)->SetFocus();
+		Destroy();
 	}
 private:
 	std::vector<ControlMenu> menus {
 		{"Enter Focus Mode", "Shift+F11", 1},
 		{"Hide Side Navigation", "", 2},
 		{"Extensions: Install", "", 3},
+		{"Notify Panel", "Ctrl+Shift+N", 4},
 	};
 	wxDECLARE_NO_COPY_CLASS(ControlPanel);
     wxDECLARE_EVENT_TABLE();

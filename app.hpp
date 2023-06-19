@@ -26,3 +26,8 @@ const char *FormatBytes(long long bytes, char *str)
  
     return strcat(strcat(str, " "), sizes[i]);
 }
+
+struct NotifyInteractions {
+    const char* label;
+    const char* id;
+};

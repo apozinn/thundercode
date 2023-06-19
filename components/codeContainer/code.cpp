@@ -163,6 +163,7 @@ CodeContainer::CodeContainer(wxWindow* parent, wxWindowID ID, wxString path) : w
     Bind(wxEVT_STC_CHARADDED, &CodeContainer::CharAdd, this);
     Bind(wxEVT_STC_MARGINCLICK, &CodeContainer::onMarginClick, this);
     Bind(wxEVT_LEFT_UP, &CodeContainer::onClick, this);
+    Bind(wxEVT_KEY_UP, &CodeContainer::OnArrowsPress, this);
 }
 
 void CodeContainer::OnSave(wxCommandEvent& event) {
@@ -173,7 +174,7 @@ void CodeContainer::OnSave(wxCommandEvent& event) {
             if(file_path.size()) {
                 children_ct->SaveFile(file_path);
 
-                for(auto&& tab : FindWindowById(ID_TABS)->GetChildren()) {
+                for(auto&& tab : FindWindowById(ID_TABS_CONTAINER)->GetChildren()) {
                     if(tab->GetName() == file_path) {
                         auto close_ico = tab->GetChildren()[0]->GetChildren()[1];
                         auto unsaved_ico = tab->GetChildren()[0]->GetChildren()[2];
@@ -210,7 +211,7 @@ void CodeContainer::setfoldlevels(size_t fromPos, int startfoldlevel, wxString& 
 void CodeContainer::OnChange(wxStyledTextEvent& event) {
     wxString key = event.GetText();
     if(GetModify()) {
-        auto tabs = FindWindowById(ID_TABS);
+        auto tabs = FindWindowById(ID_TABS_CONTAINER);
         if(tabs) {
             for(auto&& tab : tabs->GetChildren()) {
                 if(tab->GetName() == GetFilename()) {
@@ -228,13 +229,26 @@ void CodeContainer::OnChange(wxStyledTextEvent& event) {
     }
 
     SetStatus(1);
+
+    if(FindWindowById(ID_STTSBAR_CODELOCALE)) {
+        ((wxStaticText*)FindWindowById(ID_STTSBAR_CODELOCALE))->SetLabel(
+            "Line "+std::to_string(GetCurrentLine())+", Column "+std::to_string(GetColumn(GetCurrentPos()))
+        );
+    }
+}
+
+void CodeContainer::OnArrowsPress(wxKeyEvent& event) {
+    if(FindWindowById(ID_STTSBAR_CODELOCALE)) {
+        ((wxStaticText*)FindWindowById(ID_STTSBAR_CODELOCALE))->SetLabel(
+            "Line "+std::to_string(GetCurrentLine())+", Column "+std::to_string(GetColumn(GetCurrentPos()))
+        );
+    }
 }
 
 void CodeContainer::CharAdd(wxStyledTextEvent& event) {
     char chr = (char)event.GetKey();
     int currentLine = GetCurrentLine();
 	char previous_char = (char)GetCharAt(GetCurrentPos()-2);
-	std::cout << previous_char << " pc\n";
 
     if (chr == '\n') {
         int currentLineInd;

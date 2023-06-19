@@ -4,7 +4,7 @@ Tabs::Tabs(wxPanel* parent, wxWindowID ID) : wxPanel(parent, ID) {
     SetBackgroundColour(wxColor(55, 55, 55));
     sizer = new wxBoxSizer(wxHORIZONTAL);
 
-    tabs_container = new wxScrolled<wxPanel>(this);
+    tabs_container = new wxScrolled<wxPanel>(this, ID_TABS_CONTAINER);
     tabs_ctn_sizer = new wxBoxSizer(wxHORIZONTAL);
     tabs_container->SetSizerAndFit(tabs_ctn_sizer);
 

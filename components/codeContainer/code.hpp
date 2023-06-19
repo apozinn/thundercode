@@ -32,6 +32,7 @@ public:
 	void OnChange(wxStyledTextEvent& event);
     void CharAdd(wxStyledTextEvent& event);
     void onClick(wxMouseEvent& event);
+    void OnArrowsPress(wxKeyEvent& event);
 private:
     wxString filename;
     wxDECLARE_NO_COPY_CLASS(CodeContainer);
