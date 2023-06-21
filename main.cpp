@@ -40,8 +40,11 @@ MainFrame::MainFrame(
     files_tree = new FilesTree(side_container, ID_FILES_TREE);
     side_ctn_sizer->Add(files_tree, 1, wxEXPAND | wxLEFT, 5);
     side_container->SetSizerAndFit(side_ctn_sizer);
-    
-    main_code = new wxPanel(main_splitter, ID_MAIN_CODE);
+
+    servical_container = new wxSplitterWindow(main_splitter, ID_SERVICAL_CONTAINER);
+    wxBoxSizer* servical_ctn_sizer = new wxBoxSizer(wxVERTICAL);
+
+    main_code = new wxPanel(servical_container, ID_MAIN_CODE);
     main_code->SetBackgroundColour(wxColor(55, 55, 55));
     wxBoxSizer* main_code_sizer = new wxBoxSizer(wxVERTICAL);
 
@@ -50,12 +53,20 @@ MainFrame::MainFrame(
 
     main_code_sizer->Add(tabs, 0, wxEXPAND);
     main_code_sizer->Add(empty_window, 1, wxEXPAND);
-
     main_code->SetSizerAndFit(main_code_sizer);
-    main_splitter_sizer->Add(main_code, 1, wxEXPAND);
+
+    terminal = new Terminal(servical_container, ID_TERMINAL);
+
+    servical_ctn_sizer->Add(main_code, 1, wxEXPAND);
+    servical_ctn_sizer->Add(terminal, 1, wxEXPAND);
+    servical_container->SetSizerAndFit(servical_ctn_sizer);
+
+    servical_container->SplitHorizontally(main_code, terminal);
+
+    main_splitter_sizer->Add(servical_container, 1, wxEXPAND);
     main_splitter->SetSizerAndFit(main_splitter_sizer);
     main_splitter->SetMinimumPaneSize(250);
-    main_splitter->SplitVertically(side_container, main_code, 1);
+    main_splitter->SplitVertically(side_container, servical_container, 1);
     
     status_bar = new StatusBar(this, ID_STATUS_BAR);
     main_container->SetSizerAndFit(main_container_sizer);
@@ -154,7 +165,7 @@ void MainFrame::OnHiddeFilesTree(wxCommandEvent& WXUNUSED(event)) {
     if(main_splitter->IsSplit()) {
         main_splitter->Unsplit(side_container);
     } else {
-        main_splitter->SplitVertically(side_container, main_code, 1);
+        main_splitter->SplitVertically(side_container, servical_container, 1);
     }
 }
 

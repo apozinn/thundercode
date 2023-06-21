@@ -51,6 +51,7 @@
 #include "./members/emptyWindow.cpp"
 #include "./members/openFolderLink.cpp"
 #include "./members/controlPanel.cpp"
+#include "./members/terminal.cpp"
 
 class ThunderCode: public wxApp {
     virtual bool OnInit();
@@ -72,6 +73,8 @@ class MainFrame: public wxFrame {
     wxPanel* side_container;
     OpenFolderLink* open_folder_link;
     ControlPanel* control_panel;
+    Terminal* terminal;
+    wxSplitterWindow* servical_container;
 public:
     StatusBar* status_bar;
     MainFrame(const wxString& title, const wxPoint& pos, const wxSize& size);

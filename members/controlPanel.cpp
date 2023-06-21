@@ -1,4 +1,5 @@
 #include "notifyPanel.cpp"
+#include "terminal.cpp"
 
 struct ControlMenu {
 	const char* name;
@@ -122,22 +123,31 @@ public:
 	}
 	void Select(wxCommandEvent& event) {
 		auto id = selectedMenu->GetLabel();
-		if(id == "1") {
-			if(auto side_navigation = FindWindowById(ID_SIDE_NAVIGATION)) {
-				((SideNavigation*)side_navigation)->ToggleFocusMode();
-			}
-		}
 
-		if(id == "4") {
-			std::vector<NotifyInteractions> ntf_interactions {
-				{"Cancel", "cancel"},
-				{"Ok", "ok"},
-			};
-			auto notify_panel = new NotifyPanel(
-				((wxWindow*)FindWindowById(ID_STATUS_BAR)->GetParent()), 
-				"Executando teste de painel de Notificações", 
-				ntf_interactions
-			);
+		switch (static_cast<char>(id[0])) {
+			case '1': {
+				if(auto side_navigation = FindWindowById(ID_SIDE_NAVIGATION)) {
+					((SideNavigation*)side_navigation)->ToggleFocusMode();
+				}
+			} break;
+			case '2': {} break;
+			case '3': {} break;
+			case '4': {
+				std::vector<NotifyInteractions> ntf_interactions {
+					{"Cancel", "cancel"},
+					{"Ok", "ok"},
+				};
+				auto notify_panel = new NotifyPanel(
+					((wxWindow*)FindWindowById(ID_STATUS_BAR)->GetParent()), 
+					"Executando teste de painel de Notificações", 
+					ntf_interactions
+				);
+			} break;
+			case '5': {
+				if(FindWindowById(ID_TERMINAL)) {
+					auto terminal = ((Terminal*)FindWindowById(ID_TERMINAL));
+				} else {}
+			} break;
 		}
 
 		FindWindowById(ID_STATUS_BAR)->SetFocus();
@@ -149,6 +159,7 @@ private:
 		{"Hide Side Navigation", "", 2},
 		{"Extensions: Install", "", 3},
 		{"Notify Panel", "Ctrl+Shift+N", 4},
+		{"Open Terminal", "", 5}, 
 	};
 	wxDECLARE_NO_COPY_CLASS(ControlPanel);
     wxDECLARE_EVENT_TABLE();
