@@ -49,6 +49,8 @@ public:
 			wxBoxSizer* menu_sizer = new wxBoxSizer(wxHORIZONTAL);
 			
 			wxStaticText* menu_name = new wxStaticText(menu, wxID_ANY, ctrl_menu.name);
+			menu_name->Bind(wxEVT_LEFT_UP, &ControlPanel::OnClickSelect, this);
+			menu_name->SetName(std::to_string(ctrl_menu.ID));
 			wxFont menu_name_font(10, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
 	        menu_name_font.SetFaceName(wxT("Monospace"));
 	        menu_name->SetFont(menu_name_font);
@@ -121,9 +123,15 @@ public:
 			}
 		}
 	}
-	void Select(wxCommandEvent& event) {
-		auto id = selectedMenu->GetLabel();
-
+	void OnKeyBoardSelect(wxCommandEvent& event) {
+		wxString id = selectedMenu->GetLabel();
+		if(id.size() > 0) Select(id);
+	}
+	void OnClickSelect(wxMouseEvent& event) {
+		wxString id = ((wxWindow*)event.GetEventObject())->GetName();
+		if(id.size() > 0) Select(id);
+	}
+	void Select(wxString id) {
 		switch (static_cast<char>(id[0])) {
 			case '1': {
 				if(auto side_navigation = FindWindowById(ID_SIDE_NAVIGATION)) {
@@ -168,5 +176,5 @@ wxBEGIN_EVENT_TABLE(ControlPanel, wxPanel)
     EVT_MENU(ID_EXIT_CONTROL_PANEL, ControlPanel::Close)
     EVT_MENU(ID_CONTROL_PANEL_UP, ControlPanel::UpSelection)
     EVT_MENU(ID_CONTROL_PANEL_DOWN, ControlPanel::DownSelection)
-    EVT_MENU(ID_CONTROL_PANEL_SELECT, ControlPanel::Select)
+    EVT_MENU(ID_CONTROL_PANEL_SELECT, ControlPanel::OnKeyBoardSelect)
 wxEND_EVENT_TABLE()
