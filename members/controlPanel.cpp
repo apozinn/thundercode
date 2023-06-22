@@ -144,9 +144,8 @@ public:
 				);
 			} break;
 			case '5': {
-				if(FindWindowById(ID_TERMINAL)) {
-					auto terminal = ((Terminal*)FindWindowById(ID_TERMINAL));
-				} else {}
+				((wxSplitterWindow*)FindWindowById(ID_SERVICAL_CONTAINER))->SplitHorizontally(
+					FindWindowById(ID_MAIN_CODE), FindWindowById(ID_TERMINAL), 0);
 			} break;
 		}
 
@@ -159,7 +158,7 @@ private:
 		{"Hide Side Navigation", "", 2},
 		{"Extensions: Install", "", 3},
 		{"Notify Panel", "Ctrl+Shift+N", 4},
-		{"Open Terminal", "", 5}, 
+		{"Open Terminal", "Ctrl+Shift+T", 5}, 
 	};
 	wxDECLARE_NO_COPY_CLASS(ControlPanel);
     wxDECLARE_EVENT_TABLE();

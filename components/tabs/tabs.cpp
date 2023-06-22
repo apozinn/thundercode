@@ -1,7 +1,7 @@
 #include "tabs.hpp"
 
 Tabs::Tabs(wxPanel* parent, wxWindowID ID) : wxPanel(parent, ID) {
-    SetBackgroundColour(wxColor(55, 55, 55));
+    SetBackgroundColour(wxColor(50, 50, 50));
     sizer = new wxBoxSizer(wxHORIZONTAL);
 
     tabs_container = new wxScrolled<wxPanel>(this, ID_TABS_CONTAINER);

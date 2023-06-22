@@ -41,7 +41,7 @@ CodeContainer::CodeContainer(wxWindow* parent, wxWindowID ID, wxString path) : w
         wxFont font(10, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
     #endif
 
-    StyleSetBackground(wxSTC_STYLE_DEFAULT, wxColor(70, 70, 70));
+    StyleSetBackground(wxSTC_STYLE_DEFAULT, wxColor(55, 55, 55));
     StyleSetForeground(wxSTC_STYLE_DEFAULT, wxColor(255, 255, 255));
     StyleSetFont(wxSTC_STYLE_DEFAULT, font);
 
@@ -53,7 +53,7 @@ CodeContainer::CodeContainer(wxWindow* parent, wxWindowID ID, wxString path) : w
     SetMarginWidth(MY_FOLDMARGIN, 10);
     SetMarginType(MARGIN_LINE_NUMBERS, wxSTC_MARGIN_NUMBER);
     StyleSetForeground(wxSTC_STYLE_LINENUMBER, wxColor(128, 128, 128));
-    StyleSetBackground(wxSTC_STYLE_LINENUMBER, wxColor(70, 70, 70));
+    StyleSetBackground(wxSTC_STYLE_LINENUMBER, wxColor(55, 55, 55));
 
     SetMarginType(1, wxSTC_MARGIN_SYMBOL);
     SetMarginMask(1, wxSTC_MASK_FOLDERS);
@@ -112,37 +112,37 @@ CodeContainer::CodeContainer(wxWindow* parent, wxWindowID ID, wxString path) : w
     StyleSetForeground(wxSTC_C_ESCAPESEQUENCE , wxColour(255, 0, 100));
     //
 
-    SetMarginMask(MY_FOLDMARGIN,wxSTC_MASK_FOLDERS);
-    SetFoldMarginColour(true,wxColor(70,70,70));
-    SetFoldMarginHiColour(true,wxColor(70,70,70));
+    SetMarginMask(MY_FOLDMARGIN, wxSTC_MASK_FOLDERS);
+    SetFoldMarginColour(true,wxColor(55,55,55));
+    SetFoldMarginHiColour(true,wxColor(55,55,55));
 
     //Set up the markers that will be shown in the fold margin
     MarkerDefine(wxSTC_MARKNUM_FOLDEREND,wxSTC_MARK_BOXPLUSCONNECTED);
-    MarkerSetForeground(wxSTC_MARKNUM_FOLDEREND,wxColor(70,70,70));
+    MarkerSetForeground(wxSTC_MARKNUM_FOLDEREND,wxColor(55,55,55));
     MarkerSetBackground(wxSTC_MARKNUM_FOLDEREND,wxColor(128,128,128));
 
     MarkerDefine(wxSTC_MARKNUM_FOLDEROPENMID,wxSTC_MARK_BOXMINUSCONNECTED);
-    MarkerSetForeground(wxSTC_MARKNUM_FOLDEROPENMID,wxColor(70,70,70));
+    MarkerSetForeground(wxSTC_MARKNUM_FOLDEROPENMID,wxColor(55,55,55));
     MarkerSetBackground(wxSTC_MARKNUM_FOLDEROPENMID,wxColor(128,128,128));
 
     MarkerDefine(wxSTC_MARKNUM_FOLDERMIDTAIL, wxSTC_MARK_TCORNER);
-    MarkerSetForeground(wxSTC_MARKNUM_FOLDERMIDTAIL,wxColor(70,70,70));
+    MarkerSetForeground(wxSTC_MARKNUM_FOLDERMIDTAIL,wxColor(55,55,55));
     MarkerSetBackground(wxSTC_MARKNUM_FOLDERMIDTAIL,wxColor(128,128,128));
 
     MarkerDefine(wxSTC_MARKNUM_FOLDERTAIL,wxSTC_MARK_LCORNER);
-    MarkerSetForeground(wxSTC_MARKNUM_FOLDERTAIL,wxColor(70,70,70));
+    MarkerSetForeground(wxSTC_MARKNUM_FOLDERTAIL,wxColor(55,55,55));
     MarkerSetBackground(wxSTC_MARKNUM_FOLDERTAIL,wxColor(128,128,128));
 
     MarkerDefine(wxSTC_MARKNUM_FOLDERSUB,wxSTC_MARK_VLINE);
-    MarkerSetForeground(wxSTC_MARKNUM_FOLDERSUB,wxColor(70,70,70));
+    MarkerSetForeground(wxSTC_MARKNUM_FOLDERSUB,wxColor(55,55,55));
     MarkerSetBackground(wxSTC_MARKNUM_FOLDERSUB,wxColor(128,128,128));
 
     MarkerDefine(wxSTC_MARKNUM_FOLDER,wxSTC_MARK_BOXPLUS);
-    MarkerSetForeground(wxSTC_MARKNUM_FOLDER,wxColor(70,70,70));
+    MarkerSetForeground(wxSTC_MARKNUM_FOLDER,wxColor(55,55,55));
     MarkerSetBackground(wxSTC_MARKNUM_FOLDER,wxColor(128,128,128));
 
     MarkerDefine(wxSTC_MARKNUM_FOLDEROPEN,wxSTC_MARK_BOXMINUS);
-    MarkerSetForeground(wxSTC_MARKNUM_FOLDEROPEN,wxColor(70,70,70));
+    MarkerSetForeground(wxSTC_MARKNUM_FOLDEROPEN,wxColor(55,55,55));
     MarkerSetBackground(wxSTC_MARKNUM_FOLDEROPEN,wxColor(128,128,128));
 
     MarkerEnableHighlight(true);
@@ -155,6 +155,8 @@ CodeContainer::CodeContainer(wxWindow* parent, wxWindowID ID, wxString path) : w
     SetFoldLevel(4, 1025);
     SetFoldLevel(5, 1024);
     SetFoldLevel(6, 1024|wxSTC_FOLDLEVELWHITEFLAG);
+
+    SetScrollWidthTracking(true);
 
     //events 
     Bind(wxEVT_STC_MARGINCLICK, &CodeContainer::onMarginClick, this);

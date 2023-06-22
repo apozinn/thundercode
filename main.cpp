@@ -42,6 +42,9 @@ MainFrame::MainFrame(
     side_container->SetSizerAndFit(side_ctn_sizer);
 
     servical_container = new wxSplitterWindow(main_splitter, ID_SERVICAL_CONTAINER);
+    servical_container->SetBackgroundStyle(wxBG_STYLE_PAINT);
+    servical_container->Bind(wxEVT_PAINT, &MainFrame::OnSashPaint, this);
+    servical_container->Bind(wxEVT_COMMAND_SPLITTER_SASH_POS_CHANGED, &MainFrame::OnSashPosChange, this);
     wxBoxSizer* servical_ctn_sizer = new wxBoxSizer(wxVERTICAL);
 
     main_code = new wxPanel(servical_container, ID_MAIN_CODE);
@@ -62,6 +65,7 @@ MainFrame::MainFrame(
     servical_container->SetSizerAndFit(servical_ctn_sizer);
 
     servical_container->SplitHorizontally(main_code, terminal);
+    servical_container->Unsplit(terminal);
 
     main_splitter_sizer->Add(servical_container, 1, wxEXPAND);
     main_splitter->SetSizerAndFit(main_splitter_sizer);
@@ -210,30 +214,38 @@ void MainFrame::OnHiddeTabs(wxCommandEvent& WXUNUSED(event)) {
     }
 }
 
-void MainFrame::OnSashPaint( wxPaintEvent& event )
-{
-    wxPaintDC myDC(main_splitter);
-    myDC.SetBrush(wxColour(45, 45, 45));
-    myDC.SetPen( *wxTRANSPARENT_PEN );
+void MainFrame::OnSashPaint(wxPaintEvent& event) {
+    auto target = ((wxSplitterWindow*)event.GetEventObject());
+    if(!target) return;
 
-    if( main_splitter->GetSplitMode() == wxSPLIT_VERTICAL) {
-        myDC.DrawRectangle(
-            main_splitter->GetSashPosition(),
+    wxPaintDC this_dc(target);
+    if(target->GetId() == ID_SERVICAL_CONTAINER) {
+        this_dc.SetBrush(wxColour(55, 55, 55));        
+    } else this_dc.SetBrush(wxColour(45, 45, 45));
+    this_dc.SetPen(*wxTRANSPARENT_PEN);
+
+    if(target->GetSplitMode() == wxSPLIT_VERTICAL) {
+        this_dc.DrawRectangle(
+            target->GetSashPosition(),
             0,
-            main_splitter->GetSashSize(),
-            main_splitter->GetSize().GetHeight()
+            target->GetSashSize(),
+            target->GetSize().GetHeight()
         );
     } else {
-        myDC.DrawRectangle(
+        this_dc.DrawRectangle(
             0,
-            main_splitter->GetSashPosition(),
-            main_splitter->GetSize().GetWidth(),
-            main_splitter->GetSashSize()
+            target->GetSashPosition(),
+            target->GetSize().GetWidth(),
+            target->GetSashSize()
         );
     }
 }
 
-void MainFrame::OnSashPosChange( wxSplitterEvent& event ) { main_splitter->Refresh(); }
+void MainFrame::OnSashPosChange(wxSplitterEvent& event) { 
+    auto target = ((wxSplitterWindow*)event.GetEventObject());
+    if(!target) return;
+    target->Refresh(); 
+}
 
 void MainFrame::CloseAllFiles(wxCommandEvent& WXUNUSED(event)) {
     if(tabs) {
