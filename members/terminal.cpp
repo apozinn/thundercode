@@ -1,19 +1,14 @@
 #pragma once
 
 class Terminal : public wxPanel {
-    wxString cmd = "ls";
+    wxString cmd;
+    int startCommand = 29;
     wxStyledTextCtrl* shell;
     wxBoxSizer* sizer;
 public:
 	Terminal(wxWindow* parent, wxWindowID ID) : wxPanel(parent, ID) {
 		SetBackgroundColour(wxColor(55, 55, 55));
 		sizer = new wxBoxSizer(wxVERTICAL);
-
-	    /*wxArrayString output, errors;
-        int code = wxExecute(cmd, output, errors, wxEXEC_SYNC);
-
-        ShowOutput(cmd, output, "Output");
-        ShowOutput(cmd, errors, "Errors");*/
 
 		auto separator = new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxSize(this->GetSize().GetWidth(), 1), wxLI_HORIZONTAL);
 		separator->SetBackgroundColour(wxColor(70, 70, 70));
@@ -37,6 +32,10 @@ public:
     	shell->SetUseHorizontalScrollBar(false);
 		shell->AppendText("[samuel@fedora ThunderCode]$ ");
 
+    	shell->Bind(wxEVT_KEY_UP, &Terminal::OnShellKeyUp, this);
+
+    	shell->SetFocus();
+
 		sizer->Add(shell, 1, wxEXPAND | wxTOP, 5);
 		SetSizerAndFit(sizer);
 	}
@@ -47,18 +46,59 @@ private:
 	    this_dc.SetPen(wxColour(70, 70, 70));
 	}
 
-	void ShowOutput(
-		const wxString& cmd,
-		const wxArrayString& output,
-		const wxString& title
-	) {
-	    size_t count = output.GetCount();
-	    if ( !count )
-	        return;
+	void OnShellKeyUp(wxKeyEvent& event) {
+	   switch(event.GetKeyCode()) {
+	   case 13: {
+		   	OnEnterCommand();
+		   } break;
+		case 8: {
+			char previous_char = (char)shell->GetCharAt(shell->GetCurrentPos()-1);
+			if(previous_char == '$') {
+				shell->AppendText(" ");
+				shell->GotoPos(shell->GetCurrentPos()+1);
+			}
+		} break;
+	   }
+	}
 
-	    for ( size_t n = 0; n < count; n++ )
-	    {
-	    	std::cout << output[n] << "\n";
+	void OnEnterCommand() {
+		wxArrayString output, errors;
+		cmd = shell->GetTextRange(startCommand, shell->GetCurrentPos()-1);
+
+		if(cmd == "clear") {
+			shell->SetText("[samuel@fedora ThunderCode]$ ");
+		    shell->GotoPos(shell->GetLength());
+		    startCommand = shell->GetCurrentPos();
+			return;
+		} 
+
+        int code = wxExecute(cmd, output, errors, wxEXEC_SYNC);
+        ShowOutput(output, errors);
+	}
+
+	void ShowOutput(
+		const wxArrayString& output,
+		const wxArrayString& errors
+	) {
+	    size_t ouput_size = output.GetCount();
+	    size_t erros_size = errors.GetCount();
+
+	    if(erros_size) {
+	    	for(size_t n = 0; n < erros_size; n++)
+	    	{
+	    		shell->AppendText(errors[n]+"\n");
+		    }
+	    } else {
+	    	for(size_t n = 0; n < ouput_size; n++)
+	    	{
+	    		shell->AppendText(output[n]+"\n");
+	    	}	
 	    }
+
+	    shell->AppendText("[samuel@fedora ThunderCode]$ ");
+	    shell->GotoPos(shell->GetLength());
+
+	    startCommand = shell->GetCurrentPos();
+	    shell->SetFocus();
 	}
 };
