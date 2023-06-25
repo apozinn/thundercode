@@ -85,8 +85,8 @@ void Tabs::Close(wxString tab_path) {
     if(codeContainer) codeContainer->Destroy();
     if(imgContainer) imgContainer->Destroy();
 
-    if(codeContainer || imgContainer && this) {
-        for(auto& tab : this->GetChildren()) {
+    if(codeContainer || imgContainer && tabs_container) {
+        for(auto& tab : tabs_container->GetChildren()) {
             if(tab->GetName() == tab_path) {
                 auto main_code = FindWindowById(ID_MAIN_CODE);
                 if(tab_path == selected_tab) {
@@ -128,9 +128,9 @@ void Tabs::Close(wxString tab_path) {
                 }
 
                 tab->Destroy();
-                this->GetSizer()->Layout();
-                this->Update();
-                this->FitInside();
+                tabs_container->GetSizer()->Layout();
+                tabs_container->FitInside();
+                tabs_container->Update();
                 main_code->GetSizer()->Layout();
                 main_code->Update();
             }
@@ -157,7 +157,7 @@ void Tabs::Select(wxMouseEvent& event) {
     if(tab_path == selected_tab) return;
     selected_tab = tab_path;
 
-    for(auto& children : this->GetChildren()) {
+    for(auto& children : tabs_container->GetChildren()) {
         if(children->GetName() == tab_path) {
             children->GetChildren()[1]->SetBackgroundColour(wxColor(255, 0, 180));
         } else {

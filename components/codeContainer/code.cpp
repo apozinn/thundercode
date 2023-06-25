@@ -1,27 +1,22 @@
-#include "wx/wxprec.h"
-
-#ifndef WX_PRECOMP
-	#include "wx/wx.h"
-    #include "wx/textdlg.h"
-#endif
-
+#include "code.hpp"
 #include "wx/file.h"
 #include "wx/filename.h"
 #include "wx/settings.h"
-#include "code.hpp"
+#include "wx/wxprec.h"
+#include "../../utils/randoms.hpp"
 
-#define MY_FOLDMARGIN 2
+#ifndef WX_PRECOMP
+    #include "wx/wx.h"
+    #include "wx/textdlg.h"
+#endif
 
 wxBEGIN_EVENT_TABLE(CodeContainer, wxStyledTextCtrl)
 wxEND_EVENT_TABLE()
 
-enum {
-    MARGIN_LINE_NUMBERS
-};
-
-CodeContainer::CodeContainer(wxWindow* parent, wxWindowID ID, wxString path) : wxStyledTextCtrl(parent, ID) 
-{
-    SetLabel(path+"_codeContainer");
+CodeContainer::CodeContainer(
+    wxWindow* parent, wxWindowID ID, wxString path
+) : wxStyledTextCtrl(parent, ID) {
+    SetLabel(path+"_CodeContainer");
     SetName(path);
 	SetUseTabs(true);
     SetTabWidth(4);
@@ -30,37 +25,34 @@ CodeContainer::CodeContainer(wxWindow* parent, wxWindowID ID, wxString path) : w
     SetBackSpaceUnIndents(true);
     SetIndentationGuides(true);
 
-    //load file content
-    LoadNewFile(path);
-
-    //font styling
     #ifdef __WXGTK__
-        wxFont font(10, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+        font = wxFont(10, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
         font.SetFaceName(wxT("Monospace"));
     #else
-        wxFont font(10, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+        font = wxFont(10, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
     #endif
 
     StyleSetBackground(wxSTC_STYLE_DEFAULT, wxColor(55, 55, 55));
     StyleSetForeground(wxSTC_STYLE_DEFAULT, wxColor(255, 255, 255));
     StyleSetFont(wxSTC_STYLE_DEFAULT, font);
 
-    //clean style for load new font styles
     StyleClearAll();
+    SetCaretForeground(wxColour(wxT("WHITE")));
 
-    //margins styling
+    //margin numbers
     SetMarginWidth(0, TextWidth(wxSTC_STYLE_LINENUMBER, wxT("_99999")));
-    SetMarginWidth(MY_FOLDMARGIN, 10);
-    SetMarginType(MARGIN_LINE_NUMBERS, wxSTC_MARGIN_NUMBER);
+    SetMarginType(0, wxSTC_MARGIN_NUMBER);
     StyleSetForeground(wxSTC_STYLE_LINENUMBER, wxColor(128, 128, 128));
     StyleSetBackground(wxSTC_STYLE_LINENUMBER, wxColor(55, 55, 55));
 
+    //margin fold
+    SetMarginWidth(1, 16);
     SetMarginType(1, wxSTC_MARGIN_SYMBOL);
     SetMarginMask(1, wxSTC_MASK_FOLDERS);
-    SetMarginWidth(1, 16);
     SetMarginSensitive(1, true);
 
-    //fold
+    SetLexer(wxSTC_LEX_CPP);
+
     SetProperty(wxT("fold"), wxT("1"));
     SetProperty(wxT("fold.comment"), wxT("1"));
     SetProperty(wxT("fold.compact"), wxT("1"));
@@ -69,84 +61,40 @@ CodeContainer::CodeContainer(wxWindow* parent, wxWindowID ID, wxString path) : w
     SetProperty(wxT("fold.html.preprocessor"), wxT("1"));
     SetFoldFlags(wxSTC_FOLDFLAG_LINEBEFORE_CONTRACTED | wxSTC_FOLDFLAG_LINEAFTER_CONTRACTED);
 
-    SetMarginWidth(2, 0);
-    SetCaretForeground(wxColour(wxT("WHITE")));
-    SetLexer(wxSTC_LEX_CPP);
-    SetKeyWords(0, wxT("asm auto bool break case catch char class const const_cast \
-                              continue default delete do double dynamic_cast else enum explicit \
-                              export extern false float for friend goto if inline int long \
-                              mutable namespace new operator private protected public register \
-                              reinterpret_cast return short signed sizeof static static_cast \
-                              struct switch template throw true try typedef typeid \
-                              typename union unsigned using virtual void volatile wchar_t \
-                              while"));
-    SetKeyWords(1, wxT("this"));
+    SetMarginMask(2, wxSTC_MASK_FOLDERS);
+    SetFoldMarginColour(true, wxColor(55,55,55));
+    SetFoldMarginHiColour(true, wxColor(55,55,55));
 
-    //  
-    StyleSetForeground(wxSTC_C_DEFAULT, wxColour(255, 255, 255));
-    StyleSetForeground(wxSTC_C_STRING, wxColour(240, 245, 0));
-    StyleSetForeground(wxSTC_C_STRINGEOL, wxColour(240, 245, 0));
-    StyleSetForeground(wxSTC_C_STRINGRAW, wxColour(240, 245, 0));
-    StyleSetForeground(wxSTC_C_HASHQUOTEDSTRING, wxColour(200, 245, 0));
-    StyleSetForeground(wxSTC_C_COMMENT, wxColour(115, 115, 115));
-    StyleSetForeground(wxSTC_C_COMMENTLINE, wxColour(115, 115, 115));
-    StyleSetForeground(wxSTC_C_COMMENTDOC, wxColour(115, 115, 115));
-    StyleSetForeground(wxSTC_C_COMMENTLINEDOC , wxColour(115, 115, 115));
-    StyleSetForeground(wxSTC_C_COMMENTDOCKEYWORD , wxColour(115, 115, 115));
-    StyleSetForeground(wxSTC_C_COMMENTDOCKEYWORDERROR , wxColour(115, 115, 115));
-    StyleSetForeground(wxSTC_C_NUMBER, wxColour(255, 155, 0));
+    MarkerDefine(wxSTC_MARKNUM_FOLDER, wxSTC_MARK_ARROW);
+    MarkerSetForeground(wxSTC_MARKNUM_FOLDER, wxColor(55,55,55));
+    MarkerSetBackground(wxSTC_MARKNUM_FOLDER, wxColor(128,128,128));
 
-    StyleSetForeground(wxSTC_C_WORD, wxColour(206, 42, 235));
-    StyleSetForeground(wxSTC_C_WORD2, wxColour(17, 118, 250));
-    StyleSetForeground(wxSTC_C_CHARACTER, wxColour(230, 200, 0));
-    StyleSetForeground(wxSTC_C_UUID, wxColour(230, 200, 0));
-    StyleSetForeground(wxSTC_C_PREPROCESSOR , wxColour(117, 66, 245));
-    StyleSetForeground(wxSTC_C_PREPROCESSORCOMMENTDOC , wxColour(200, 80, 220));
-    StyleSetForeground(wxSTC_C_OPERATOR , wxColour(16, 230, 190));
-    StyleSetForeground(wxSTC_C_REGEX , wxColour(100, 230, 190));
-    StyleSetForeground(wxSTC_C_GLOBALCLASS , wxColour(100, 255, 200));
-    StyleSetForeground(wxSTC_C_TRIPLEVERBATIM , wxColour(100, 200, 200));
-    StyleSetForeground(wxSTC_C_PREPROCESSORCOMMENT , wxColour(200, 200, 200));
-    StyleSetForeground(wxSTC_C_USERLITERAL , wxColour(255, 255, 0));
-    StyleSetForeground(wxSTC_C_TASKMARKER , wxColour(255, 255, 100));
-    StyleSetForeground(wxSTC_C_ESCAPESEQUENCE , wxColour(255, 0, 100));
-    //
-
-    SetMarginMask(MY_FOLDMARGIN, wxSTC_MASK_FOLDERS);
-    SetFoldMarginColour(true,wxColor(55,55,55));
-    SetFoldMarginHiColour(true,wxColor(55,55,55));
-
-    //Set up the markers that will be shown in the fold margin
-    MarkerDefine(wxSTC_MARKNUM_FOLDEREND,wxSTC_MARK_BOXPLUSCONNECTED);
-    MarkerSetForeground(wxSTC_MARKNUM_FOLDEREND,wxColor(55,55,55));
-    MarkerSetBackground(wxSTC_MARKNUM_FOLDEREND,wxColor(128,128,128));
-
-    MarkerDefine(wxSTC_MARKNUM_FOLDEROPENMID,wxSTC_MARK_BOXMINUSCONNECTED);
-    MarkerSetForeground(wxSTC_MARKNUM_FOLDEROPENMID,wxColor(55,55,55));
-    MarkerSetBackground(wxSTC_MARKNUM_FOLDEROPENMID,wxColor(128,128,128));
+    MarkerDefine(wxSTC_MARKNUM_FOLDEREND, wxSTC_MARK_ARROW);
+    MarkerSetForeground(wxSTC_MARKNUM_FOLDEREND, wxColor(55,55,55));
+    MarkerSetBackground(wxSTC_MARKNUM_FOLDEREND, wxColor(128,128,128));
 
     MarkerDefine(wxSTC_MARKNUM_FOLDERMIDTAIL, wxSTC_MARK_TCORNER);
-    MarkerSetForeground(wxSTC_MARKNUM_FOLDERMIDTAIL,wxColor(55,55,55));
-    MarkerSetBackground(wxSTC_MARKNUM_FOLDERMIDTAIL,wxColor(128,128,128));
+    MarkerSetForeground(wxSTC_MARKNUM_FOLDERMIDTAIL, wxColor(55,55,55));
+    MarkerSetBackground(wxSTC_MARKNUM_FOLDERMIDTAIL, wxColor(128,128,128));
 
-    MarkerDefine(wxSTC_MARKNUM_FOLDERTAIL,wxSTC_MARK_LCORNER);
-    MarkerSetForeground(wxSTC_MARKNUM_FOLDERTAIL,wxColor(55,55,55));
-    MarkerSetBackground(wxSTC_MARKNUM_FOLDERTAIL,wxColor(128,128,128));
+    MarkerDefine(wxSTC_MARKNUM_FOLDEROPEN, wxSTC_MARK_ARROWDOWN);
+    MarkerSetForeground(wxSTC_MARKNUM_FOLDEROPEN, wxColor(55,55,55));
+    MarkerSetBackground(wxSTC_MARKNUM_FOLDEROPEN, wxColor(128,128,128));
 
-    MarkerDefine(wxSTC_MARKNUM_FOLDERSUB,wxSTC_MARK_VLINE);
-    MarkerSetForeground(wxSTC_MARKNUM_FOLDERSUB,wxColor(55,55,55));
-    MarkerSetBackground(wxSTC_MARKNUM_FOLDERSUB,wxColor(128,128,128));
+    MarkerDefine(wxSTC_MARKNUM_FOLDEROPENMID, wxSTC_MARK_ARROWDOWN);
+    MarkerSetForeground(wxSTC_MARKNUM_FOLDEROPENMID, wxColor(55,55,55));
+    MarkerSetBackground(wxSTC_MARKNUM_FOLDEROPENMID, wxColor(128,128,128));
 
-    MarkerDefine(wxSTC_MARKNUM_FOLDER,wxSTC_MARK_BOXPLUS);
-    MarkerSetForeground(wxSTC_MARKNUM_FOLDER,wxColor(55,55,55));
-    MarkerSetBackground(wxSTC_MARKNUM_FOLDER,wxColor(128,128,128));
+    MarkerDefine(wxSTC_MARKNUM_FOLDERSUB, wxSTC_MARK_VLINE);
+    MarkerSetForeground(wxSTC_MARKNUM_FOLDERSUB, wxColor(55,55,55));
+    MarkerSetBackground(wxSTC_MARKNUM_FOLDERSUB, wxColor(128,128,128));
 
-    MarkerDefine(wxSTC_MARKNUM_FOLDEROPEN,wxSTC_MARK_BOXMINUS);
-    MarkerSetForeground(wxSTC_MARKNUM_FOLDEROPEN,wxColor(55,55,55));
-    MarkerSetBackground(wxSTC_MARKNUM_FOLDEROPEN,wxColor(128,128,128));
+    MarkerDefine(wxSTC_MARKNUM_FOLDERTAIL, wxSTC_MARK_LCORNER);
+    MarkerSetForeground(wxSTC_MARKNUM_FOLDERTAIL, wxColor(55,55,55));
+    MarkerSetBackground(wxSTC_MARKNUM_FOLDERTAIL, wxColor(128,128,128));    
 
-    MarkerEnableHighlight(true);
-    SetMarginSensitive(MY_FOLDMARGIN,true);
+    MarkerEnableHighlight(false);
+    SetMarginSensitive(2, true);
 
     SetFoldLevel(0, 1024);
     SetFoldLevel(1, 1024);
@@ -156,21 +104,20 @@ CodeContainer::CodeContainer(wxWindow* parent, wxWindowID ID, wxString path) : w
     SetFoldLevel(5, 1024);
     SetFoldLevel(6, 1024|wxSTC_FOLDLEVELWHITEFLAG);
 
-    SetScrollWidthTracking(true);
-
-    //events 
     Bind(wxEVT_STC_MARGINCLICK, &CodeContainer::onMarginClick, this);
-    Bind(wxEVT_STC_STYLENEEDED, &CodeContainer::OnStyleNeeded, this);
     Bind(wxEVT_STC_MODIFIED, &CodeContainer::OnChange, this);
     Bind(wxEVT_STC_CHARADDED, &CodeContainer::CharAdd, this);
-    Bind(wxEVT_STC_MARGINCLICK, &CodeContainer::onMarginClick, this);
     Bind(wxEVT_LEFT_UP, &CodeContainer::onClick, this);
     Bind(wxEVT_KEY_UP, &CodeContainer::OnArrowsPress, this);
+
+    LoadPath(path);
+    RegisterImage(0, wxBitmap(icons_dir+"thunder.png"));
+    RegisterImage(1, wxBitmap(icons_dir+"question.png"));
 }
 
 void CodeContainer::OnSave(wxCommandEvent& event) {
     for(auto&& children : FindWindowById(ID_MAIN_CODE)->GetChildren()) {
-        if(children->GetLabel().find("_codeContainer") != std::string::npos && children->IsShown()) {
+        if(children->GetLabel().find("_CodeContainer") != std::string::npos && children->IsShown()) {
             CodeContainer* children_ct = ((CodeContainer*)children);
             wxString file_path = children->GetName();
             if(file_path.size()) {
@@ -206,10 +153,6 @@ void CodeContainer::onMarginClick(wxStyledTextEvent& event) {
     }
 }
 
-void CodeContainer::OnStyleNeeded(wxStyledTextEvent& event) {}
-void CodeContainer::highlightSTCsyntax(size_t fromPos,size_t toPos, wxString &text) {}
-void CodeContainer::setfoldlevels(size_t fromPos, int startfoldlevel, wxString& text) {}
-
 void CodeContainer::OnChange(wxStyledTextEvent& event) {
     wxString key = event.GetText();
     if(GetModify()) {
@@ -229,22 +172,11 @@ void CodeContainer::OnChange(wxStyledTextEvent& event) {
             }
         }
     }
-
-    SetStatus(1);
-
-    if(FindWindowById(ID_STTSBAR_CODELOCALE)) {
-        ((wxStaticText*)FindWindowById(ID_STTSBAR_CODELOCALE))->SetLabel(
-            "Line "+std::to_string(GetCurrentLine())+", Column "+std::to_string(GetColumn(GetCurrentPos()))
-        );
-    }
+    status_bar->UpdateCodeLocale(this);
 }
 
 void CodeContainer::OnArrowsPress(wxKeyEvent& event) {
-    if(FindWindowById(ID_STTSBAR_CODELOCALE)) {
-        ((wxStaticText*)FindWindowById(ID_STTSBAR_CODELOCALE))->SetLabel(
-            "Line "+std::to_string(GetCurrentLine())+", Column "+std::to_string(GetColumn(GetCurrentPos()))
-        );
-    }
+    status_bar->UpdateCodeLocale(this);
 }
 
 void CodeContainer::CharAdd(wxStyledTextEvent& event) {
@@ -280,14 +212,14 @@ void CodeContainer::CharAdd(wxStyledTextEvent& event) {
     } 
 
     if (chr == '#') {
-        wxString s = "define?0 elif?0 else?0 endif?0 error?0 if?0 ifdef?0 "
-                     "ifndef?0 include?0 line?0 pragma?0 undef?0";
-        AutoCompShow(0,s);
+        wxString s = "define?0 elif?1 else?0 endif?01 error?0 if?0 ifdef?0 "
+                     "ifndef?1 include?0 line?0 pragma?1 undef?0";
+        AutoCompShow(0, s);
     }
 
     if(chr == 'i') {
-        wxString s = "import?0 if?0";
-            AutoCompShow(0,s);
+        wxString s = "import?1 if?0";
+            AutoCompShow(0, s);
     }
 
     if(chr == '(') InsertText(GetCurrentPos(), ")");
@@ -299,9 +231,86 @@ void CodeContainer::CharAdd(wxStyledTextEvent& event) {
 }
 
 void CodeContainer::onClick(wxMouseEvent& event) {
-    auto code_locale = ((wxStaticText*)FindWindowById(ID_STTSBAR_CODELOCALE));
-    if(code_locale) {
-        code_locale->SetLabel("Line "+std::to_string(GetCurrentLine()+1)+", Column "+std::to_string(GetColumn(GetCurrentPos())));
-    }
+    status_bar->UpdateCodeLocale(this);
     event.Skip();
+}
+
+void CodeContainer::LoadPath(wxString path) {
+    if(!IsShown()) Show();
+    SelectNone();
+    LoadFile(path);
+        
+    status_bar->UpdateCodeLocale(this);
+    ((wxFrame*)FindWindowById(ID_STATUS_BAR)->GetParent())->SetTitle(
+        wxFileNameFromPath(path) + " (" + project_name + ") - ThunderCodeContainer"
+    );
+
+    InitializePrefs(DeterminePrefs(path));
+}
+
+wxString CodeContainer::DeterminePrefs(const wxString &filename) {
+    LanguageInfo const* currentInfo;
+    int languageNr;
+    for(languageNr = 0; languageNr < languages_prefs_size; languageNr++) {
+        currentInfo = &languages_prefs[languageNr];
+        wxString filepattern = currentInfo->filepattern;
+        filepattern.Lower();
+        while(!filepattern.empty()) {
+            wxString cur = filepattern.BeforeFirst (';');
+            if ((cur == filename) ||
+                (cur == (filename.BeforeLast ('.') + ".*")) ||
+                (cur == ("*." + filename.AfterLast ('.')))) {
+                return currentInfo->name;
+            }
+            filepattern = filepattern.AfterFirst (';');
+        }
+    }
+    return wxEmptyString;
+}
+
+bool CodeContainer::InitializePrefs(const wxString &name) {
+    LanguageInfo const* currentInfo = nullptr;
+    bool found = false;
+    int languageNr;
+    for (languageNr = 0; languageNr < languages_prefs_size; languageNr++) {
+        currentInfo = &languages_prefs[languageNr];
+        if (currentInfo->name == name) {
+            found = true;
+            break;
+        }
+    }
+    if(!found) return false;
+
+    current_lang = currentInfo;
+    SetLexer(currentInfo->lexer);
+
+    int Nr;
+    for (Nr = 0; Nr < wxSTC_STYLE_LASTPREDEFINED; Nr++) {
+        StyleSetFont(Nr, font);
+    }
+
+    if(global_commonPrefs.syntaxEnable) {
+        int keywordnr = 0;
+        for(Nr = 0; Nr < STYLE_TYPES_COUNT; Nr++) {
+            if (currentInfo->styles[Nr].type == -1) continue;
+
+            const StyleInfo &curType = global_lexer_styles[currentInfo->styles[Nr].type];
+            StyleSetFont(Nr, font);
+
+            StyleSetForeground(Nr, wxColor(curType.foreground));
+            StyleSetBold(Nr, (curType.fontstyle & mySTC_STYLE_BOLD) > 0);
+            StyleSetItalic(Nr, (curType.fontstyle & mySTC_STYLE_ITALIC) > 0);
+            StyleSetUnderline(Nr, (curType.fontstyle & mySTC_STYLE_UNDERL) > 0);
+            StyleSetVisible(Nr, (curType.fontstyle & mySTC_STYLE_HIDDEN) == 0);
+            StyleSetCase(Nr, curType.lettercase);
+
+            const char *pwords = currentInfo->styles[Nr].words;
+            if (pwords) {
+                SetKeyWords(keywordnr, pwords);
+                keywordnr += 1;
+            }
+        }
+    }
+
+    return true;
 }

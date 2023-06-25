@@ -62,3 +62,5 @@ enum {
 wxString project_path;
 std::string project_name;
 wxString icons_dir;
+
+#define STYLE_TYPES_COUNT 32

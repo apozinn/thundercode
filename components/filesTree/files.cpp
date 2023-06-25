@@ -1,8 +1,25 @@
 #include "./files.hpp"
 
+#include <vector>
+#include <wx/filename.h>
+#include <wx/scrolwin.h>
+#include <wx/wfstream.h>
+#include <wx/fswatcher.h>
+#include <wx/txtstrm.h>
+#include <wx/statbmp.h>
+#include "wx/listctrl.h"
+#include "wx/cmdline.h"
+
+#include "../../utils/randoms.hpp"
+#include "../../members/imagePanel.cpp"
+#include "../statusBar/status.hpp"
+#include "../codeContainer/code.hpp"
+#include "../tabs/tabs.hpp"
+#include <wx/graphics.h>
+
 FilesTree::FilesTree(wxWindow* parent, wxWindowID ID) : wxPanel(parent, ID) 
 {
-    this->SetBackgroundColour(wxColor(45, 45, 45));
+    SetBackgroundColour(wxColor(45, 45, 45));
     sizer = new wxBoxSizer(wxVERTICAL);
 
     wxPanel* top_content = new wxPanel(this);
@@ -45,26 +62,51 @@ FilesTree::FilesTree(wxWindow* parent, wxWindowID ID) : wxPanel(parent, ID)
     project_files->SetSizerAndFit(pjt_files_sizer);
     
     sizer->Add(project_files, 1, wxEXPAND);
-    this->SetSizerAndFit(sizer);
+    SetSizerAndFit(sizer);
     if(!project_path.size()) pjt_arrow->Hide();
-    Bind(wxEVT_FSWATCHER, &FilesTree::UpdateTree, this);
 }
 
 void FilesTree::Update() {
     project_files_ctn->DestroyChildren();
     project_files_ctn->SetName(project_path);
-    if(auto project_name_comp = FindWindowById(ID_PJT_TOOLS_PJTNAME)) 
-        project_name_comp->SetLabel(project_name);
-    if(auto project_arrow = FindWindowById(ID_PJT_TOOLS_ARROW)) 
-        project_arrow->Show();
+    if(auto project_name_comp = FindWindowById(ID_PJT_TOOLS_PJTNAME)) project_name_comp->SetLabel(project_name);
+    if(auto project_arrow = FindWindowById(ID_PJT_TOOLS_ARROW)) project_arrow->Show();
 
-    this->Create(project_path.ToStdString(), project_files_ctn);
+    Create(project_path.ToStdString(), project_files_ctn);
 
     project_files_ctn->FitInside();
     project_files_ctn->SetScrollRate(20, 20);
     selectedFile = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(0, 0));
+}
 
-    // CreateWatcher();
+void FilesTree::Create(std::string path, wxWindow* parent) {
+    std::vector<std::string> folders_buffer;
+    std::vector<std::string> files_buffer;
+
+    fileManager->ListChildrens(path, [&](const std::string &path, const std::string &type, const std::string &name) {
+        if(type == "dir") {
+            folders_buffer.push_back(name);
+        } else files_buffer.push_back(name);
+    });
+
+    std::sort(folders_buffer.begin(), folders_buffer.end());
+    std::sort(files_buffer.begin(), files_buffer.end());
+
+    for(auto&& f_ : folders_buffer) {
+        fileManager->ListChildrens(path, [&](const std::string &path, const std::string &type, const std::string &name) {
+            if(type == "dir") {
+                if(name == f_) CreateDir(parent, name, path);
+            }
+        });
+    }
+
+    for(auto&& f_ : files_buffer) {
+        fileManager->ListChildrens(path, [&](const std::string &path, const std::string &type, const std::string &name) {
+            if(type == "file") {
+                if(name == f_) CreateFile(parent, name, path);
+            }
+        });
+    }
 }
 
 void FilesTree::CreateFile(
@@ -173,7 +215,7 @@ void FilesTree::OnFileSelect(wxMouseEvent& event) {
     wxString path = file->GetName();
 
     if(path.size()) {
-        this->OpenFile(path);
+        OpenFile(path);
         if(selectedFile) {
             selectedFile->SetBackgroundColour(wxColor(45, 45, 45));
         }
@@ -335,54 +377,20 @@ void FilesTree::OnPaint(wxPaintEvent& event) {
     }
 }
 
-void FilesTree::UpdateTree(wxFileSystemWatcherEvent& event) {}
+void FilesTree::FitContainer(wxWindow* window) {
+    auto next_parent = window;
+    bool has_next_parent = true;
+    while(has_next_parent) {
+        int height = 0;
+        for(auto&& children : next_parent->GetChildren()) {
+            if(children->IsShown()) height = height+children->GetSize().GetHeight();
+        }
 
-bool FilesTree::CreateWatcherIfNecessary()
-{
-    if (m_watcher)
-        return false;
+        next_parent->SetSize(next_parent->GetSize().GetWidth(), height);
+        next_parent->SetMinSize(wxSize(next_parent->GetSize().GetWidth(), height));
 
-    CreateWatcher();
-    Connect(wxEVT_FSWATCHER,
-            wxFileSystemWatcherEventHandler(FilesTree::OnFileSystemEvent));
-
-    return true;
-}
-
-void FilesTree::OnFileSystemEvent(wxFileSystemWatcherEvent& event)
-{
-    // TODO remove when code is rock-solid
-    wxLogDebug(wxTRACE_FSWATCHER, "*** %s ***", event.ToString());
-    LogEvent(event);
-}
-
-void FilesTree::LogEvent(const wxFileSystemWatcherEvent& event)
-{
-    wxString entry = wxString::Format(LOG_FORMAT + "\n",
-                            GetFSWEventChangeTypeName(event.GetChangeType()),
-                            event.GetPath().GetFullPath(),
-                            event.GetNewPath().GetFullPath());
-    m_evtConsole->AppendText(entry);
-}
-
-void FilesTree::CreateWatcher()
-{
-    wxCHECK_RET(!m_watcher, "Watcher already initialized");
-    m_watcher = new wxFileSystemWatcher();
-    m_watcher->SetOwner(this);
-    m_watcher->AddTree(wxFileName::DirName(project_path)); 
-}
-
-void FilesTree::AddDirectory(const wxString& dir)
-{
-    wxLogDebug("Adding directory: '%s'", dir);
-
-    if (!m_watcher->Add(wxFileName::DirName(dir), wxFSW_EVENT_ALL))
-    {
-        wxLogError("Error adding '%s' to watched paths", dir);
-    }
-    else
-    {
-        m_filesList->InsertItem(m_filesList->GetItemCount(), dir);
+         if(next_parent->GetParent() && next_parent->GetId() != ID_PROJECT_FILES_CTN) {
+            next_parent = next_parent->GetParent();
+        } else has_next_parent = false;
     }
 }

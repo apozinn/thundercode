@@ -61,7 +61,6 @@ void StatusBar::UpdateComps(wxString path, std::string format) {
 		wxBitmap img(path);
 		wxImage img_ = img.ConvertToImage();
 		first_comp->SetLabel(std::to_string(img_.GetHeight())+"x"+std::to_string(img_.GetWidth())+" pixels");
-
 		char s[32] = "";
 		second_comp->SetLabel(FormatBytes(file_props.GetSize().ToULong(), s));
 	} else {
@@ -78,3 +77,9 @@ void StatusBar::ClearLabels() {
 }
 
 void StatusBar::ResizeComps() {}
+
+void StatusBar::UpdateCodeLocale(wxStyledTextCtrl* Code) {
+	first_comp->SetLabel(
+		"Line "+std::to_string(Code->GetCurrentLine()+1)+", Column "+std::to_string(Code->GetColumn(Code->GetCurrentPos()))
+	);
+}
