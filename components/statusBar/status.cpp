@@ -55,7 +55,7 @@ StatusBar::StatusBar(wxFrame* parent, wxWindowID ID) : wxPanel(parent, ID)
 	this->SetSizerAndFit(sizer);
 }
 
-void StatusBar::UpdateComps(wxString path, std::string format) {
+void StatusBar::UpdateComps(wxString path, std::string format, const char* language) {
 	wxFileName file_props = wxFileName(path);
 	if(format == "image") {
 		wxBitmap img(path);
@@ -63,11 +63,11 @@ void StatusBar::UpdateComps(wxString path, std::string format) {
 		first_comp->SetLabel(std::to_string(img_.GetHeight())+"x"+std::to_string(img_.GetWidth())+" pixels");
 		char s[32] = "";
 		second_comp->SetLabel(FormatBytes(file_props.GetSize().ToULong(), s));
+		third_comp->SetLabel(file_props.HasExt() ? file_props.GetExt() : "Unk");
 	} else {
 		second_comp->SetLabel("Spaces: 4");
+		third_comp->SetLabel(language != " " ? language : "unknown");
 	}
-
-	third_comp->SetLabel(file_props.HasExt() ? file_props.GetExt() : "Unk");
 }
 
 void StatusBar::ClearLabels() {

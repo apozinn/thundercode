@@ -16,7 +16,7 @@ wxEND_EVENT_TABLE()
 CodeContainer::CodeContainer(
     wxWindow* parent, wxWindowID ID, wxString path
 ) : wxStyledTextCtrl(parent, ID) {
-    SetLabel(path+"_CodeContainer");
+    SetLabel(path+"_codeContainer");
     SetName(path);
 	SetUseTabs(true);
     SetTabWidth(4);

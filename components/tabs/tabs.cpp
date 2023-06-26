@@ -175,12 +175,12 @@ void Tabs::Select(wxMouseEvent& event) {
 
     if(codeContainer) {
         codeContainer->Show();
-        status_bar->UpdateComps(tab_path, "text");
+        status_bar->UpdateComps(tab_path, "text", codeContainer->current_lang->name);
     }
 
     if(imageContainer) {
         imageContainer->Show();
-        status_bar->UpdateComps(tab_path, "image");
+        status_bar->UpdateComps(tab_path, "image", "img");
     }
 
     main_code->GetSizer()->Layout();

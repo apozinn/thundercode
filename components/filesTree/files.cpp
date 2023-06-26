@@ -230,14 +230,25 @@ void FilesTree::OpenFile(wxString path) {
     auto codeContainer = ((CodeContainer*)FindWindowByLabel(path+"_codeContainer"));
     auto status_bar = ((StatusBar*)FindWindowById(ID_STATUS_BAR));
 
-    wxFileName file_props = wxFileName(path);
     for(auto&& other_ct : main_code->GetChildren()) 
         if(other_ct->GetId() != ID_TABS) other_ct->Hide();
 
-    wxString ext = file_props.GetExt();
-    if(ext.size()) {
-        if(ext == "png" || ext == "jpg" || ext == "jpeg") {
-            wxImage image(path);
+    wxFileName file_props = wxFileName(path);
+    wxString file_ext = file_props.GetExt();
+
+    auto is_text_file = [&]() {
+        if(!codeContainer) {
+            codeContainer = new CodeContainer(main_code, wxID_ANY, path);
+            main_code->GetSizer()->Add(codeContainer, 1, wxEXPAND);
+        } else codeContainer->IsShown();
+        status_bar->UpdateComps(path, "text", codeContainer->current_lang->name);
+    };
+
+    if(file_ext.size()) {
+        wxImage image = wxImage();
+        if(image.CanRead(path)) {
+            image.LoadFile(path);
+            if(!image.IsOk()) return;
             if(image.GetWidth() > 1000 || image.GetHeight() > 1000) {
                 image.Rescale(image.GetWidth()/2, image.GetHeight()/2);
             }
@@ -246,29 +257,11 @@ void FilesTree::OpenFile(wxString path) {
             wxStaticBitmap* image_container = new wxStaticBitmap(main_code, wxID_ANY, wxBitmapBundle::FromBitmaps(bitmaps));
             image_container->SetLabel(path+"_imageContainer");
             main_code->GetSizer()->Add(image_container, 1, wxALIGN_CENTER);
-            status_bar->UpdateComps(path, "image");
-        } else {
-            status_bar->UpdateComps(path, "text");
-            if(!codeContainer) {
-                codeContainer = new CodeContainer(main_code, wxID_ANY, path);
-                main_code->GetSizer()->Add(codeContainer, 1, wxEXPAND);
-            } else {
-                if(!codeContainer->IsShown());
-            }
-        }
-    } else {
-        status_bar->UpdateComps(path, "text");
-        if(!codeContainer) {
-            codeContainer = new CodeContainer(main_code, wxID_ANY, path);
-            main_code->GetSizer()->Add(codeContainer, 1, wxEXPAND);
-        } else {
-            if(!codeContainer->IsShown());
-        }
-    }
+            status_bar->UpdateComps(path, "image", "img");
+        } else is_text_file();
+    } else is_text_file();
 
     tabsContainer->Add(wxFileNameFromPath(path.substr(0, path.size())), path);
-    main_code->GetSizer()->Layout();
-    main_code->Update();
 }
 
 void FilesTree::ToggleDir(wxMouseEvent& event) {
