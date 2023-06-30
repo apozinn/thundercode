@@ -54,7 +54,7 @@ const StyleInfo global_lexer_styles [] = {
     {
         "Special comment",
         wxColour(0, 110, 51),
-        "", 10, mySTC_STYLE_ITALIC, 0
+        "", 10, 0, 0
     },
     {
         "Character",
@@ -89,7 +89,7 @@ const StyleInfo global_lexer_styles [] = {
     {
         "Operator",
         wxColour(16, 230, 190),
-        "", 10, mySTC_STYLE_BOLD, 0
+        "", 10, 0, 0
     },
     {
         "Label",
@@ -119,7 +119,7 @@ const StyleInfo global_lexer_styles [] = {
     {
         "Parameter",
         wxColour(255, 155, 157),
-        "", 10, mySTC_STYLE_ITALIC, 0
+        "", 10, 0, 0
     },
     {
         "Regular expression",
@@ -128,13 +128,13 @@ const StyleInfo global_lexer_styles [] = {
     },
     {
         "UUID",
-        wxColour(255, 0, 0),
+        wxColour(255, 111, 222),
         "", 10, 0, 0
     },
     {
         "Value",
-        wxColour(255, 0, 0),
-        "", 10, mySTC_STYLE_ITALIC, 0
+        wxColour(255, 77, 45),
+        "", 10, 0, 0
     },
     {
         "Preprocessor",
@@ -153,7 +153,7 @@ const StyleInfo global_lexer_styles [] = {
     },
     {
         "Undefined",
-        wxColour(117, 0, 0),
+        wxColour(43, 0, 0),
         "", 10, 0, 0
     }
 };

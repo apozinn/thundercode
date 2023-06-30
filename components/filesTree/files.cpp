@@ -241,6 +241,7 @@ void FilesTree::OpenFile(wxString path) {
             codeContainer = new CodeContainer(main_code, wxID_ANY, path);
             main_code->GetSizer()->Add(codeContainer, 1, wxEXPAND);
         } else codeContainer->IsShown();
+
         status_bar->UpdateComps(path, "text", codeContainer->current_lang->name);
     };
 
@@ -327,27 +328,43 @@ void FilesTree::ToggleDir(wxMouseEvent& event) {
 void FilesTree::onTopMenuClick(wxMouseEvent& event) {
     wxMenu* menuFile = new wxMenu;
     menuFile->Append(wxID_ANY, _("&New File"));
-    menuFile->Append(wxID_ANY, _("&New Folder"));
+    menuFile->Append(ID_CREATE_DIR, _("&New Folder"));
     menuFile->Append(wxID_ANY, _("&Rename"));
     menuFile->Append(wxID_ANY, _("&Open terminal"));
     PopupMenu(menuFile);
 }
 
 void FilesTree::onFileRightClick(wxMouseEvent& event) {
+    auto target = ((wxWindow*)event.GetEventObject());
+    if(!target->GetName().size()) return;
+    menufile_path = target->GetName();
+
     wxMenu* menuFile = new wxMenu;
     menuFile->Append(wxID_ANY, _("&Rename"));
-    menuFile->Append(wxID_ANY, _("&Delete File"));
+    menuFile->Append(ID_DELETE_FILE, _("&Delete File"));
     PopupMenu(menuFile);
 }
 
 void FilesTree::onDirRightClick(wxMouseEvent& event) {
-    wxMenu* menuFile = new wxMenu;
-    menuFile->Append(wxID_ANY, _("&Rename"));
-    menuFile->Append(wxID_ANY, _("&New File"));
-    menuFile->Append(wxID_ANY, _("&New Folder"));
-    menuFile->Append(wxID_ANY, _("&Open Folder"));
-    menuFile->Append(wxID_ANY, _("&Delete Folder"));
-    PopupMenu(menuFile);
+    auto eventObj = ((wxWindow*)event.GetEventObject());
+    wxWindow* target;
+
+    if(eventObj->GetLabel() == "dir_props") {
+        target = eventObj->GetParent();
+    } else if(eventObj->GetName() == "dir_name") {
+        target = eventObj->GetGrandParent();
+    }
+
+    if(!target->GetName().size()) return;
+    menudir_path = target->GetName();
+
+    wxMenu* menuDir = new wxMenu;
+    menuDir->Append(wxID_ANY, _("&Rename"));
+    menuDir->Append(ID_CREATE_FILE, _("&New File"));
+    menuDir->Append(ID_CREATE_DIR, _("&New Folder"));
+    menuDir->Append(wxID_ANY, _("&Open Folder"));
+    menuDir->Append(ID_DELETE_DIR, _("&Delete Folder"));
+    PopupMenu(menuDir);
 }
 
 void FilesTree::OnPaint(wxPaintEvent& event) {
@@ -387,3 +404,34 @@ void FilesTree::FitContainer(wxWindow* window) {
         } else has_next_parent = false;
     }
 }
+
+void FilesTree::OnCreateDir(wxCommandEvent& event) {
+    wxString folder_name = wxGetTextFromUser("Enter the folder name: ", "Create Folder","");
+    if(folder_name.empty()) return;
+    bool created = fileManager->CreateDir(menudir_path+"/"+folder_name);
+}
+
+void FilesTree::OnCreateFile(wxCommandEvent& event) {
+    wxString file_name = wxGetTextFromUser("Enter the file name: ", "Create File", "");
+    if(file_name.empty()) return;
+
+    if(menudir_path.Len() > 1000) {
+        if(project_path.Len() > 1000) {
+            wxMessageBox(_("You can't create a file in a empty project"), _("Create File"), wxOK | wxICON_INFORMATION, this);
+        } else {
+            fileManager->CreateFile(project_path+file_name);
+            OpenFile(project_path+file_name);
+        }
+    } else {
+        fileManager->CreateFile(menudir_path+"/"+file_name); 
+        OpenFile(menudir_path+"/"+file_name);
+    }
+}
+
+void FilesTree::OnDeleteDir(wxCommandEvent& event) {
+    bool deleted = fileManager->DeleteDir(menudir_path); 
+}
+
+void FilesTree::OnDeleteFile(wxCommandEvent& event) {
+    bool deleted = fileManager->DeleteFile(menufile_path); 
+} 

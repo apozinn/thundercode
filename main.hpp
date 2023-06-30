@@ -80,7 +80,6 @@ public:
     MainFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
     void OnQuit(wxCommandEvent& event);
     void OnAbout(wxCommandEvent& event);
-    void OnNewFile(wxCommandEvent& event);
     void OnOpenFolderMenu(wxCommandEvent& event);
     void OnOpenFolderClick(wxMouseEvent& event);
     void OnOpenFile(wxCommandEvent& event);
@@ -103,7 +102,7 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_MENU(wxID_EXIT, MainFrame::OnQuit)
     EVT_MENU(wxID_ABOUT, MainFrame::OnAbout)
     EVT_MENU(wxID_SAVE, CodeContainer::OnSave)
-    EVT_MENU(ID_NEW_FILE, MainFrame::OnNewFile)
+    EVT_MENU(ID_CREATE_FILE, FilesTree::OnCreateFile)
     EVT_MENU(ID_OPEN_FOLDER, MainFrame::OnOpenFolderMenu)
     EVT_MENU(ID_OPEN_FILE, MainFrame::OnOpenFile)
     EVT_MENU(ID_HIDDE_FILES_TREE, MainFrame::OnHiddeFilesTree)

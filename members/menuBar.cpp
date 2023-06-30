@@ -4,7 +4,7 @@ class MenuBar : public wxMenuBar {
 public:
 	MenuBar() : wxMenuBar() {
 		wxMenu *menuFile = new wxMenu;
-	    menuFile->Append(ID_NEW_FILE, _("&New File\tCtrl-N"));
+	    menuFile->Append(ID_CREATE_FILE, _("&New File\tCtrl-N"));
 	    menuFile->Append(ID_OPEN_FOLDER, _("&Open Folder...\tCtrl+Shift+K"));
 	    menuFile->Append(ID_OPEN_FILE, _("&Open File...\tCtrl+O"));
 	    menuFile->Append(wxID_SAVE, _("&Save"));

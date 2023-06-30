@@ -10,6 +10,7 @@ class FilesTree : public wxPanel {
 public:
     wxWindow* selectedFile;
 	FileManager* fileManager = new FileManager();
+	wxString menufile_path, menudir_path;
 	FilesTree(wxWindow* parent, wxWindowID ID);
 	void Update();
 	void CreateFile(wxWindow* parent, wxString name, wxString path);
@@ -24,5 +25,18 @@ public:
 	void SetSelectedFile(wxWindow* new_window) {selectedFile = new_window;}
 	void FitContainer(wxWindow* window);
 	void OnPaint(wxPaintEvent& event);
-	wxDECLARE_NO_COPY_CLASS(FilesTree);
+	void OnCreateDir(wxCommandEvent& event);
+	void OnCreateFile(wxCommandEvent& event);
+	void OnDeleteDir(wxCommandEvent& event);
+	void OnDeleteFile(wxCommandEvent& event);
+private:
+    wxDECLARE_NO_COPY_CLASS(FilesTree);
+    wxDECLARE_EVENT_TABLE();
 };
+
+wxBEGIN_EVENT_TABLE(FilesTree, wxPanel)
+    EVT_MENU(ID_CREATE_DIR, FilesTree::OnCreateDir)
+    EVT_MENU(ID_CREATE_FILE, FilesTree::OnCreateFile)
+    EVT_MENU(ID_DELETE_DIR, FilesTree::OnDeleteDir)
+    EVT_MENU(ID_DELETE_FILE, FilesTree::OnDeleteFile)
+wxEND_EVENT_TABLE()

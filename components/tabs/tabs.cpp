@@ -24,7 +24,6 @@ Tabs::Tabs(wxPanel* parent, wxWindowID ID) : wxPanel(parent, ID) {
 
 void Tabs::Add(wxString tab_name, wxString path) {    
     if(!IsShown()) Show();
-
     bool exists = false;
     for(auto& a_tab : tabs_container->GetChildren()) {
         if(a_tab->GetName() == path) {

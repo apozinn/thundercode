@@ -144,10 +144,6 @@ void MainFrame::OpenFolderDialog() {
     }
 }
 
-void MainFrame::OnNewFile(wxCommandEvent& WXUNUSED(event)) {
-    tabs->Add("Untitled", project_path);
-}
-
 void MainFrame::OnOpenFolderMenu(wxCommandEvent& WXUNUSED(event)) {
     OpenFolderDialog();
 }

@@ -7,11 +7,11 @@ const char* CppWordlist1 =
     "export extern false float for friend goto if inline int long "
     "mutable namespace new operator private protected public register "
     "reinterpret_cast return short signed sizeof static static_cast "
-    "struct switch template this throw true try typedef typeid "
+    "struct switch template throw true try typedef typeid "
     "typename union unsigned using virtual void volatile wchar_t "
     "while";
 const char* CppWordlist2 =
-    "file";
+    "file this";
 const char* CppWordlist3 =
     "a addindex addtogroup anchor arg attention author b brief bug c "
     "class code date def defgroup deprecated dontinclude e em endcode "

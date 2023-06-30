@@ -33,35 +33,39 @@ public:
 	        while (auto f = readdir(dir)) {
 	            if (!f->d_name || f->d_name[0] == '.') continue;
 	            if (f->d_type == DT_DIR) {
-	            	if(path.substr(path.size()-1) == "/") {
-		                cb(path+f->d_name, "dir", f->d_name);
-	            	} else cb(path+"/"+f->d_name, "dir", f->d_name);
+	            	if(path.substr(path.size()-1) != "/") {
+		                cb(path+"/"+f->d_name, "dir", f->d_name);
+	            	} else cb(path+f->d_name, "dir", f->d_name);
 	            }
 	            if (f->d_type == DT_REG) {
-	            	if(path.substr(path.size()-1) == "/") {
+	            	if(path.substr(path.size()-1) != "/") {
 		                cb(path+"/"+f->d_name, "file", f->d_name);
-	            	} else cb(path+"/"+f->d_name, "file", f->d_name);
+	            	} else cb(path+f->d_name, "file", f->d_name);
 	            }
 	        }
 	        closedir(dir);
 	    }
 	}
 
-	int GetChildrensCount(wxString path) {
-		int childrens_count = 0;
-		if (auto dir = opendir(path.c_str())) {
-	        while (auto f = readdir(dir)) {
-	            if (!f->d_name || f->d_name[0] == '.') continue;
-	            childrens_count++;
-	        }
-	        closedir(dir);
-	    }
-	    return childrens_count;
+	bool CreateFile(wxString path) {
+		wxFile fname;
+		bool created = fname.Create(path);
+		return created;
 	}
 
-	std::string GetParentPath(std::string path) {
-		wxFileName path_props = wxFileName::DirName(path);
-		std::string parent_path = path.substr(0, path.find(path_props.GetName())-1);
-		return parent_path;
+	bool CreateDir(wxString path) {
+		bool created = wxFileName::Mkdir(path);
+		return created;
+	}
+
+	bool DeleteFile(wxString path) {
+		int deleted = remove(path);
+		if(!deleted) return false;
+		return true;
+	}
+
+	bool DeleteDir(wxString path) {
+		bool deleted = wxFileName::Rmdir(path);
+		return deleted;
 	}
 };
