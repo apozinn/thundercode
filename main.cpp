@@ -1,17 +1,18 @@
 #include "main.hpp"
 
-bool ThunderCode::OnInit() {
-    MainFrame* frame = new MainFrame(_("ThunderCode"), wxPoint(50, 50),  wxSize(900, 800));
-    frame->Show(true);
-    SetTopWindow(frame);
-    return true;
-}
+#include <wx/config.h>
+#include <wx/sizer.h>
+#include <wx/dirdlg.h>
+#include <filesystem>
+#include <wx/sashwin.h>
+#include "wx/image.h"
+#include "wx/file.h"
+#include "wx/filename.h"
 
-MainFrame::MainFrame(
-    const wxString& title, const wxPoint& pos, const wxSize& size
-) : wxFrame(NULL, ID_MAIN_FRAME, title, pos, size)
+MainFrame::MainFrame(const wxString& title)
+    : wxFrame(nullptr, wxID_ANY, title),
+      m_watcher(nullptr), m_followLinks(false)
 {
-    SetMinSize(size);
     wxInitAllImageHandlers();
     if(wxFile::Exists("./icons/settings.png")) icons_dir = "./icons/";
     else if(wxFile::Exists("../icons/settings.png")) icons_dir = "../icons/";
@@ -96,6 +97,8 @@ MainFrame::MainFrame(
         tabs->CloseAll();
         files_tree->Update();
         SetTitle("ThunderCode - "+project_name);
+
+        AddEntry(wxFSWPath_Tree, project_path);
     } else {
         tabs->CloseAll();
         if(auto pjt_ctn = FindWindowById(ID_PROJECT_FILES_CTN)) {
@@ -115,13 +118,96 @@ MainFrame::MainFrame(
     this->SetAcceleratorTable(accel);
 }
 
-void MainFrame::OnQuit(wxCommandEvent& WXUNUSED(event)) {
-    Close(TRUE);
+MainFrame::~MainFrame()
+{
+    delete m_watcher;
 }
 
-void MainFrame::OnAbout(wxCommandEvent& WXUNUSED(event)) {
-    wxMessageBox(_("Code editor for all you need"), _("ThunderCode"), 
-        wxOK | wxICON_INFORMATION, this);
+bool MainFrame::CreateWatcherIfNecessary()
+{
+    if (m_watcher) return false;
+
+    CreateWatcher();
+    Bind(wxEVT_FSWATCHER, &MainFrame::OnFileSystemEvent, this);
+
+    return true;
+}
+
+void MainFrame::CreateWatcher()
+{
+    wxCHECK_RET(!m_watcher, _("Watcher already initialized"));
+    m_watcher = new wxFileSystemWatcher();
+    m_watcher->SetOwner(this);
+}
+
+void MainFrame::OnAbout(wxCommandEvent& WXUNUSED(event))
+{
+    wxMessageBox("Demonstrates the usage of file system watcher, "
+                 "the wxWidgets monitoring system notifying you of "
+                 "changes done to your files.\n"
+                 "(c) 2009 Bartosz Bekier\n",
+                 "About wxWidgets File System Watcher Sample",
+                 wxOK | wxICON_INFORMATION, this);
+}
+
+void MainFrame::OnWatch(wxCommandEvent& event)
+{
+    if (event.IsChecked())
+    {
+        wxCHECK_RET(!m_watcher, "Watcher already initialized");
+        CreateWatcher();
+    }
+    else
+    {
+        wxCHECK_RET(m_watcher, "Watcher not initialized");
+        wxDELETE(m_watcher);
+    }
+}
+
+void MainFrame::OnFollowLinks(wxCommandEvent& event) { m_followLinks = event.IsChecked(); }
+
+void MainFrame::AddEntry(wxFSWPathType type, wxString filename)
+{
+    if (!m_watcher) return;
+    if (filename.empty()) return;
+
+    wxCHECK_RET(m_watcher, "Watcher not initialized");
+
+    wxString prefix;
+    bool ok = false;
+
+    wxFileName fn = wxFileName::DirName(filename);
+    if (!m_followLinks) {
+        fn.DontFollowLink();
+    }
+
+    switch(type) {
+        case wxFSWPath_Dir:
+            ok = m_watcher->Add(fn);
+            prefix = "Dir:  ";
+            break;
+        case wxFSWPath_Tree:
+            ok = m_watcher->AddTree(fn);
+            prefix = "Tree: ";
+            break;
+        case wxFSWPath_File:
+        case wxFSWPath_None:
+            wxFAIL_MSG("Unexpected path type.");
+    }
+
+    if(!ok) {}
+}
+
+void MainFrame::OnFileSystemEvent(wxFileSystemWatcherEvent& event)
+{
+    wxString type = GetFSWEventChangeTypeName(event.GetChangeType());
+    if(type != "ACCESS") {
+        files_tree->OnTreeModifyed(
+            event.GetPath().GetFullPath(), 
+            event.GetNewPath().GetFullPath(),
+            type
+        );
+    }
 }
 
 void MainFrame::OpenFolderDialog() {
@@ -141,6 +227,8 @@ void MainFrame::OpenFolderDialog() {
         delete config;
 
         SetTitle("ThunderCode - "+project_name);
+
+        AddEntry(wxFSWPath_Tree, path);
     }
 }
 

@@ -1,8 +1,5 @@
 #pragma once
 
-#include <iostream>
-#include <cstring>
-
 wxString stringToWxString(std::string str) {
     wxString r_str = str;
     return r_str;
@@ -31,3 +28,32 @@ struct NotifyInteractions {
     const char* label;
     const char* id;
 };
+
+static wxString GetFSWEventChangeTypeName(int changeType)
+{
+    switch (changeType)
+    {
+    case wxFSW_EVENT_CREATE:
+        return "CREATE";
+    case wxFSW_EVENT_DELETE:
+        return "DELETE";
+    case wxFSW_EVENT_RENAME:
+        return "RENAME";
+    case wxFSW_EVENT_MODIFY:
+        return "MODIFY";
+    case wxFSW_EVENT_ACCESS:
+        return "ACCESS";
+    case wxFSW_EVENT_ATTRIB:  // Currently this is wxGTK-only
+        return "ATTRIBUTE";
+#ifdef wxHAS_INOTIFY
+    case wxFSW_EVENT_UNMOUNT: // Currently this is wxGTK-only
+        return "UNMOUNT";
+#endif
+    case wxFSW_EVENT_WARNING:
+        return "WARNING";
+    case wxFSW_EVENT_ERROR:
+        return "ERROR";
+    }
+
+    return "INVALID_TYPE";
+}

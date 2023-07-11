@@ -1,34 +1,8 @@
 #pragma once
-#include <wx/wx.h>
-#include <wx/xrc/xmlres.h>
-#include <wx/fs_mem.h>
-#include <wx/textdlg.h>
-#include <wx/sysopt.h>
+#include "wx/wx.h"
 #include <wx/splitter.h>
-#include <wx/socket.h>
-#include <wx/aboutdlg.h>
-#include <wx/utils.h>
-#include <wx/nativewin.h>
-#include <wx/process.h>
-#include <wx/filefn.h> 
-#include <wx/stdpaths.h>
-#include <wx/infobar.h>
-#include <wx/log.h>
-#include <wx/config.h>
-#include <wx/sashwin.h>
-#include "wx/image.h"
-#include "wx/file.h"
-#include "wx/filename.h"
-#include "wx/mstream.h"
-#include "wx/wfstream.h"
-#include "wx/quantize.h"
-#include "wx/stopwatch.h"
-#include <wx/accel.h>
-#include <wx/sizer.h>
-#include <string>
-#include <wx/dirdlg.h>
-#include <iostream>
-#include <filesystem>
+#include "wx/fswatcher.h"
+#include "wx/cmdline.h"
 
 #if wxUSE_CLIPBOARD
 #include "wx/dataobj.h"
@@ -38,6 +12,9 @@
 #ifdef __WXMSW__
 #include "wx/msw/private.h"
 #endif
+
+#include <string>
+#include <iostream>
 
 #include "./app.hpp"
 #include "./defs.hpp"
@@ -52,13 +29,6 @@
 #include "./members/openFolderLink.cpp"
 #include "./members/controlPanel.cpp"
 #include "./members/terminal.cpp"
-
-class ThunderCode: public wxApp {
-    virtual bool OnInit();
-};
-
-IMPLEMENT_APP(ThunderCode)
-DECLARE_APP(ThunderCode)
 
 class MainFrame: public wxFrame {
     wxBoxSizer* sizer;
@@ -77,9 +47,10 @@ class MainFrame: public wxFrame {
     wxSplitterWindow* servical_container;
 public:
     StatusBar* status_bar;
-    MainFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
-    void OnQuit(wxCommandEvent& event);
-    void OnAbout(wxCommandEvent& event);
+    MainFrame(const wxString& title);
+    virtual ~MainFrame();
+    void AddEntry(wxFSWPathType type, wxString filename = wxString());
+    bool CreateWatcherIfNecessary();
     void OnOpenFolderMenu(wxCommandEvent& event);
     void OnOpenFolderClick(wxMouseEvent& event);
     void OnOpenFile(wxCommandEvent& event);
@@ -93,10 +64,52 @@ public:
     void CloseAllFiles(wxCommandEvent& event);
     void OpenFolderDialog();
     void ToggleControlPanel(wxCommandEvent& event);
+    wxFileSystemWatcher* watcher;
 private:
+    void CreateWatcher();
+    void OnQuit(wxCommandEvent& WXUNUSED(event)) { Close(true); }
+    void OnWatch(wxCommandEvent& event);
+    void OnFollowLinks(wxCommandEvent& event);
+    void OnAbout(wxCommandEvent& event);
+    void OnFileSystemEvent(wxFileSystemWatcherEvent& event);
+    wxFileSystemWatcher* m_watcher = nullptr;
+    bool m_followLinks;
     wxDECLARE_NO_COPY_CLASS(MainFrame);
     wxDECLARE_EVENT_TABLE();
 };
+
+class ThunderCode: public wxApp {
+public:
+    virtual bool OnInit() override {
+        if(!wxApp::OnInit()) return false;
+        frame = new MainFrame("File System Watcher wxWidgets App");
+        frame->Show();
+        return true;
+    }
+
+    virtual void OnEventLoopEnter(wxEventLoopBase* WXUNUSED(loop)) override  {
+        if(frame->CreateWatcherIfNecessary()) {
+            if(!m_dirToWatch.empty()) frame->AddEntry(wxFSWPath_Dir, m_dirToWatch);
+        }
+    }
+
+    virtual void OnInitCmdLine(wxCmdLineParser& parser) override {
+        wxApp::OnInitCmdLine(parser);
+        parser.AddParam("directory to watch", wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
+    }
+
+    virtual bool OnCmdLineParsed(wxCmdLineParser& parser) override {
+        if(!wxApp::OnCmdLineParsed(parser)) return false;
+        if(parser.GetParamCount()) m_dirToWatch = parser.GetParam();
+        return true;
+    }
+private: 
+    MainFrame *frame;
+    wxString m_dirToWatch;
+};
+
+IMPLEMENT_APP(ThunderCode)
+DECLARE_APP(ThunderCode)
 
 wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_MENU(wxID_EXIT, MainFrame::OnQuit)

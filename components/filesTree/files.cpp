@@ -1,14 +1,10 @@
 #include "./files.hpp"
 
 #include <vector>
-#include <wx/filename.h>
 #include <wx/scrolwin.h>
 #include <wx/wfstream.h>
-#include <wx/fswatcher.h>
 #include <wx/txtstrm.h>
 #include <wx/statbmp.h>
-#include "wx/listctrl.h"
-#include "wx/cmdline.h"
 
 #include "../../utils/randoms.hpp"
 #include "../../members/imagePanel.cpp"
@@ -107,6 +103,8 @@ void FilesTree::Create(std::string path, wxWindow* parent) {
             }
         });
     }
+
+    FitContainer(parent);
 }
 
 void FilesTree::CreateFile(
@@ -175,6 +173,7 @@ void FilesTree::CreateDir(
     dir_container->SetMinSize(wxSize(dir_container->GetSize().GetWidth(), 20));
     dir_container->SetSize(dir_container->GetSize().GetWidth(), 20);
     dir_container->SetName(path);
+    dir_container->SetLabel(path+"_dir_container");
     wxBoxSizer* dir_ctn_sizer = new wxBoxSizer(wxVERTICAL);
 
     wxPanel* dir_props = new wxPanel(dir_container);
@@ -198,6 +197,7 @@ void FilesTree::CreateDir(
     dir_props->SetSizerAndFit(props_sizer);
 
     wxPanel* dir_childrens = new wxPanel(dir_container);
+    dir_childrens->SetLabel(path+"_dir_childrens");
     dir_childrens->Bind(wxEVT_PAINT, &FilesTree::OnPaint, ((FilesTree*)dir_childrens));
     wxBoxSizer* dir_childrens_sizer = new wxBoxSizer(wxVERTICAL);
     dir_childrens->SetSizerAndFit(dir_childrens_sizer);
@@ -313,12 +313,9 @@ void FilesTree::ToggleDir(wxMouseEvent& event) {
                 bitmaps.push_back(wxBitmap(arrow_bit.ConvertToImage().Rotate90(true), -1));
             }
 
-            FitContainer(dir_childrens);
             dir_arrow_ctn->SetBitmap(wxBitmapBundle::FromBitmaps(bitmaps));
-
             dir_childrens->GetSizer()->Layout();
             dir_childrens->Update();
-
             dir_container->GetSizer()->Layout();
             dir_container->Update();
         }
@@ -435,3 +432,11 @@ void FilesTree::OnDeleteDir(wxCommandEvent& event) {
 void FilesTree::OnDeleteFile(wxCommandEvent& event) {
     bool deleted = fileManager->DeleteFile(menufile_path); 
 } 
+
+void FilesTree::OnTreeModifyed(wxString old_target, wxString new_target, wxString type) {
+    auto target_parent = FindWindowByName(old_target.substr(0, old_target.find_last_of("/")+1));
+    if(target_parent) {
+        target_parent->DestroyChildren();
+        this->Create(old_target.substr(0, old_target.find_last_of("/")+1).ToStdString(), target_parent);
+    } else {}
+}

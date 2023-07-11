@@ -1,14 +1,6 @@
 #include "code.hpp"
-#include "wx/file.h"
-#include "wx/filename.h"
 #include "wx/settings.h"
-#include "wx/wxprec.h"
 #include "../../utils/randoms.hpp"
-
-#ifndef WX_PRECOMP
-    #include "wx/wx.h"
-    #include "wx/textdlg.h"
-#endif
 
 wxBEGIN_EVENT_TABLE(CodeContainer, wxStyledTextCtrl)
 wxEND_EVENT_TABLE()

@@ -1,5 +1,6 @@
 #pragma once
 #include "../../utils/fileManager.hpp"
+#include <wx/fswatcher.h>
 
 class FilesTree : public wxPanel {
 	wxPanel* files_tree;
@@ -29,6 +30,7 @@ public:
 	void OnCreateFile(wxCommandEvent& event);
 	void OnDeleteDir(wxCommandEvent& event);
 	void OnDeleteFile(wxCommandEvent& event);
+	void OnTreeModifyed(wxString old_target, wxString new_target, wxString type);
 private:
     wxDECLARE_NO_COPY_CLASS(FilesTree);
     wxDECLARE_EVENT_TABLE();
