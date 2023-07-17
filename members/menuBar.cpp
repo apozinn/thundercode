@@ -65,7 +65,7 @@ public:
 	    menuHelp->Append(wxID_ANY, _("&Documentation"));
 	    menuHelp->Append(wxID_ANY, _("&Report a Bug"));
 	    menuHelp->AppendSeparator();
-	    menuHelp->Append(wxID_ANY, _("&About ThunderCode"));
+	    menuHelp->Append(wxID_ABOUT, _("&About ThunderCode"));
 
 	    this->Append(menuFile, _("&File"));
 	    this->Append(menuEdit, _("&Edit"));

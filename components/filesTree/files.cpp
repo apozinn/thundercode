@@ -4,7 +4,9 @@
 #include <wx/scrolwin.h>
 #include <wx/wfstream.h>
 #include <wx/txtstrm.h>
+#include <wx/app.h> 
 #include <wx/statbmp.h>
+#include "../../main.hpp"
 
 #include "../../utils/randoms.hpp"
 #include "../../members/imagePanel.cpp"
@@ -103,14 +105,12 @@ void FilesTree::Create(std::string path, wxWindow* parent) {
             }
         });
     }
-
-    FitContainer(parent);
 }
 
 void FilesTree::CreateFile(
     wxWindow* parent, wxString name, wxString path
 ) {
-    if(!parent || FindWindowByName(path)) return;
+    if(!parent || FindWindowByLabel(path+"_file_container")) return;
     auto parent_sizer = parent->GetSizer();
     if(!parent_sizer) {
         auto new_sizer = new wxBoxSizer(wxVERTICAL);
@@ -161,7 +161,7 @@ void FilesTree::CreateFile(
 void FilesTree::CreateDir(
     wxWindow* parent, wxString name, wxString path
 ) {
-    if(!parent || FindWindowByName(path)) return;
+    if(!parent || FindWindowByLabel(path+"_dir_container")) return;
     auto parent_sizer = parent->GetSizer();
     if(!parent_sizer) {
         wxBoxSizer* n_s = new wxBoxSizer(wxVERTICAL);
@@ -197,11 +197,9 @@ void FilesTree::CreateDir(
     dir_props->SetSizerAndFit(props_sizer);
 
     wxPanel* dir_childrens = new wxPanel(dir_container);
-    dir_childrens->SetLabel(path+"_dir_childrens");
     dir_childrens->Bind(wxEVT_PAINT, &FilesTree::OnPaint, ((FilesTree*)dir_childrens));
     wxBoxSizer* dir_childrens_sizer = new wxBoxSizer(wxVERTICAL);
     dir_childrens->SetSizerAndFit(dir_childrens_sizer);
-
     dir_ctn_sizer->Add(dir_childrens, 0, wxEXPAND | wxLEFT, 10);
 
     dir_container->SetSizerAndFit(dir_ctn_sizer);
@@ -308,10 +306,12 @@ void FilesTree::ToggleDir(wxMouseEvent& event) {
                 dir_childrens->Hide();
                 bitmaps.push_back(wxBitmap(arrow_bit.ConvertToImage().Rotate90(false), -1));
             } else {
-                Create(path.ToStdString(), dir_childrens);
+                Create(path.ToStdString()+"/", dir_childrens);
                 dir_childrens->Show();
                 bitmaps.push_back(wxBitmap(arrow_bit.ConvertToImage().Rotate90(true), -1));
             }
+
+            FitContainer(dir_childrens);
 
             dir_arrow_ctn->SetBitmap(wxBitmapBundle::FromBitmaps(bitmaps));
             dir_childrens->GetSizer()->Layout();
@@ -434,9 +434,25 @@ void FilesTree::OnDeleteFile(wxCommandEvent& event) {
 } 
 
 void FilesTree::OnTreeModifyed(wxString old_target, wxString new_target, wxString type) {
-    auto target_parent = FindWindowByName(old_target.substr(0, old_target.find_last_of("/")+1));
+    wxFileName path_props(old_target);
+    wxString parent_path;
+
+    if(path_props.IsDir()) {
+        parent_path = path_props.GetPath().substr(0, path_props.GetPath().find_last_of("/"));
+    } else {
+        parent_path = path_props.GetPath();
+    }
+
+    auto target_parent = FindWindowByName(parent_path);
+    if(!target_parent) {
+        target_parent = FindWindowByName(parent_path);
+    }
+
     if(target_parent) {
+        if(target_parent->GetId() != ID_PROJECT_FILES_CTN) 
+            target_parent = target_parent->GetChildren()[1];
         target_parent->DestroyChildren();
-        this->Create(old_target.substr(0, old_target.find_last_of("/")+1).ToStdString(), target_parent);
-    } else {}
+        Create(parent_path.ToStdString()+"/", target_parent);
+        FitContainer(target_parent);
+    }
 }

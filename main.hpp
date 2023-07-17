@@ -3,6 +3,7 @@
 #include <wx/splitter.h>
 #include "wx/fswatcher.h"
 #include "wx/cmdline.h"
+#include <wx/config.h>
 
 #if wxUSE_CLIPBOARD
 #include "wx/dataobj.h"
@@ -51,8 +52,8 @@ public:
     virtual ~MainFrame();
     void AddEntry(wxFSWPathType type, wxString filename = wxString());
     bool CreateWatcherIfNecessary();
-    void OnOpenFolderMenu(wxCommandEvent& event);
-    void OnOpenFolderClick(wxMouseEvent& event);
+    void OnOpenFolderMenu(wxCommandEvent& WXUNUSED(event)) { OpenFolderDialog(); }
+    void OnOpenFolderClick(wxMouseEvent& event) { OpenFolderDialog(); }
     void OnOpenFile(wxCommandEvent& event);
     void OnHiddeFilesTree(wxCommandEvent& event);
     void OnHiddeSideNav(wxCommandEvent& event);
@@ -64,7 +65,7 @@ public:
     void CloseAllFiles(wxCommandEvent& event);
     void OpenFolderDialog();
     void ToggleControlPanel(wxCommandEvent& event);
-    wxFileSystemWatcher* watcher;
+    bool LoadPath(wxString path);
 private:
     void CreateWatcher();
     void OnQuit(wxCommandEvent& WXUNUSED(event)) { Close(true); }
@@ -82,14 +83,25 @@ class ThunderCode: public wxApp {
 public:
     virtual bool OnInit() override {
         if(!wxApp::OnInit()) return false;
-        frame = new MainFrame("File System Watcher wxWidgets App");
+        frame = new MainFrame("ThunderCode");
         frame->Show();
+        wxApp::SetTopWindow(frame);
         return true;
     }
 
     virtual void OnEventLoopEnter(wxEventLoopBase* WXUNUSED(loop)) override  {
         if(frame->CreateWatcherIfNecessary()) {
-            if(!m_dirToWatch.empty()) frame->AddEntry(wxFSWPath_Dir, m_dirToWatch);
+            wxConfig *config = new wxConfig("ThunderCode");
+            wxString str;
+
+            if(!m_dirToWatch.empty()) {
+                frame->LoadPath(m_dirToWatch);
+            } else {
+                if(config->Read("workspace", &str) ) {
+                    wxString last_workspace = config->Read("workspace", str);
+                    frame->LoadPath(last_workspace);
+                } 
+            }
         }
     }
 
@@ -108,8 +120,8 @@ private:
     wxString m_dirToWatch;
 };
 
-IMPLEMENT_APP(ThunderCode)
-DECLARE_APP(ThunderCode)
+wxIMPLEMENT_APP(ThunderCode);
+wxDECLARE_APP(ThunderCode);
 
 wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_MENU(wxID_EXIT, MainFrame::OnQuit)

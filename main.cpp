@@ -1,6 +1,5 @@
 #include "main.hpp"
 
-#include <wx/config.h>
 #include <wx/sizer.h>
 #include <wx/dirdlg.h>
 #include <filesystem>
@@ -82,23 +81,16 @@ MainFrame::MainFrame(const wxString& title)
     SetMenuBar(menu_bar);
     SetTitle("ThunderCode");
 
-    this->SetSizerAndFit(sizer);
-    this->SetOwnForegroundColour(wxColour(*wxWHITE));
-    this->SetThemeEnabled(true);
+    SetSizerAndFit(sizer);
+    SetOwnForegroundColour(wxColour(*wxWHITE));
+    SetThemeEnabled(true);
     Maximize();
 
     wxConfig *config = new wxConfig("ThunderCode");
     wxString str;
     if(config->Read("workspace", &str) ) {
         wxString last_workspace = config->Read("workspace", str);
-        project_path = last_workspace;
-
-        project_name = wxFileNameFromPath(project_path.substr(0, project_path.size()-1));
-        tabs->CloseAll();
-        files_tree->Update();
-        SetTitle("ThunderCode - "+project_name);
-
-        AddEntry(wxFSWPath_Tree, project_path);
+        LoadPath(last_workspace);
     } else {
         tabs->CloseAll();
         if(auto pjt_ctn = FindWindowById(ID_PROJECT_FILES_CTN)) {
@@ -115,50 +107,36 @@ MainFrame::MainFrame(const wxString& title)
     entries[1].Set(wxACCEL_CTRL, WXK_SHIFT, ID_TOGGLE_CONTROL_PANEL);
     entries[1].FromString("Ctrl+Shift+P");
     wxAcceleratorTable accel(2, entries);
-    this->SetAcceleratorTable(accel);
+    SetAcceleratorTable(accel);
 }
 
-MainFrame::~MainFrame()
-{
-    delete m_watcher;
-}
+MainFrame::~MainFrame() { delete m_watcher; }
 
-bool MainFrame::CreateWatcherIfNecessary()
-{
-    if (m_watcher) return false;
-
+bool MainFrame::CreateWatcherIfNecessary() {
+    if(m_watcher) return false;
     CreateWatcher();
     Bind(wxEVT_FSWATCHER, &MainFrame::OnFileSystemEvent, this);
-
     return true;
 }
 
-void MainFrame::CreateWatcher()
-{
+void MainFrame::CreateWatcher() {
     wxCHECK_RET(!m_watcher, _("Watcher already initialized"));
     m_watcher = new wxFileSystemWatcher();
     m_watcher->SetOwner(this);
 }
 
-void MainFrame::OnAbout(wxCommandEvent& WXUNUSED(event))
-{
-    wxMessageBox("Demonstrates the usage of file system watcher, "
-                 "the wxWidgets monitoring system notifying you of "
-                 "changes done to your files.\n"
-                 "(c) 2009 Bartosz Bekier\n",
-                 "About wxWidgets File System Watcher Sample",
+void MainFrame::OnAbout(wxCommandEvent& WXUNUSED(event)) {
+    wxMessageBox("A simple Code-editor for multiple usages and languages"
+                 "(c) 2023 Okarin Services\n",
+                 "About ThunderCode",
                  wxOK | wxICON_INFORMATION, this);
 }
 
-void MainFrame::OnWatch(wxCommandEvent& event)
-{
-    if (event.IsChecked())
-    {
+void MainFrame::OnWatch(wxCommandEvent& event) {
+    if(event.IsChecked()) {
         wxCHECK_RET(!m_watcher, "Watcher already initialized");
         CreateWatcher();
-    }
-    else
-    {
+    } else {
         wxCHECK_RET(m_watcher, "Watcher not initialized");
         wxDELETE(m_watcher);
     }
@@ -166,10 +144,9 @@ void MainFrame::OnWatch(wxCommandEvent& event)
 
 void MainFrame::OnFollowLinks(wxCommandEvent& event) { m_followLinks = event.IsChecked(); }
 
-void MainFrame::AddEntry(wxFSWPathType type, wxString filename)
-{
-    if (!m_watcher) return;
-    if (filename.empty()) return;
+void MainFrame::AddEntry(wxFSWPathType type, wxString filename) {
+    if(!m_watcher) return;
+    if(filename.empty()) return;
 
     wxCHECK_RET(m_watcher, "Watcher not initialized");
 
@@ -182,7 +159,7 @@ void MainFrame::AddEntry(wxFSWPathType type, wxString filename)
     }
 
     switch(type) {
-        case wxFSWPath_Dir:
+        case wxFSWPath_Dir: 
             ok = m_watcher->Add(fn);
             prefix = "Dir:  ";
             break;
@@ -194,12 +171,9 @@ void MainFrame::AddEntry(wxFSWPathType type, wxString filename)
         case wxFSWPath_None:
             wxFAIL_MSG("Unexpected path type.");
     }
-
-    if(!ok) {}
 }
 
-void MainFrame::OnFileSystemEvent(wxFileSystemWatcherEvent& event)
-{
+void MainFrame::OnFileSystemEvent(wxFileSystemWatcherEvent& event) {
     wxString type = GetFSWEventChangeTypeName(event.GetChangeType());
     if(type != "ACCESS") {
         files_tree->OnTreeModifyed(
@@ -227,17 +201,8 @@ void MainFrame::OpenFolderDialog() {
         delete config;
 
         SetTitle("ThunderCode - "+project_name);
-
         AddEntry(wxFSWPath_Tree, path);
     }
-}
-
-void MainFrame::OnOpenFolderMenu(wxCommandEvent& WXUNUSED(event)) {
-    OpenFolderDialog();
-}
-
-void MainFrame::OnOpenFolderClick(wxMouseEvent& event) {
-    OpenFolderDialog();
 }
 
 void MainFrame::OnOpenFile(wxCommandEvent& WXUNUSED(event)) {
@@ -282,8 +247,8 @@ void MainFrame::OnHiddeStatusBar(wxCommandEvent& WXUNUSED(event)) {
             status_bar->Hide();
         } else status_bar->Show();
 
-        this->GetSizer()->Layout();
-        this->Update();
+        GetSizer()->Layout();
+        Update();
     }
 }
 
@@ -292,7 +257,6 @@ void MainFrame::OnHiddeTabs(wxCommandEvent& WXUNUSED(event)) {
         if(tabs->IsShown()) {
             tabs->Hide();
         } else tabs->Show();
-
         main_code->GetSizer()->Layout();
         main_code->Update();
     }
@@ -362,4 +326,20 @@ void MainFrame::ToggleControlPanel(wxCommandEvent& event) {
     } else {
         control_panel = new ControlPanel(this, ID_CONTROL_PANEL);
     }
+}
+
+bool MainFrame::LoadPath(wxString path) {
+    project_path = path;
+    project_name = wxFileNameFromPath(path.substr(0, path.size()-1));
+
+    wxConfig *config = new wxConfig("ThunderCode");
+    config->Write("workspace", path);
+    delete config;
+
+    tabs->CloseAll();
+    files_tree->Update();
+    SetTitle("ThunderCode - "+project_name);
+
+    AddEntry(wxFSWPath_Tree, path);
+    return true;
 }
