@@ -52,7 +52,7 @@ StatusBar::StatusBar(wxFrame* parent, wxWindowID ID) : wxPanel(parent, ID)
 	sizer->Add(right_ctn, 0, wxEXPAND | wxALL, 3);
 
 	sizer->SetSizeHints(this);
-	this->SetSizerAndFit(sizer);
+	SetSizerAndFit(sizer);
 }
 
 void StatusBar::UpdateComps(wxString path, std::string format, const char* language) {

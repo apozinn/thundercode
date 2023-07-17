@@ -167,7 +167,7 @@ void CodeContainer::LoadPath(wxString path) {
         
     status_bar->UpdateCodeLocale(this);
     ((wxFrame*)FindWindowById(ID_STATUS_BAR)->GetParent())->SetTitle(
-        wxFileNameFromPath(path) + " (" + project_name + ") - ThunderCodeContainer"
+        wxFileNameFromPath(path) + " (" + project_name + ") - ThunderCode"
     );
 
     InitializePrefs(DeterminePrefs(path));
