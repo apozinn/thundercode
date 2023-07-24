@@ -59,10 +59,10 @@ void CodeContainer::OnSave(wxCommandEvent& event) {
                 for(auto&& tab : FindWindowById(ID_TABS_CONTAINER)->GetChildren()) {
                     if(tab->GetName() == file_path) {
                         auto close_ico = tab->GetChildren()[0]->GetChildren()[1];
-                        auto unsaved_ico = tab->GetChildren()[0]->GetChildren()[2];
+                        auto unsave = tab->GetChildren()[0]->GetChildren()[2];
 
                         if(close_ico) close_ico->Show();
-                        if(unsaved_ico) unsaved_ico->Hide();
+                        if(unsave) unsave->Hide();
 
                         tab->GetSizer()->Layout();
                         tab->Update();
@@ -87,10 +87,15 @@ void CodeContainer::OnChange(wxStyledTextEvent& event) {
         for(auto&& tab : FindWindowById(ID_TABS_CONTAINER)->GetChildren()) {
             if(tab->GetName() == GetName()) {
                 auto close_ico = tab->GetChildren()[0]->GetChildren()[1];
-                auto unsaved_ico = tab->GetChildren()[0]->GetChildren()[2];
+                auto unsave = ((wxStaticBitmap*)tab->GetChildren()[0]->GetChildren()[2]);
 
                 if(close_ico) close_ico->Hide();
-                if(unsaved_ico) unsaved_ico->Show();
+                if(unsave) {
+                    wxVector<wxBitmap> bitmaps;
+                    bitmaps.push_back(wxBitmap(wxBitmap(icons_dir+"white_circle.png", wxBITMAP_TYPE_PNG)));
+                    unsave->SetBitmap(wxBitmapBundle::FromBitmaps(bitmaps));
+                    unsave->Show();
+                }
 
                 tab->GetSizer()->Layout();
                 tab->Update();

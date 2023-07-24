@@ -58,6 +58,8 @@ void Tabs::Add(wxString tab_name, wxString path) {
     wxVector<wxBitmap> bitmaps_c;
     bitmaps_c.push_back(wxBitmap(wxBitmap(icons_dir+"white_circle.png", wxBITMAP_TYPE_PNG)));
     wxStaticBitmap* modified_icon = new wxStaticBitmap(tab_infos, wxID_ANY, wxBitmapBundle::FromBitmaps(bitmaps_c));
+    modified_icon->Bind(wxEVT_LEFT_UP, &Tabs::OnCloseTab, this);
+    modified_icon->Bind(wxEVT_MOTION, &Tabs::OnUnsaveHover, this);
     modified_icon->Hide();
     tab_infos_sizer->Add(modified_icon, 0, wxEXPAND | wxTOP, 2);
     
@@ -199,4 +201,17 @@ void Tabs::OnMenu(wxMouseEvent& event) {
     tabsMenu->Append(wxID_ANY, _("&Last Tab"));
     tabsMenu->Append(wxID_ANY, _("&Close Saved"));
     PopupMenu(tabsMenu);
+}
+
+void Tabs::OnUnsaveHover(wxMouseEvent& event) {
+    wxStaticBitmap* unsave_icon = ((wxStaticBitmap*)event.GetEventObject());
+    if(unsave_icon) {
+        wxVector<wxBitmap> bitmaps;
+        if(event.GetPosition().x <= 2 || event.GetPosition().y <= 2) {
+            bitmaps.push_back(wxBitmap(wxBitmap(icons_dir+"close.png", wxBITMAP_TYPE_PNG)));
+        } else {
+            bitmaps.push_back(wxBitmap(wxBitmap(icons_dir+"white_circle.png", wxBITMAP_TYPE_PNG)));
+        }
+        unsave_icon->SetBitmap(wxBitmapBundle::FromBitmaps(bitmaps));
+    }
 }

@@ -19,5 +19,6 @@ public:
 	void Select(wxMouseEvent& event);
 	void OnCloseTab(wxMouseEvent& event);
 	void OnMenu(wxMouseEvent& event);
+	void OnUnsaveHover(wxMouseEvent& event);
 	wxDECLARE_NO_COPY_CLASS(Tabs);
 };
