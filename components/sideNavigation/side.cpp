@@ -11,15 +11,13 @@ SideNavigation::SideNavigation(wxPanel* parent, wxWindowID ID) : wxPanel(parent,
     wxPanel* code_page = new wxPanel(top_container);
     code_page->SetName("code_page");
     wxBoxSizer* code_pg_sizer = new wxBoxSizer(wxHORIZONTAL);
-    top_ctn_sizer->Add(code_page, 0, wxEXPAND);
+    top_ctn_sizer->Add(code_page, 0, wxEXPAND | wxALL, 8);
 
-    wxPanel* code_pg_line = new wxPanel(code_page);
-    code_pg_line->SetBackgroundColour(wxColor(255, 255, 255));
-    code_pg_sizer->Add(code_pg_line, 1, wxEXPAND);
+    code_page->Bind(wxEVT_PAINT, &SideNavigation::OnPaint, this);
 
     wxImagePanel* code_pg_icon = new wxImagePanel(code_page, icons_dir+"code_page.png", wxBITMAP_TYPE_PNG, 26);
     code_pg_icon->SetName("code_page");
-    code_pg_sizer->Add(code_pg_icon, 20, wxEXPAND | wxALL, 10);
+    code_pg_sizer->Add(code_pg_icon, 20, wxEXPAND | wxALL, 8);
     code_page->SetSizerAndFit(code_pg_sizer);
 
     code_pg_icon->Bind(wxEVT_LEFT_UP, &SideNavigation::SelectPage, this);
@@ -28,15 +26,13 @@ SideNavigation::SideNavigation(wxPanel* parent, wxWindowID ID) : wxPanel(parent,
     wxPanel* search_page = new wxPanel(top_container);
     search_page->SetName("search_page");
     wxBoxSizer* search_pg_sizer = new wxBoxSizer(wxHORIZONTAL);
-    top_ctn_sizer->Add(search_page, 0, wxEXPAND);
+    top_ctn_sizer->Add(search_page, 0, wxEXPAND | wxALL, 8);
 
-    wxPanel* search_pg_line = new wxPanel(search_page);
-    search_pg_line->SetBackgroundColour(wxColor(36, 36, 36));
-    search_pg_sizer->Add(search_pg_line, 1, wxEXPAND);
+    search_page->Bind(wxEVT_PAINT, &SideNavigation::OnPaint, this);
 
     wxImagePanel* search_pg_icon = new wxImagePanel(search_page, icons_dir+"search.png", wxBITMAP_TYPE_PNG, 26);
     search_pg_icon->SetName("search_page");
-    search_pg_sizer->Add(search_pg_icon, 20, wxEXPAND | wxALL, 10);
+    search_pg_sizer->Add(search_pg_icon, 20, wxEXPAND | wxALL, 8);
     search_page->SetSizerAndFit(search_pg_sizer);
 
     search_page->Bind(wxEVT_LEFT_UP, &SideNavigation::SelectPage, this);
@@ -45,15 +41,13 @@ SideNavigation::SideNavigation(wxPanel* parent, wxWindowID ID) : wxPanel(parent,
     wxPanel* builder_page = new wxPanel(top_container);
     builder_page->SetName("builder_page");
     wxBoxSizer* builder_pg_sizer = new wxBoxSizer(wxHORIZONTAL);
-    top_ctn_sizer->Add(builder_page, 0, wxEXPAND);
+    top_ctn_sizer->Add(builder_page, 0, wxEXPAND | wxALL, 8);
 
-    wxPanel* builder_pg_line = new wxPanel(builder_page);
-    builder_pg_line->SetBackgroundColour(wxColor(36, 36, 36));
-    builder_pg_sizer->Add(builder_pg_line, 1, wxEXPAND);
+    builder_page->Bind(wxEVT_PAINT, &SideNavigation::OnPaint, this);
 
     wxImagePanel* builder_pg_icon = new wxImagePanel(builder_page, icons_dir+"builder.png", wxBITMAP_TYPE_PNG, 26);
     builder_pg_icon->SetName("builder_page");
-    builder_pg_sizer->Add(builder_pg_icon, 20, wxEXPAND | wxALL, 10);
+    builder_pg_sizer->Add(builder_pg_icon, 20, wxEXPAND | wxALL, 8);
     builder_page->SetSizerAndFit(builder_pg_sizer);
 
     builder_page->Bind(wxEVT_LEFT_UP, &SideNavigation::SelectPage, this);
@@ -62,15 +56,13 @@ SideNavigation::SideNavigation(wxPanel* parent, wxWindowID ID) : wxPanel(parent,
     wxPanel* extensions_page = new wxPanel(top_container);
     extensions_page->SetName("extensions_page");
     wxBoxSizer* extensions_pg_sizer = new wxBoxSizer(wxHORIZONTAL);
-    top_ctn_sizer->Add(extensions_page, 0, wxEXPAND);
+    top_ctn_sizer->Add(extensions_page, 0, wxEXPAND | wxALL, 8);
 
-    wxPanel* extensions_pg_line = new wxPanel(extensions_page);
-    extensions_pg_line->SetBackgroundColour(wxColor(36, 36, 36));
-    extensions_pg_sizer->Add(extensions_pg_line, 1, wxEXPAND);
+    extensions_page->Bind(wxEVT_PAINT, &SideNavigation::OnPaint, this);
 
     wxImagePanel* extensions_pg_icon = new wxImagePanel(extensions_page, icons_dir+"extensions.png", wxBITMAP_TYPE_PNG, 26);
     extensions_pg_icon->SetName("extensions_page");
-    extensions_pg_sizer->Add(extensions_pg_icon, 20, wxEXPAND | wxALL, 10);
+    extensions_pg_sizer->Add(extensions_pg_icon, 20, wxEXPAND | wxALL, 8);
     extensions_page->SetSizerAndFit(extensions_pg_sizer);
 
     extensions_page->Bind(wxEVT_LEFT_UP, &SideNavigation::SelectPage, this);
@@ -84,15 +76,13 @@ SideNavigation::SideNavigation(wxPanel* parent, wxWindowID ID) : wxPanel(parent,
     wxPanel* settings_page = new wxPanel(bottom_container);
     settings_page->SetName("settings_page");
     wxBoxSizer* settings_pg_sizer = new wxBoxSizer(wxHORIZONTAL);
-    bottom_ctn_sizer->Add(settings_page, 0, wxEXPAND);
+    bottom_ctn_sizer->Add(settings_page, 0, wxEXPAND | wxALL, 8);
 
-    wxPanel* settings_pg_line = new wxPanel(settings_page);
-    settings_pg_line->SetBackgroundColour(wxColor(36, 36, 36));
-    settings_pg_sizer->Add(settings_pg_line, 1, wxEXPAND);
+    settings_page->Bind(wxEVT_PAINT, &SideNavigation::OnPaint, this);
 
     wxImagePanel* settings_pg_icon = new wxImagePanel(settings_page, icons_dir+"settings.png", wxBITMAP_TYPE_PNG, 26);
     settings_pg_icon->SetName("settings_page");
-    settings_pg_sizer->Add(settings_pg_icon, 20, wxEXPAND | wxALL, 10);
+    settings_pg_sizer->Add(settings_pg_icon, 20, wxEXPAND | wxALL, 8);
     settings_page->SetSizerAndFit(settings_pg_sizer);
 
     settings_page->Bind(wxEVT_LEFT_UP, &SideNavigation::SelectPage, this);
@@ -101,15 +91,13 @@ SideNavigation::SideNavigation(wxPanel* parent, wxWindowID ID) : wxPanel(parent,
     wxPanel* focus_page = new wxPanel(bottom_container);
     focus_page->SetName("focus_page");
     wxBoxSizer* focus_pg_sizer = new wxBoxSizer(wxHORIZONTAL);
-    bottom_ctn_sizer->Add(focus_page, 0, wxEXPAND);
+    bottom_ctn_sizer->Add(focus_page, 0, wxEXPAND | wxALL, 8);
 
-    wxPanel* focus_pg_line = new wxPanel(focus_page);
-    focus_pg_line->SetBackgroundColour(wxColor(36, 36, 36));
-    focus_pg_sizer->Add(focus_pg_line, 1, wxEXPAND);
+    focus_page->Bind(wxEVT_PAINT, &SideNavigation::OnPaint, this);
 
     wxImagePanel* focus_pg_icon = new wxImagePanel(focus_page, icons_dir+"focus_mode.png", wxBITMAP_TYPE_PNG, 26);
     focus_pg_icon->SetName("focus_page");
-    focus_pg_sizer->Add(focus_pg_icon, 20, wxEXPAND | wxALL, 10);
+    focus_pg_sizer->Add(focus_pg_icon, 20, wxEXPAND | wxALL, 8);
     focus_page->SetSizerAndFit(focus_pg_sizer);
 
     focus_page->Bind(wxEVT_LEFT_UP, &SideNavigation::SelectPage, this);
@@ -128,6 +116,8 @@ void SideNavigation::SelectPage(wxMouseEvent& event) {
         wxString page_name = target->GetName();
         auto main_container = FindWindowById(ID_MAIN_CONTAINER);
         auto side_container = FindWindowById(ID_SIDE_CONTAINER);
+
+        selected_page = page_name;
 
         if(page_name == "focus_page") {
             ToggleFocusMode();
@@ -197,15 +187,9 @@ void SideNavigation::SelectPage(wxMouseEvent& event) {
             }
         }
 
-        for(auto& children : GetChildren()) {
-            for(auto& c_ : children->GetChildren()) {
-                if(c_->GetName() != page_name) {
-                    c_->GetChildren()[0]->SetBackgroundColour(wxColor(36, 36, 36));
-                } else {
-                    c_->GetChildren()[0]->SetBackgroundColour(wxColor(255, 255, 255));
-                }
-            }   
-        }
+        for(auto& children : GetChildren()) 
+            for(auto& _children : children->GetChildren()) 
+                _children->Refresh();
     }
 }
 
@@ -255,4 +239,23 @@ void SideNavigation::ToggleFocusMode() {
         status_bar->GetParent()->Layout();
         status_bar->GetParent()->Update();
     }
+}
+
+void SideNavigation::OnPaint(wxPaintEvent& event) {
+    auto window = ((wxPanel*)event.GetEventObject());
+    if(selected_page != window->GetName()) return;
+    wxClientDC dc(window);
+    wxGraphicsContext *gc = wxGraphicsContext::Create(dc);
+    if(!gc) return;
+
+    gc->SetPen(gc->CreatePen(wxGraphicsPenInfo(wxColor(55, 55, 55)).Width(0.20)));
+    gc->SetBrush(wxColor(55, 55, 55));
+    gc->DrawRoundedRectangle(
+        0.0, 
+        0.0, 
+        static_cast<double>(window->GetSize().GetWidth()), 
+        static_cast<double>(window->GetSize().GetHeight()), 
+        10
+    );
+    delete gc;
 }
