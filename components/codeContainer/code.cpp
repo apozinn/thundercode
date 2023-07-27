@@ -8,6 +8,8 @@ wxEND_EVENT_TABLE()
 CodeContainer::CodeContainer(
     wxWindow* parent, wxWindowID ID, wxString path
 ) : wxStyledTextCtrl(parent, ID) {
+    SetSize(wxSize(parent->GetSize().GetWidth(), parent->GetSize().GetHeight()));
+    SetMinSize(wxSize(parent->GetSize().GetWidth(), parent->GetSize().GetHeight()));
     SetLabel(path+"_codeContainer");
     SetName(path);
 	SetUseTabs(true);
@@ -46,6 +48,8 @@ CodeContainer::CodeContainer(
     LoadPath(path);
     RegisterImage(0, wxBitmap(icons_dir+"thunder.png"));
     RegisterImage(1, wxBitmap(icons_dir+"question.png"));
+
+    minimap = new MiniMap(this, path);
 }
 
 void CodeContainer::OnSave(wxCommandEvent& event) {

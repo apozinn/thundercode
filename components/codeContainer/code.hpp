@@ -3,6 +3,7 @@
 #include "../statusBar/status.hpp"
 #include "../../src/languagePrefs/prefs.cpp"
 #include "../../src/lexerStyle/lexerStyle.cpp"
+#include "minimap.cpp"
 
 const int ANNOTATION_STYLE = wxSTC_STYLE_LASTPREDEFINED + 1;
 
@@ -14,6 +15,7 @@ public:
     void LoadPath(wxString path);
 private:
     wxFont font;
+    MiniMap* minimap;
     StatusBar* status_bar = ((StatusBar*)FindWindowById(ID_STATUS_BAR));
 	void OnChange(wxStyledTextEvent& event);
     void CharAdd(wxStyledTextEvent& event);
