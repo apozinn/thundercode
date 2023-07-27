@@ -218,7 +218,7 @@ void FilesTree::OnFileSelect(wxMouseEvent& event) {
 void FilesTree::OpenFile(wxString path) {
     auto main_code = FindWindowById(ID_MAIN_CODE);
     auto tabsContainer = ((Tabs*)FindWindowById(ID_TABS));
-    auto codeContainer = ((CodeContainer*)FindWindowByLabel(path+"_codeContainer"));
+    auto codeContainer = ((CodeContainer*)FindWindowByName(path+"_codeContainer"));
     auto status_bar = ((StatusBar*)FindWindowById(ID_STATUS_BAR));
 
     for(auto&& other_ct : main_code->GetChildren()) 
@@ -229,9 +229,9 @@ void FilesTree::OpenFile(wxString path) {
 
     auto is_text_file = [&]() {
         if(!codeContainer) {
-            codeContainer = new CodeContainer(main_code, wxID_ANY, path);
+            codeContainer = new CodeContainer(main_code, path);
             main_code->GetSizer()->Add(codeContainer, 1, wxEXPAND);
-        } else codeContainer->IsShown();
+        } else codeContainer->Show();
 
         status_bar->UpdateComps(path, "text", codeContainer->current_lang->name);
     };

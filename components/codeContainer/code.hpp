@@ -3,27 +3,27 @@
 #include "../statusBar/status.hpp"
 #include "../../src/languagePrefs/prefs.cpp"
 #include "../../src/lexerStyle/lexerStyle.cpp"
-#include "minimap.cpp"
 
 const int ANNOTATION_STYLE = wxSTC_STYLE_LASTPREDEFINED + 1;
 
-class CodeContainer : public wxStyledTextCtrl {
+class CodeContainer : public wxPanel {
 public:
-    LanguageInfo const* current_lang;
-    CodeContainer(wxWindow* parent, wxWindowID ID, wxString path);
-    void OnSave(wxCommandEvent& event);
-    void LoadPath(wxString path);
+	wxStyledTextCtrl* codeEditor = nullptr;
+	wxStyledTextCtrl* codeMap = nullptr;
+	LanguageInfo const* current_lang;
+	CodeContainer(wxWindow* parent, wxString path);
+	bool LoadPath(wxString path);
+	void OnSave(wxCommandEvent& event);
 private:
-    wxFont font;
-    MiniMap* minimap;
-    StatusBar* status_bar = ((StatusBar*)FindWindowById(ID_STATUS_BAR));
+	wxFont font;
+	StatusBar* status_bar = ((StatusBar*)FindWindowById(ID_STATUS_BAR));
+	wxString DeterminePrefs(wxString filename);
+    bool InitializePrefs(wxString name);
+	void CodeEditorInitPrefs();
+	void CodeMapInitPrefs();
 	void OnChange(wxStyledTextEvent& event);
     void CharAdd(wxStyledTextEvent& event);
-    void onMarginClick(wxStyledTextEvent& event);
-    void onClick(wxMouseEvent& event);
+    void OnMarginClick(wxStyledTextEvent& event);
+    void OnClick(wxMouseEvent& event);
     void OnArrowsPress(wxKeyEvent& event);
-    wxString DeterminePrefs(const wxString& filename);
-    bool InitializePrefs(const wxString& name);
-    wxDECLARE_NO_COPY_CLASS(CodeContainer);
-    wxDECLARE_EVENT_TABLE();
 };

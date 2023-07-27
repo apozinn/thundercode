@@ -299,7 +299,7 @@ void MainFrame::CloseAllFiles(wxCommandEvent& WXUNUSED(event)) {
     if(tabs) {
         for(auto&& tab : tabs->GetChildren()) {
             wxString tab_path = tab->GetName();
-            if(FindWindowByLabel(tab_path+"_codeContainer")) {
+            if(FindWindowByName(tab_path+"_codeContainer")) {
                 FindWindowByLabel(tab_path+"_codeContainer")->Destroy();
             }
             if(FindWindowByLabel(tab_path+"_imageContainer")) {

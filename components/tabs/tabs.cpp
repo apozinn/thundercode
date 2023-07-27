@@ -80,7 +80,7 @@ void Tabs::Add(wxString tab_name, wxString path) {
 }
 
 void Tabs::Close(wxString tab_path) {
-    auto codeContainer = ((CodeContainer*)FindWindowByLabel(tab_path+"_codeContainer"));
+    auto codeContainer = ((CodeContainer*)FindWindowByName(tab_path+"_codeContainer"));
     auto imgContainer = ((wxPanel*)FindWindowByLabel(tab_path+"_imgContainer"));
 
     if(codeContainer) codeContainer->Destroy();
@@ -116,8 +116,9 @@ void Tabs::Close(wxString tab_path) {
                         }
                     }
 
-                    auto new_codeContainer = FindWindowByLabel(selected_tab+"_codeContainer");
-                    if(new_codeContainer) new_codeContainer->Show();
+                    auto other_codeContainer = ((CodeContainer*)FindWindowByName(selected_tab+"_codeContainer"));
+                    if(other_codeContainer) other_codeContainer->Show();
+
                     auto new_imageContainer = FindWindowByLabel(selected_tab+"_imgContainer");
                     if(new_imageContainer) new_imageContainer->Show();
                     
@@ -166,7 +167,7 @@ void Tabs::Select(wxMouseEvent& event) {
         }
     }
 
-    auto codeContainer = ((CodeContainer*)FindWindowByLabel(tab_path+"_codeContainer"));
+    auto codeContainer = ((CodeContainer*)FindWindowByName(tab_path+"_codeContainer"));
     auto imageContainer = ((wxStaticBitmap*)FindWindowByLabel(tab_path+"_imageContainer"));
     auto status_bar = ((StatusBar*)FindWindowById(ID_STATUS_BAR));
 
