@@ -6,7 +6,7 @@
 
 const int ANNOTATION_STYLE = wxSTC_STYLE_LASTPREDEFINED + 1;
 
-class CodeContainer : public wxPanel {
+class CodeContainer : public wxScrolled<wxPanel> {
 public:
 	wxStyledTextCtrl* codeEditor = nullptr;
 	wxStyledTextCtrl* codeMap = nullptr;
@@ -26,4 +26,5 @@ private:
     void OnMarginClick(wxStyledTextEvent& event);
     void OnClick(wxMouseEvent& event);
     void OnArrowsPress(wxKeyEvent& event);
+    void OnScroll(wxStyledTextEvent& event);
 };

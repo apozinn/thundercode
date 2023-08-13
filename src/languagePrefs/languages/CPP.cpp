@@ -11,7 +11,7 @@ const char* CppWordlist1 =
     "typename union unsigned using virtual void volatile wchar_t "
     "while";
 const char* CppWordlist2 =
-    "file this";
+    "file this #include";
 const char* CppWordlist3 =
     "a addindex addtogroup anchor arg attention author b brief bug c "
     "class code date def defgroup deprecated dontinclude e em endcode "

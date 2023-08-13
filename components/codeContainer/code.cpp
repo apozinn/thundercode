@@ -4,7 +4,7 @@
 
 CodeContainer::CodeContainer(
 	wxWindow* parent, wxString path
-) : wxPanel(parent) {
+) : wxScrolled<wxPanel>(parent) {
 	wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
 
 	codeEditor = new wxStyledTextCtrl(this);
@@ -154,10 +154,10 @@ void CodeContainer::CodeEditorInitPrefs() {
     codeEditor->Bind(wxEVT_STC_CHARADDED, &CodeContainer::CharAdd, this);
     codeEditor->Bind(wxEVT_LEFT_UP, &CodeContainer::OnClick, this);
     codeEditor->Bind(wxEVT_KEY_UP, &CodeContainer::OnArrowsPress, this);
+    codeEditor->Bind(wxEVT_STC_UPDATEUI, &CodeContainer::OnScroll, this);
 
     codeEditor->RegisterImage(0, wxBitmap(icons_dir+"thunder.png"));
     codeEditor->RegisterImage(1, wxBitmap(icons_dir+"question.png"));
-
     codeEditor->SetLexer(current_lang->lexer);
 
     codeEditor->SetProperty(wxT("fold"), wxT("1"));
@@ -214,6 +214,9 @@ void CodeContainer::CodeEditorInitPrefs() {
 
 void CodeContainer::CodeMapInitPrefs() {
     codeMap->SetReadOnly(true);
+    codeMap->SetUseHorizontalScrollBar(false); 
+    codeMap->SetUseVerticalScrollBar(false); 
+    codeMap->SetScrollWidth(codeEditor->GetSize().GetHeight()*5);
 
     codeMap->StyleSetBackground(wxSTC_STYLE_DEFAULT, wxColor(55, 55, 55));
     codeMap->StyleSetForeground(wxSTC_STYLE_DEFAULT, wxColor(255, 255, 255));
@@ -232,17 +235,18 @@ void CodeContainer::CodeMapInitPrefs() {
     codeMap->SetMarginMask(1, 0);
     codeMap->SetMarginSensitive(1, false);
 
-    /*codeMap->Bind(wxEVT_STC_MARGINCLICK, &CodeContainer::OnMarginClick, this);
-    codeMap->Bind(wxEVT_STC_MODIFIED, &CodeContainer::OnChange, this);
-    codeMap->Bind(wxEVT_STC_CHARADDED, &CodeContainer::CharAdd, this);
-    codeMap->Bind(wxEVT_LEFT_UP, &CodeContainer::OnClick, this);
-    codeMap->Bind(wxEVT_KEY_UP, &CodeContainer::OnArrowsPress, this);*/
-
+    codeMap->Bind(wxEVT_STC_UPDATEUI, &CodeContainer::OnScroll, this);
     codeMap->SetLexer(current_lang->lexer);
 
     codeMap->SetZoom(-10);
-    codeMap->SetSize(wxSize(100, GetSize().GetHeight()));
-    codeMap->SetMinSize(wxSize(100, GetSize().GetHeight()));
+    codeMap->SetSize(wxSize(100, codeMap->GetSize().GetHeight()*2));
+    codeMap->SetMinSize(wxSize(100, codeMap->GetSize().GetHeight()*2));
+
+    codeMap->SetExtraAscent(0);
+    codeMap->SetExtraAscent(-1);
+
+    codeMap->SetScrollWidthTracking(false);
+    codeMap->SetCaretWidth(0);
 }
 
 void CodeContainer::OnSave(wxCommandEvent& event) {
@@ -361,4 +365,12 @@ void CodeContainer::CharAdd(wxStyledTextEvent& event) {
 void CodeContainer::OnClick(wxMouseEvent& event) {
     status_bar->UpdateCodeLocale(codeEditor);
     event.Skip();
+}
+
+void CodeContainer::OnScroll(wxStyledTextEvent& event) {
+    wxLogDebug(
+        wxString("OnScroll: " + std::to_string(codeEditor->GetFirstVisibleLine()) + "/" + std::to_string(codeMap->GetFirstVisibleLine()))
+        );
+
+    codeMap->SetFirstVisibleLine(codeEditor->GetFirstVisibleLine()-10);
 }
