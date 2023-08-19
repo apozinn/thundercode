@@ -19,6 +19,7 @@ CodeContainer::CodeContainer(
 
 	LoadPath(path);
 	SetName(path+"_codeContainer");
+    SetLabel(path);
 }
 
 bool CodeContainer::LoadPath(wxString path) {
@@ -251,15 +252,14 @@ void CodeContainer::CodeMapInitPrefs() {
 
 void CodeContainer::OnSave(wxCommandEvent& event) {
     for(auto&& children : FindWindowById(ID_MAIN_CODE)->GetChildren()) {
-        if(children->GetLabel().find("_codeContainer") != std::string::npos && children->IsShown()) {
+        if(children->GetName().find("_codeContainer") != std::string::npos && children->IsShown()) {
             auto this_codeEditor = ((wxStyledTextCtrl*)children->GetChildren()[0]);
-            wxFileName path_props(children->GetName().substr(children->GetName().find_last_of("_")));
+            wxString this_path = this_codeEditor->GetParent()->GetLabel();
 
-            if(this_codeEditor && path_props.FileExists()) {
-            	this_codeEditor->SaveFile(path_props.GetPath());
-
+            if(this_codeEditor) {
             	for(auto&& tab : FindWindowById(ID_TABS_CONTAINER)->GetChildren()) {
-                    if(tab->GetName() == path_props.GetPath()) {
+                    if(tab->GetName() == this_path) {
+                        this_codeEditor->SaveFile(this_path);
                         auto close_ico = tab->GetChildren()[0]->GetChildren()[1];
                         auto unsave = tab->GetChildren()[0]->GetChildren()[2];
 
@@ -287,7 +287,7 @@ void CodeContainer::OnChange(wxStyledTextEvent& event) {
     wxString key = event.GetText();
     if(codeEditor->GetModify()) {
         for(auto&& tab : FindWindowById(ID_TABS_CONTAINER)->GetChildren()) {
-            if(tab->GetName() == GetName()) {
+            if(tab->GetName() == GetLabel()) {
                 auto close_ico = tab->GetChildren()[0]->GetChildren()[1];
                 auto unsave = ((wxStaticBitmap*)tab->GetChildren()[0]->GetChildren()[2]);
 
