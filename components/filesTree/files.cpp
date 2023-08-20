@@ -112,6 +112,10 @@ void FilesTree::CreateFile(
     }
 
     wxPanel* file_container = new wxPanel(parent);
+
+    file_container->Bind(wxEVT_ENTER_WINDOW, &FilesTree::OnEnterComp, this);
+    file_container->Bind(wxEVT_LEAVE_WINDOW, &FilesTree::OnLeaveComp, this);
+
     file_container->Bind(wxEVT_RIGHT_UP, &FilesTree::onFileRightClick, this);
     file_container->SetMinSize(wxSize(file_container->GetSize().GetWidth(), 20));
     file_container->SetSize(file_container->GetSize().GetWidth(), 20);
@@ -163,6 +167,10 @@ void FilesTree::CreateDir(
     }
 
     wxPanel* dir_container = new wxPanel(parent);
+
+    dir_container->Bind(wxEVT_ENTER_WINDOW, &FilesTree::OnEnterComp, this);
+    dir_container->Bind(wxEVT_LEAVE_WINDOW, &FilesTree::OnLeaveComp, this);
+
     dir_container->SetMinSize(wxSize(dir_container->GetSize().GetWidth(), 20));
     dir_container->SetSize(dir_container->GetSize().GetWidth(), 20);
     dir_container->SetName(path);
@@ -204,6 +212,8 @@ void FilesTree::OnFileSelect(wxMouseEvent& event) {
     auto file = ((wxWindow*)event.GetEventObject());
     if(file->GetLabel().find("file_container") == std::string::npos) file = file->GetParent();
     wxString path = file->GetName();
+
+    file->SetBackgroundColour(wxColor(255, 0, 0));
 
     if(path.size()) {
         OpenFile(path);
@@ -455,5 +465,23 @@ void FilesTree::OnTreeModifyed(wxString old_target, wxString new_target, wxStrin
         target_parent->DestroyChildren();
         Create(parent_path.ToStdString()+"/", target_parent);
         FitContainer(target_parent);
+    }
+}
+
+void FilesTree::OnEnterComp(wxMouseEvent& event) {
+    auto target = ((wxWindow*)event.GetEventObject());
+    if(target) {
+        if(target->GetGrandParent()->GetBackgroundColour() == wxColour(60, 60, 60)) {
+            target->GetGrandParent()->SetBackgroundColour(wxColor(45, 45, 45));
+        }
+        target->SetBackgroundColour(wxColor(60, 60, 60));
+    }
+}
+
+void FilesTree::OnLeaveComp(wxMouseEvent& event) {
+    auto target = ((wxWindow*)event.GetEventObject());
+    if(target) {
+        if(selectedFile == target) return;
+        target->SetBackgroundColour(wxColor(45, 45, 45));
     }
 }

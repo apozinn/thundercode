@@ -368,9 +368,5 @@ void CodeContainer::OnClick(wxMouseEvent& event) {
 }
 
 void CodeContainer::OnScroll(wxStyledTextEvent& event) {
-    wxLogDebug(
-        wxString("OnScroll: " + std::to_string(codeEditor->GetFirstVisibleLine()) + "/" + std::to_string(codeMap->GetFirstVisibleLine()))
-        );
-
     codeMap->SetFirstVisibleLine(codeEditor->GetFirstVisibleLine()-10);
 }

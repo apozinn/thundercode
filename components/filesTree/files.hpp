@@ -32,6 +32,8 @@ public:
 	void OnDeleteFile(wxCommandEvent& event);
 	void OnTreeModifyed(wxString old_target, wxString new_target, wxString type);
 private:
+	void OnEnterComp(wxMouseEvent& event);
+	void OnLeaveComp(wxMouseEvent& event);
     wxDECLARE_NO_COPY_CLASS(FilesTree);
     wxDECLARE_EVENT_TABLE();
 };
