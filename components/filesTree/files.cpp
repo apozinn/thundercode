@@ -22,8 +22,22 @@ FilesTree::FilesTree(wxWindow* parent, wxWindowID ID) : wxPanel(parent, ID)
     SetBackgroundColour(wxColor(45, 45, 45));
     sizer = new wxBoxSizer(wxVERTICAL);
 
-    ActionButtons* action_buttons = new ActionButtons(this);
-    sizer->Add(action_buttons, 0, wxEXPAND | wxTOP | wxBOTTOM, 8);
+    /*ActionButtons* action_buttons = new ActionButtons(this);
+    sizer->Add(action_buttons, 0, wxEXPAND | wxTOP | wxBOTTOM, 8);*/
+
+    wxPanel* top_content = new wxPanel(this);
+    wxBoxSizer* top_ctn_sizer = new wxBoxSizer(wxHORIZONTAL);
+
+    wxStaticText* top_ctn_pjt = new wxStaticText(top_content, wxID_ANY, "EXPLORATOR");
+    top_ctn_pjt->SetFont(fontWithOtherSize(top_ctn_pjt, 15));
+    top_ctn_pjt->SetForegroundColour(wxColor(200, 200, 200));
+    top_ctn_sizer->Add(top_ctn_pjt, 1, wxEXPAND | wxTOP, 4);
+
+    wxStaticText* top_ctn_menu = new wxStaticText(top_content, ID_FILES_TREE_TOP_MENU, "...");
+    top_ctn_menu->Bind(wxEVT_LEFT_UP, &FilesTree::onTopMenuClick, this);
+    top_ctn_sizer->Add(top_ctn_menu, 0, wxEXPAND);
+    top_content->SetSizerAndFit(top_ctn_sizer);
+    sizer->Add(top_content, 0, wxEXPAND | wxTOP | wxBOTTOM, 4);
 
     wxPanel* project_files = new wxPanel(this, ID_PROJECT_FILES);
     wxBoxSizer* pjt_files_sizer = new wxBoxSizer(wxVERTICAL);
@@ -50,7 +64,7 @@ FilesTree::FilesTree(wxWindow* parent, wxWindowID ID) : wxPanel(parent, ID)
     project_files_ctn->SetSizerAndFit(pjt_files_ctn_sizer);
     project_files->SetSizerAndFit(pjt_files_sizer);
     
-    sizer->Add(project_files, 1, wxEXPAND | wxTOP, 5);
+    sizer->Add(project_files, 1, wxEXPAND);
     SetSizerAndFit(sizer);
     if(!project_path.size()) pjt_arrow->Hide();
 
@@ -374,14 +388,14 @@ void FilesTree::OnPaint(wxPaintEvent& event) {
     if(!gc) return;
 
     if(window->GetId() == ID_FILES_TREE) {
-        gc->SetPen(gc->CreatePen(wxGraphicsPenInfo(wxColor(136, 136, 136)).Width(0.20)));
+        /*gc->SetPen(gc->CreatePen(wxGraphicsPenInfo(wxColor(136, 136, 136)).Width(0.20)));
         gc->SetBrush(wxColor(128, 128, 128));
 
         wxGraphicsPath path = gc->CreatePath();
         path.MoveToPoint(-10.0, 35.0);
         path.AddLineToPoint(static_cast<double>(window->GetSize().GetWidth()), 35.0);
 
-        gc->StrokePath(path);  
+        gc->StrokePath(path);  */
     } else {
         gc->SetPen(gc->CreatePen(wxGraphicsPenInfo(wxColor(128, 128, 128)).Width(1.25).Style(wxPENSTYLE_DOT)));
         gc->SetBrush(wxColor(128, 128, 128));

@@ -58,8 +58,6 @@ void Tabs::Add(wxString tab_name, wxString path) {
     wxVector<wxBitmap> bitmaps_c;
     bitmaps_c.push_back(wxBitmap(wxBitmap(icons_dir+"white_circle.png", wxBITMAP_TYPE_PNG)));
     wxStaticBitmap* modified_icon = new wxStaticBitmap(tab_infos, wxID_ANY, wxBitmapBundle::FromBitmaps(bitmaps_c));
-    // modified_icon->Bind(wxEVT_LEFT_UP, &Tabs::OnCloseTab, this);
-    // modified_icon->Bind(wxEVT_MOTION, &Tabs::OnUnsaveHover, this);
 
     tab_infos->Bind(wxEVT_ENTER_WINDOW, &Tabs::OnEnterComp, this);
     tab_infos->Bind(wxEVT_LEAVE_WINDOW, &Tabs::OnLeaveComp, this);
