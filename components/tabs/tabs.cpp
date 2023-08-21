@@ -58,8 +58,12 @@ void Tabs::Add(wxString tab_name, wxString path) {
     wxVector<wxBitmap> bitmaps_c;
     bitmaps_c.push_back(wxBitmap(wxBitmap(icons_dir+"white_circle.png", wxBITMAP_TYPE_PNG)));
     wxStaticBitmap* modified_icon = new wxStaticBitmap(tab_infos, wxID_ANY, wxBitmapBundle::FromBitmaps(bitmaps_c));
-    modified_icon->Bind(wxEVT_LEFT_UP, &Tabs::OnCloseTab, this);
-    modified_icon->Bind(wxEVT_MOTION, &Tabs::OnUnsaveHover, this);
+    // modified_icon->Bind(wxEVT_LEFT_UP, &Tabs::OnCloseTab, this);
+    // modified_icon->Bind(wxEVT_MOTION, &Tabs::OnUnsaveHover, this);
+
+    tab_infos->Bind(wxEVT_ENTER_WINDOW, &Tabs::OnEnterComp, this);
+    tab_infos->Bind(wxEVT_LEAVE_WINDOW, &Tabs::OnLeaveComp, this);
+
     modified_icon->Hide();
     tab_infos_sizer->Add(modified_icon, 0, wxEXPAND | wxTOP, 2);
     
@@ -214,5 +218,35 @@ void Tabs::OnUnsaveHover(wxMouseEvent& event) {
             bitmaps.push_back(wxBitmap(wxBitmap(icons_dir+"white_circle.png", wxBITMAP_TYPE_PNG)));
         }
         unsave_icon->SetBitmap(wxBitmapBundle::FromBitmaps(bitmaps));
+    }
+}
+
+void Tabs::OnEnterComp(wxMouseEvent& event) {
+    auto target = ((wxWindow*)event.GetEventObject());
+    if(target) {
+        auto unsave_icon = target->GetChildren()[2];
+        if(unsave_icon) {
+            if(unsave_icon->IsShown()) {
+                unsave_icon->Hide();
+                target->GetChildren()[1]->Show();
+            }
+        }
+    }
+}
+
+void Tabs::OnLeaveComp(wxMouseEvent& event) {
+    auto target = ((wxWindow*)event.GetEventObject());
+    if(target) {
+        auto codeContainer = ((wxWindow*)FindWindowByName(target->GetParent()->GetName()+"_codeContainer"));
+        if(codeContainer) {
+            auto codeEditor = ((wxStyledTextCtrl*)codeContainer->GetChildren()[0]);
+            if(codeEditor->GetModify()) {
+                target->GetChildren()[1]->Hide();
+                target->GetChildren()[2]->Show();
+            } else {
+                target->GetChildren()[1]->Show();
+                target->GetChildren()[2]->Hide();
+            }
+        }
     }
 }

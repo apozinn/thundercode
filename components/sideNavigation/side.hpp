@@ -15,6 +15,7 @@ class SideNavigation : public wxPanel {
     SettingsPage* settings_page;
 	bool focusModeIsEnable = false;
 	wxString selected_page = "code_page";
+	wxString mouse_over = "code_page";
 public:
 	SideNavigation(wxPanel* parent, wxWindowID ID);
 	void OnHover(wxMouseEvent& event);
@@ -24,4 +25,7 @@ public:
 	void ToggleFocusMode();
 	void OnPaint(wxPaintEvent& event);
 	wxDECLARE_NO_COPY_CLASS(SideNavigation);
+private:
+	void OnEnterComp(wxMouseEvent& event);
+	void OnLeaveComp(wxMouseEvent& event);
 };

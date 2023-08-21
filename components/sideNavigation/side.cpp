@@ -8,101 +8,130 @@ SideNavigation::SideNavigation(wxPanel* parent, wxWindowID ID) : wxPanel(parent,
     wxPanel* top_container = new wxPanel(this);
     wxBoxSizer* top_ctn_sizer = new wxBoxSizer(wxVERTICAL);
 
-    wxPanel* code_page = new wxPanel(top_container);
-    code_page->SetName("code_page");
-    wxBoxSizer* code_pg_sizer = new wxBoxSizer(wxHORIZONTAL);
-    top_ctn_sizer->Add(code_page, 0, wxEXPAND | wxALL, 8);
-
-    code_page->Bind(wxEVT_PAINT, &SideNavigation::OnPaint, this);
-
-    wxImagePanel* code_pg_icon = new wxImagePanel(code_page, icons_dir+"code_page.png", wxBITMAP_TYPE_PNG, 26);
-    code_pg_icon->SetName("code_page");
-    code_pg_sizer->Add(code_pg_icon, 20, wxEXPAND | wxALL, 8);
-    code_page->SetSizerAndFit(code_pg_sizer);
-
-    code_pg_icon->Bind(wxEVT_LEFT_UP, &SideNavigation::SelectPage, this);
-    code_page->Bind(wxEVT_LEFT_UP, &SideNavigation::SelectPage, this);
-
-    wxPanel* search_page = new wxPanel(top_container);
-    search_page->SetName("search_page");
-    wxBoxSizer* search_pg_sizer = new wxBoxSizer(wxHORIZONTAL);
-    top_ctn_sizer->Add(search_page, 0, wxEXPAND | wxALL, 8);
-
-    search_page->Bind(wxEVT_PAINT, &SideNavigation::OnPaint, this);
-
-    wxImagePanel* search_pg_icon = new wxImagePanel(search_page, icons_dir+"search.png", wxBITMAP_TYPE_PNG, 26);
-    search_pg_icon->SetName("search_page");
-    search_pg_sizer->Add(search_pg_icon, 20, wxEXPAND | wxALL, 8);
-    search_page->SetSizerAndFit(search_pg_sizer);
-
-    search_page->Bind(wxEVT_LEFT_UP, &SideNavigation::SelectPage, this);
-    search_pg_icon->Bind(wxEVT_LEFT_UP, &SideNavigation::SelectPage, this);
-
-    wxPanel* builder_page = new wxPanel(top_container);
-    builder_page->SetName("builder_page");
-    wxBoxSizer* builder_pg_sizer = new wxBoxSizer(wxHORIZONTAL);
-    top_ctn_sizer->Add(builder_page, 0, wxEXPAND | wxALL, 8);
-
-    builder_page->Bind(wxEVT_PAINT, &SideNavigation::OnPaint, this);
-
-    wxImagePanel* builder_pg_icon = new wxImagePanel(builder_page, icons_dir+"builder.png", wxBITMAP_TYPE_PNG, 26);
-    builder_pg_icon->SetName("builder_page");
-    builder_pg_sizer->Add(builder_pg_icon, 20, wxEXPAND | wxALL, 8);
-    builder_page->SetSizerAndFit(builder_pg_sizer);
-
-    builder_page->Bind(wxEVT_LEFT_UP, &SideNavigation::SelectPage, this);
-    builder_pg_icon->Bind(wxEVT_LEFT_UP, &SideNavigation::SelectPage, this);
-   
-    wxPanel* extensions_page = new wxPanel(top_container);
-    extensions_page->SetName("extensions_page");
-    wxBoxSizer* extensions_pg_sizer = new wxBoxSizer(wxHORIZONTAL);
-    top_ctn_sizer->Add(extensions_page, 0, wxEXPAND | wxALL, 8);
-
-    extensions_page->Bind(wxEVT_PAINT, &SideNavigation::OnPaint, this);
-
-    wxImagePanel* extensions_pg_icon = new wxImagePanel(extensions_page, icons_dir+"extensions.png", wxBITMAP_TYPE_PNG, 26);
-    extensions_pg_icon->SetName("extensions_page");
-    extensions_pg_sizer->Add(extensions_pg_icon, 20, wxEXPAND | wxALL, 8);
-    extensions_page->SetSizerAndFit(extensions_pg_sizer);
-
-    extensions_page->Bind(wxEVT_LEFT_UP, &SideNavigation::SelectPage, this);
-    extensions_pg_icon->Bind(wxEVT_LEFT_UP, &SideNavigation::SelectPage, this);
-    
-    top_container->SetSizerAndFit(top_ctn_sizer);
-    
     wxPanel* bottom_container = new wxPanel(this);
     wxBoxSizer* bottom_ctn_sizer = new wxBoxSizer(wxVERTICAL);
 
+    //code page
+    wxPanel* code_page = new wxPanel(top_container);
+    code_page->Bind(wxEVT_ENTER_WINDOW, &SideNavigation::OnEnterComp, this);
+    code_page->Bind(wxEVT_LEAVE_WINDOW, &SideNavigation::OnLeaveComp, this);
+    code_page->Bind(wxEVT_PAINT, &SideNavigation::OnPaint, this);
+    code_page->SetName("code_page");
+
+    wxBoxSizer* code_pg_sizer = new wxBoxSizer(wxHORIZONTAL);
+
+    wxStaticBitmap* code_page_icon = new wxStaticBitmap(code_page, wxID_ANY, wxBitmapBundle::FromBitmap(wxBitmap(icons_dir+"code_page.png")));
+    code_page_icon->SetName("code_page");
+    code_pg_sizer->Add(code_page_icon, 20, wxEXPAND | wxALL, 8);
+
+    code_page_icon->Bind(wxEVT_LEFT_UP, &SideNavigation::SelectPage, this);
+    code_page->Bind(wxEVT_LEFT_UP, &SideNavigation::SelectPage, this);
+
+    code_page->SetSizerAndFit(code_pg_sizer);
+    top_ctn_sizer->Add(code_page, 0, wxEXPAND | wxALL, 8);
+    //
+
+    //search page
+    wxPanel* search_page = new wxPanel(top_container);
+    search_page->Bind(wxEVT_ENTER_WINDOW, &SideNavigation::OnEnterComp, this);
+    search_page->Bind(wxEVT_LEAVE_WINDOW, &SideNavigation::OnLeaveComp, this);
+    search_page->Bind(wxEVT_PAINT, &SideNavigation::OnPaint, this);
+    search_page->SetName("search_page");
+
+    wxBoxSizer* search_page_sizer = new wxBoxSizer(wxHORIZONTAL);
+
+    wxStaticBitmap* search_page_icon = new wxStaticBitmap(search_page, wxID_ANY, wxBitmapBundle::FromBitmap(wxBitmap(icons_dir+"search.png")));
+    search_page_icon->SetName("search_page");
+    search_page_sizer->Add(search_page_icon, 20, wxEXPAND | wxALL, 8);
+
+    search_page_icon->Bind(wxEVT_LEFT_UP, &SideNavigation::SelectPage, this);
+    search_page->Bind(wxEVT_LEFT_UP, &SideNavigation::SelectPage, this);
+
+    search_page->SetSizerAndFit(search_page_sizer);
+    top_ctn_sizer->Add(search_page, 0, wxEXPAND | wxALL, 8);
+    //
+
+    //builder page
+    wxPanel* builder_page = new wxPanel(top_container);
+    builder_page->Bind(wxEVT_ENTER_WINDOW, &SideNavigation::OnEnterComp, this);
+    builder_page->Bind(wxEVT_LEAVE_WINDOW, &SideNavigation::OnLeaveComp, this);
+    builder_page->Bind(wxEVT_PAINT, &SideNavigation::OnPaint, this);
+    builder_page->SetName("builder_page");
+
+    wxBoxSizer* builder_page_sizer = new wxBoxSizer(wxHORIZONTAL);
+
+    wxStaticBitmap* builder_page_icon = new wxStaticBitmap(builder_page, wxID_ANY, wxBitmapBundle::FromBitmap(wxBitmap(icons_dir+"builder.png")));
+    builder_page_icon->SetName("builder_page");
+    builder_page_sizer->Add(builder_page_icon, 20, wxEXPAND | wxALL, 8);
+
+    builder_page_icon->Bind(wxEVT_LEFT_UP, &SideNavigation::SelectPage, this);
+    builder_page->Bind(wxEVT_LEFT_UP, &SideNavigation::SelectPage, this);
+
+    builder_page->SetSizerAndFit(builder_page_sizer);
+    top_ctn_sizer->Add(builder_page, 0, wxEXPAND | wxALL, 8);
+    //
+
+    //extensions page
+    wxPanel* extensions_page = new wxPanel(top_container);
+    extensions_page->Bind(wxEVT_ENTER_WINDOW, &SideNavigation::OnEnterComp, this);
+    extensions_page->Bind(wxEVT_LEAVE_WINDOW, &SideNavigation::OnLeaveComp, this);
+    extensions_page->Bind(wxEVT_PAINT, &SideNavigation::OnPaint, this);
+    extensions_page->SetName("extensions_page");
+
+    wxBoxSizer* extensions_page_sizer = new wxBoxSizer(wxHORIZONTAL);
+
+    wxStaticBitmap* extensions_page_icon = new wxStaticBitmap(extensions_page, wxID_ANY, wxBitmapBundle::FromBitmap(wxBitmap(icons_dir+"extensions.png")));
+    extensions_page_icon->SetName("extensions_page");
+    extensions_page_sizer->Add(extensions_page_icon, 20, wxEXPAND | wxALL, 8);
+
+    extensions_page_icon->Bind(wxEVT_LEFT_UP, &SideNavigation::SelectPage, this);
+    extensions_page->Bind(wxEVT_LEFT_UP, &SideNavigation::SelectPage, this);
+
+    extensions_page->SetSizerAndFit(extensions_page_sizer);
+    top_ctn_sizer->Add(extensions_page, 0, wxEXPAND | wxALL, 8);
+    //
+
+    //settings page
     wxPanel* settings_page = new wxPanel(bottom_container);
-    settings_page->SetName("settings_page");
-    wxBoxSizer* settings_pg_sizer = new wxBoxSizer(wxHORIZONTAL);
-    bottom_ctn_sizer->Add(settings_page, 0, wxEXPAND | wxALL, 8);
-
+    settings_page->Bind(wxEVT_ENTER_WINDOW, &SideNavigation::OnEnterComp, this);
+    settings_page->Bind(wxEVT_LEAVE_WINDOW, &SideNavigation::OnLeaveComp, this);
     settings_page->Bind(wxEVT_PAINT, &SideNavigation::OnPaint, this);
+    settings_page->SetName("settings_page");
 
-    wxImagePanel* settings_pg_icon = new wxImagePanel(settings_page, icons_dir+"settings.png", wxBITMAP_TYPE_PNG, 26);
-    settings_pg_icon->SetName("settings_page");
-    settings_pg_sizer->Add(settings_pg_icon, 20, wxEXPAND | wxALL, 8);
-    settings_page->SetSizerAndFit(settings_pg_sizer);
+    wxBoxSizer* settings_page_sizer = new wxBoxSizer(wxHORIZONTAL);
 
+    wxStaticBitmap* settings_page_icon = new wxStaticBitmap(settings_page, wxID_ANY, wxBitmapBundle::FromBitmap(wxBitmap(icons_dir+"settings.png")));
+    settings_page_icon->SetName("settings_page");
+    settings_page_sizer->Add(settings_page_icon, 20, wxEXPAND | wxALL, 8);
+
+    settings_page_icon->Bind(wxEVT_LEFT_UP, &SideNavigation::SelectPage, this);
     settings_page->Bind(wxEVT_LEFT_UP, &SideNavigation::SelectPage, this);
-    settings_pg_icon->Bind(wxEVT_LEFT_UP, &SideNavigation::SelectPage, this);
 
+    settings_page->SetSizerAndFit(settings_page_sizer);
+    bottom_ctn_sizer->Add(settings_page, 0, wxEXPAND | wxALL, 8);
+    //
+
+    //focus page
     wxPanel* focus_page = new wxPanel(bottom_container);
-    focus_page->SetName("focus_page");
-    wxBoxSizer* focus_pg_sizer = new wxBoxSizer(wxHORIZONTAL);
-    bottom_ctn_sizer->Add(focus_page, 0, wxEXPAND | wxALL, 8);
-
+    focus_page->Bind(wxEVT_ENTER_WINDOW, &SideNavigation::OnEnterComp, this);
+    focus_page->Bind(wxEVT_LEAVE_WINDOW, &SideNavigation::OnLeaveComp, this);
     focus_page->Bind(wxEVT_PAINT, &SideNavigation::OnPaint, this);
+    focus_page->SetName("focus_page");
 
-    wxImagePanel* focus_pg_icon = new wxImagePanel(focus_page, icons_dir+"focus_mode.png", wxBITMAP_TYPE_PNG, 26);
-    focus_pg_icon->SetName("focus_page");
-    focus_pg_sizer->Add(focus_pg_icon, 20, wxEXPAND | wxALL, 8);
-    focus_page->SetSizerAndFit(focus_pg_sizer);
+    wxBoxSizer* focus_page_sizer = new wxBoxSizer(wxHORIZONTAL);
 
+    wxStaticBitmap* focus_page_icon = new wxStaticBitmap(focus_page, wxID_ANY, wxBitmapBundle::FromBitmap(wxBitmap(icons_dir+"focus_mode.png")));
+    focus_page_icon->SetName("focus_page");
+    focus_page_sizer->Add(focus_page_icon, 20, wxEXPAND | wxALL, 8);
+
+    focus_page_icon->Bind(wxEVT_LEFT_UP, &SideNavigation::SelectPage, this);
     focus_page->Bind(wxEVT_LEFT_UP, &SideNavigation::SelectPage, this);
-    focus_pg_icon->Bind(wxEVT_LEFT_UP, &SideNavigation::SelectPage, this);
 
+    focus_page->SetSizerAndFit(focus_page_sizer);
+    bottom_ctn_sizer->Add(focus_page, 0, wxEXPAND | wxALL, 8);
+    //
+
+    top_container->SetSizerAndFit(top_ctn_sizer);
     bottom_container->SetSizerAndFit(bottom_ctn_sizer);
 
     sizer->Add(top_container, 1, wxEXPAND);
@@ -243,7 +272,8 @@ void SideNavigation::ToggleFocusMode() {
 
 void SideNavigation::OnPaint(wxPaintEvent& event) {
     auto window = ((wxPanel*)event.GetEventObject());
-    if(selected_page != window->GetName()) return;
+    if(selected_page != window->GetName()) 
+        if(mouse_over != window->GetName()) return;
     wxClientDC dc(window);
     wxGraphicsContext *gc = wxGraphicsContext::Create(dc);
     if(!gc) return;
@@ -258,4 +288,20 @@ void SideNavigation::OnPaint(wxPaintEvent& event) {
         10
     );
     delete gc;
+}
+
+void SideNavigation::OnEnterComp(wxMouseEvent& event) {
+    auto target = ((wxWindow*)event.GetEventObject());
+    if(target) {
+        mouse_over = target->GetName();
+        target->Refresh();
+    }
+}
+
+void SideNavigation::OnLeaveComp(wxMouseEvent& event) {
+    auto target = ((wxWindow*)event.GetEventObject());
+    if(target) {
+        mouse_over = selected_page;
+        target->Refresh();
+    }
 }
