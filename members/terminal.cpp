@@ -1,4 +1,5 @@
 #pragma once
+#include "../defs.hpp"
 
 class Terminal : public wxPanel {
     wxString cmd;
@@ -30,10 +31,20 @@ public:
 	    shell->SetMarginWidth(2, 0);
     	shell->SetCaretForeground(wxColour(wxT("WHITE")));
     	shell->SetUseHorizontalScrollBar(false);
-		shell->AppendText("[samuel@fedora ThunderCode]$ ");
+    	shell->SetCaretWidth(500);
 
+    	wxString shell_title;
+
+    	wxConfig *config = new wxConfig("ThunderCode");
+    	wxString str;
+
+        if(config->Read("workspace", &str) ) {
+            wxString last_workspace = config->Read("workspace", str);
+            shell_title = "["+wxGetUserName()+"@"+wxGetHostName()+" "+wxFileNameFromPath(last_workspace.substr(0, last_workspace.size()-1))+"]$ ";
+        }
+
+		shell->AppendText(shell_title);
     	shell->Bind(wxEVT_KEY_UP, &Terminal::OnShellKeyUp, this);
-
     	shell->SetFocus();
 
 		sizer->Add(shell, 1, wxEXPAND | wxTOP, 5);

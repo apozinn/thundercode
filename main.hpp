@@ -73,6 +73,7 @@ private:
     void OnFollowLinks(wxCommandEvent& event);
     void OnAbout(wxCommandEvent& event);
     void OnFileSystemEvent(wxFileSystemWatcherEvent& event);
+    void OnOpenTerminal(wxCommandEvent& event);
     wxFileSystemWatcher* m_watcher = nullptr;
     bool m_followLinks;
     wxDECLARE_NO_COPY_CLASS(MainFrame);
@@ -138,4 +139,5 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_MENU(ID_FOCUS_MODE, SideNavigation::OnFocusMode)
     EVT_MENU(ID_CLOSE_ALL_FILES, MainFrame::CloseAllFiles)
     EVT_MENU(ID_TOGGLE_CONTROL_PANEL, MainFrame::ToggleControlPanel)
+    EVT_MENU(ID_OPEN_TERMINAL, MainFrame::OnOpenTerminal)
 wxEND_EVENT_TABLE()

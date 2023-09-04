@@ -6,7 +6,6 @@ CodeContainer::CodeContainer(
 	wxWindow* parent, wxString path
 ) : wxScrolled<wxPanel>(parent) {
 	wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
-
 	codeEditor = new wxStyledTextCtrl(this);
 	codeMap = new wxStyledTextCtrl(this);
 
@@ -15,7 +14,7 @@ CodeContainer::CodeContainer(
 	SetSizerAndFit(sizer);
 
     font = wxFont(10, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
-    font.SetFaceName(wxT("Monospace"));
+	font.SetFaceName(wxT("Monospace"));
 
 	LoadPath(path);
 	SetName(path+"_codeContainer");
@@ -28,13 +27,11 @@ bool CodeContainer::LoadPath(wxString path) {
 		if(file_props.FileExists()) {
 			bool codeEditor_loadSuccessfully = codeEditor->LoadFile(path);
 			bool codeMap_loadSuccessfully = codeMap->LoadFile(path);
-
 			if(codeEditor_loadSuccessfully && codeMap_loadSuccessfully) {
 				status_bar->UpdateCodeLocale(codeEditor);
 			    ((wxFrame*)FindWindowById(ID_STATUS_BAR)->GetParent())->SetTitle(
 			        wxFileNameFromPath(path) + " (" + project_name + ") - ThunderCode"
 			    );
-
 			    InitializePrefs(DeterminePrefs(path));
 			    return true;
 			}
@@ -211,6 +208,11 @@ void CodeContainer::CodeEditorInitPrefs() {
     codeEditor->SetFoldLevel(4, 1025);
     codeEditor->SetFoldLevel(5, 1024);
     codeEditor->SetFoldLevel(6, 1024|wxSTC_FOLDLEVELWHITEFLAG);
+
+    /*wxAcceleratorEntry entries[4];
+    entries[0].Set(wxACCEL_CTRL, WXK_DIVIDE, ID_TOGGLE_COMMENT);
+    wxAcceleratorTable accel(4, entries);
+    codeEditor->SetAcceleratorTable(accel);*/
 }
 
 void CodeContainer::CodeMapInitPrefs() {
@@ -248,6 +250,7 @@ void CodeContainer::CodeMapInitPrefs() {
 
     codeMap->SetScrollWidthTracking(false);
     codeMap->SetCaretWidth(0);
+
 }
 
 void CodeContainer::OnSave(wxCommandEvent& event) {
@@ -313,35 +316,34 @@ void CodeContainer::OnArrowsPress(wxKeyEvent& event) {
 
 void CodeContainer::CharAdd(wxStyledTextEvent& event) {
     char chr = (char)event.GetKey();
-    int currentLine = codeEditor->GetCurrentLine();
 	char previous_char = (char)codeEditor->GetCharAt(codeEditor->GetCurrentPos()-2);
+	char next_char = (char)codeEditor->GetCharAt(codeEditor->GetCurrentPos());
+
+	int previousLine = codeEditor->GetCurrentLine()-1;
+	int currentLine = codeEditor->GetCurrentLine();
+	int nextLine = codeEditor->GetCurrentLine()+1;
+   
+	int previousLineInd = codeEditor->GetLineIndentation(previousLine);
+	int currentLineInd = codeEditor->GetLineIndentation(currentLine);
+	int nextLineInd = codeEditor->GetLineIndentation(currentLine+1);
 
     if (chr == '\n') {
-        int currentLineInd;
-        int nextLineInd;
-
-        if(currentLine > 0) {
-            currentLineInd = codeEditor->GetLineIndentation(currentLine-1);
-            nextLineInd = codeEditor->GetLineIndentation(currentLine+1);
-        }
-
-        if(previous_char == '{' && !nextLineInd) {
-            codeEditor->SetLineIndentation(currentLine, currentLineInd+codeEditor->GetIndent());
-            codeEditor->GotoPos(codeEditor->GetCurrentPos() + currentLineInd+codeEditor->GetIndent()-3);
+		if(previous_char == '{' && next_char == '}') {
+			codeEditor->SetLineIndentation(currentLine, currentLineInd+codeEditor->GetIndent());
+            codeEditor->GotoPos(codeEditor->GetLineEndPosition(currentLine)-1);
+            codeEditor->SetCurrentPos(codeEditor->GetLineEndPosition(currentLine)-1);
             codeEditor->InsertText(codeEditor->GetCurrentPos(), "\n");
-        } else {
-            if(currentLineInd && nextLineInd) {
-                if(currentLineInd == nextLineInd) {
-                    codeEditor->SetLineIndentation(currentLine, currentLineInd);
-                    codeEditor->GotoPos(codeEditor->PositionFromLine(currentLine) + currentLineInd-3);
-                } else if(nextLineInd > currentLineInd) {
-                    codeEditor->SetLineIndentation(currentLine, nextLineInd);
-                    codeEditor->GotoPos(codeEditor->PositionFromLine(currentLine) + nextLineInd-3);
-                }
-            }
-        }
+            return;
+		}
 
-    } 
+        if(currentLineInd < nextLineInd) {
+            codeEditor->SetLineIndentation(currentLine, nextLineInd);
+            codeEditor->LineEnd();
+        } else {
+    		codeEditor->SetLineIndentation(currentLine, previousLineInd);
+            codeEditor->LineEnd();
+        }
+	} 
 
     if (chr == '#') {
         wxString s = "define?0 elif?1 else?0 endif?01 error?0 if?0 ifdef?0 "
@@ -370,3 +372,5 @@ void CodeContainer::OnClick(wxMouseEvent& event) {
 void CodeContainer::OnScroll(wxStyledTextEvent& event) {
     codeMap->SetFirstVisibleLine(codeEditor->GetFirstVisibleLine()-10);
 }
+
+void CodeContainer::OnToggleLineComment(wxCommandEvent& event) {}

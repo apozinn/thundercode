@@ -56,6 +56,8 @@ public:
 	    menuTools->Append(wxID_ANY, _("&Snippets"));
 	    menuTools->AppendSeparator();
 	    menuTools->Append(wxID_ANY, _("&Build"));
+	    menuTools->AppendSeparator();
+	    menuTools->Append(ID_OPEN_TERMINAL, _("&Open Terminal\tCtrl+T"));
 
 	    wxMenu *menuPreference = new wxMenu;
 	    menuPreference->Append(wxID_ANY, _("&Settings"));

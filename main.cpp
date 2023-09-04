@@ -343,3 +343,11 @@ bool MainFrame::LoadPath(wxString path) {
     AddEntry(wxFSWPath_Tree, path);
     return true;
 }
+
+void MainFrame::OnOpenTerminal(wxCommandEvent& event) {
+    if(servical_container->IsSplit()) {        
+        servical_container->Unsplit(FindWindowById(ID_TERMINAL));
+    } else {
+        servical_container->SplitHorizontally(main_code, FindWindowById(ID_TERMINAL), 0);
+    }
+}

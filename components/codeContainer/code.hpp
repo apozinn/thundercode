@@ -27,4 +27,9 @@ private:
     void OnClick(wxMouseEvent& event);
     void OnArrowsPress(wxKeyEvent& event);
     void OnScroll(wxStyledTextEvent& event);
+	void OnToggleLineComment(wxCommandEvent& event);
+	wxDECLARE_EVENT_TABLE();
 };
+
+wxBEGIN_EVENT_TABLE(CodeContainer, wxPanel)
+wxEND_EVENT_TABLE()
