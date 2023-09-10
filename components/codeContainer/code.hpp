@@ -14,7 +14,9 @@ public:
 	CodeContainer(wxWindow* parent, wxString path);
 	bool LoadPath(wxString path);
 	void OnSave(wxCommandEvent& event);
+	void ToggleCommentLine(wxCommandEvent& event);
 private:
+	bool changing_values;
 	wxFont font;
 	StatusBar* status_bar = ((StatusBar*)FindWindowById(ID_STATUS_BAR));
 	wxPoint codeMapClickPoint = wxPoint(0, 0);
@@ -28,7 +30,6 @@ private:
 	void OnClick(wxMouseEvent& event);
 	void OnArrowsPress(wxKeyEvent& event);
 	void OnScroll(wxStyledTextEvent& event);
-	void OnToggleLineComment(wxCommandEvent& event);
 	void OnMapClick(wxMouseEvent& event);
 	void OnCodeMapPaint(wxPaintEvent& event);
 	void OnPainted(wxStyledTextEvent& event);

@@ -6,8 +6,8 @@ CodeContainer::CodeContainer(
 	wxWindow* parent, wxString path
 ) : wxScrolled<wxPanel>(parent) {
 	wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
-	codeEditor = new wxStyledTextCtrl(this);
-	codeMap = new wxStyledTextCtrl(this);
+	codeEditor = new wxStyledTextCtrl(this, ID_CODE_EDITOR);
+	codeMap = new wxStyledTextCtrl(this, ID_CODE_MAP);
 
 	sizer->Add(codeEditor, 1, wxEXPAND);
 	sizer->Add(codeMap, 0, wxEXPAND);
@@ -153,7 +153,7 @@ void CodeContainer::CodeEditorInitPrefs() {
     codeEditor->Bind(wxEVT_STC_CHARADDED, &CodeContainer::CharAdd, this);
     codeEditor->Bind(wxEVT_LEFT_UP, &CodeContainer::OnClick, this);
     codeEditor->Bind(wxEVT_KEY_UP, &CodeContainer::OnArrowsPress, this);
-    codeEditor->Bind(wxEVT_STC_UPDATEUI, &CodeContainer::OnCodeEditorScroll, this);
+    codeEditor->Connect(wxEVT_STC_PAINTED, wxStyledTextEventHandler(CodeContainer::OnCodeEditorScroll), NULL, this);
 
     codeEditor->RegisterImage(0, wxBitmap(icons_dir+"thunder.png"));
     codeEditor->RegisterImage(1, wxBitmap(icons_dir+"question.png"));
@@ -235,8 +235,7 @@ void CodeContainer::CodeMapInitPrefs() {
 
     codeMap->Bind(wxEVT_STC_UPDATEUI, &CodeContainer::OnCodeMapScroll, this);
 	codeMap->Bind(wxEVT_LEFT_UP, &CodeContainer::OnMapClick, this);
-	codeMap->Bind(wxEVT_PAINT, &CodeContainer::OnCodeMapPaint, this);
-	codeMap->Bind(wxEVT_STC_PAINTED, &CodeContainer::OnPainted, this);
+    codeMap->Connect(wxEVT_STC_PAINTED, wxStyledTextEventHandler(CodeContainer::OnCodeMapScroll), NULL, this);
 	
     codeMap->SetLexer(current_lang->lexer);
 
@@ -365,16 +364,49 @@ void CodeContainer::OnClick(wxMouseEvent& event) {
 }
 
 void CodeContainer::OnCodeEditorScroll(wxStyledTextEvent& event) {
-	SyncMap(codeEditor);
-	event.Skip();
+    if (changing_values) return;
+        changing_values = true;
+
+        int fvl = codeEditor->GetFirstVisibleLine();
+        if (codeMap->GetFirstVisibleLine() != fvl){
+            codeMap->ScrollToLine(fvl);
+        }
+
+        changing_values = false;
 }
 
 void CodeContainer::OnCodeMapScroll(wxStyledTextEvent& event) {
-	SyncMap(codeMap);
-	event.Skip();
+    if(changing_values) return;
+    changing_values = true;
+
+    int fvl = codeMap->GetFirstVisibleLine();
+    if (codeEditor->GetFirstVisibleLine() != fvl) {
+        codeEditor->ScrollToLine(fvl);
+    }
+
+    changing_values = false;
 }
 
-void CodeContainer::OnToggleLineComment(wxCommandEvent& event) {}
+void CodeContainer::ToggleCommentLine(wxCommandEvent& WXUNUSED(event)) {
+    wxStyledTextCtrl* code_editor = ((wxStyledTextCtrl*)FindWindowById(ID_CODE_EDITOR));
+    if(code_editor) {
+        int lineStart = code_editor->PositionFromLine(code_editor->GetCurrentLine());
+        char chr = (char)code_editor->GetCharAt(lineStart);
+
+        if(chr == ' ') {
+            while(chr == ' ') {
+                lineStart++;
+                chr = (char)code_editor->GetCharAt(lineStart);
+            }
+        }
+
+        if(chr == '/' && (char)code_editor->GetCharAt(lineStart+1) == '/') {
+           code_editor->DeleteRange(lineStart, 2);
+        } else {
+            code_editor->InsertText(lineStart, "//");
+        }
+    }
+}
 
 void CodeContainer::OnMapClick(wxMouseEvent& event) {
 	wxClientDC dc(this);
@@ -386,10 +418,6 @@ void CodeContainer::OnMapClick(wxMouseEvent& event) {
 	event.Skip();
 }
 
-void CodeContainer::OnCodeMapPaint(wxPaintEvent& event) {
-	event.Skip();
-}
-
 void CodeContainer::OnPainted(wxStyledTextEvent& event) {
 	wxClientDC dc(codeMap);
     wxColour color(128,128,128,100);
@@ -397,12 +425,4 @@ void CodeContainer::OnPainted(wxStyledTextEvent& event) {
     dc.SetBrush(color); 
     dc.SetPen(color);
     dc.DrawRectangle(0, codeMapClickPoint.y, codeMap->GetSize().GetWidth(), 80);
-}
-
-void CodeContainer::SyncMap(wxStyledTextCtrl* comp) {
-    if(comp == codeEditor) {
-        codeMap->SetFirstVisibleLine(comp->GetFirstVisibleLine());
-    } else {
-        codeEditor->SetFirstVisibleLine(comp->GetFirstVisibleLine());
-    }
 }

@@ -27,6 +27,11 @@ public:
 	    menuEdit->Append(wxID_ANY, _("&Copy"));
 	    menuEdit->Append(wxID_ANY, _("&Paste"));
 	    menuEdit->AppendSeparator();
+		
+		wxMenu* commentMenu = new wxMenu();
+		commentMenu->Append(ID_TOGGLE_COMMENT_LINE, _("&Toggle Comment"));
+		commentMenu->Append(ID_TOGGLE_COMMENT_BLOCK, _("&Toggle Block Comment"));
+		menuEdit->AppendSubMenu(commentMenu, _("&Comment"));
 
 	    wxMenu *menuSelection = new wxMenu;
 	    menuSelection->Append(wxID_ANY, _("&Select All"));
