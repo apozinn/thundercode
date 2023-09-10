@@ -11,6 +11,7 @@ CodeContainer::CodeContainer(
 
 	sizer->Add(codeEditor, 1, wxEXPAND);
 	sizer->Add(codeMap, 0, wxEXPAND);
+
 	SetSizerAndFit(sizer);
 
     font = wxFont(10, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
@@ -73,53 +74,52 @@ bool CodeContainer::InitializePrefs(wxString name) {
             break;
         }
     }
+	
+	if(!found) {
+		current_lang = &languages_prefs[0];
+	}
 
-    if(!found) {
-        current_lang = &languages_prefs[0];
-        return true;
-    } else {
-	    current_lang = currentInfo;
-    	CodeEditorInitPrefs();
-    	CodeMapInitPrefs();
+    current_lang = currentInfo;
+    CodeEditorInitPrefs();
+    CodeMapInitPrefs();
 
-    	int Nr;
-	    for (Nr = 0; Nr < wxSTC_STYLE_LASTPREDEFINED; Nr++) {
-	        codeEditor->StyleSetFont(Nr, font);
-	        codeMap->StyleSetFont(Nr, font);
-	    }
-
-	    if(global_commonPrefs.syntaxEnable) {
-	        int keywordnr = 0;
-	        for(Nr = 0; Nr < STYLE_TYPES_COUNT; Nr++) {
-	            if (currentInfo->styles[Nr].type == -1) continue;
-
-	            const StyleInfo &curType = global_lexer_styles[currentInfo->styles[Nr].type];
-	            codeEditor->StyleSetFont(Nr, font);
-	            codeMap->StyleSetFont(Nr, font);
-
-	            codeEditor->StyleSetForeground(Nr, wxColor(curType.foreground));
-	            codeMap->StyleSetForeground(Nr, wxColor(curType.foreground));
-	            codeEditor->StyleSetBold(Nr, (curType.fontstyle & mySTC_STYLE_BOLD) > 0);
-	            codeMap->StyleSetBold(Nr, (curType.fontstyle & mySTC_STYLE_BOLD) > 0);
-	            codeEditor->StyleSetItalic(Nr, (curType.fontstyle & mySTC_STYLE_ITALIC) > 0);
-	            codeMap->StyleSetItalic(Nr, (curType.fontstyle & mySTC_STYLE_ITALIC) > 0);
-	            codeEditor->StyleSetUnderline(Nr, (curType.fontstyle & mySTC_STYLE_UNDERL) > 0);
-	            codeMap->StyleSetUnderline(Nr, (curType.fontstyle & mySTC_STYLE_UNDERL) > 0);
-	            codeEditor->StyleSetVisible(Nr, (curType.fontstyle & mySTC_STYLE_HIDDEN) == 0);
-	            codeMap->StyleSetVisible(Nr, (curType.fontstyle & mySTC_STYLE_HIDDEN) == 0);
-	            codeEditor->StyleSetCase(Nr, curType.lettercase);
-	            codeMap->StyleSetCase(Nr, curType.lettercase);
-
-	            const char *pwords = currentInfo->styles[Nr].words;
-	            if (pwords) {
-	                codeEditor->SetKeyWords(keywordnr, pwords);
-	                codeMap->SetKeyWords(keywordnr, pwords);
-	                keywordnr += 1;
-	            }
-	        }
-	    }
-	    return true;
+    int Nr;
+    for (Nr = 0; Nr < wxSTC_STYLE_LASTPREDEFINED; Nr++) {
+        codeEditor->StyleSetFont(Nr, font);
+        codeMap->StyleSetFont(Nr, font);
     }
+
+    if(global_commonPrefs.syntaxEnable) {
+        int keywordnr = 0;
+        for(Nr = 0; Nr < STYLE_TYPES_COUNT; Nr++) {
+            if (currentInfo->styles[Nr].type == -1) continue;
+
+            const StyleInfo &curType = global_lexer_styles[currentInfo->styles[Nr].type];
+            codeEditor->StyleSetFont(Nr, font);
+            codeMap->StyleSetFont(Nr, font);
+
+            codeEditor->StyleSetForeground(Nr, wxColor(curType.foreground));
+            codeMap->StyleSetForeground(Nr, wxColor(curType.foreground));
+            codeEditor->StyleSetBold(Nr, (curType.fontstyle & mySTC_STYLE_BOLD) > 0);
+            codeMap->StyleSetBold(Nr, (curType.fontstyle & mySTC_STYLE_BOLD) > 0);
+            codeEditor->StyleSetItalic(Nr, (curType.fontstyle & mySTC_STYLE_ITALIC) > 0);
+            codeMap->StyleSetItalic(Nr, (curType.fontstyle & mySTC_STYLE_ITALIC) > 0);
+            codeEditor->StyleSetUnderline(Nr, (curType.fontstyle & mySTC_STYLE_UNDERL) > 0);
+            codeMap->StyleSetUnderline(Nr, (curType.fontstyle & mySTC_STYLE_UNDERL) > 0);
+            codeEditor->StyleSetVisible(Nr, (curType.fontstyle & mySTC_STYLE_HIDDEN) == 0);
+            codeMap->StyleSetVisible(Nr, (curType.fontstyle & mySTC_STYLE_HIDDEN) == 0);
+            codeEditor->StyleSetCase(Nr, curType.lettercase);
+            codeMap->StyleSetCase(Nr, curType.lettercase);
+
+            const char *pwords = currentInfo->styles[Nr].words;
+            if (pwords) {
+                codeEditor->SetKeyWords(keywordnr, pwords);
+                codeMap->SetKeyWords(keywordnr, pwords);
+                keywordnr += 1;
+            }
+        }
+    }
+    return true;
 }
 
 void CodeContainer::CodeEditorInitPrefs() {
@@ -141,6 +141,7 @@ void CodeContainer::CodeEditorInitPrefs() {
     codeEditor->SetMarginType(0, wxSTC_MARGIN_NUMBER);
     codeEditor->StyleSetForeground(wxSTC_STYLE_LINENUMBER, wxColor(128, 128, 128));
     codeEditor->StyleSetBackground(wxSTC_STYLE_LINENUMBER, wxColor(55, 55, 55));
+	codeEditor->StyleSetForeground(wxSTC_STYLE_INDENTGUIDE, wxColor(128, 128, 128));
 
     codeEditor->SetMarginWidth(1, 16);
     codeEditor->SetMarginType(1, wxSTC_MARGIN_SYMBOL);
@@ -152,7 +153,7 @@ void CodeContainer::CodeEditorInitPrefs() {
     codeEditor->Bind(wxEVT_STC_CHARADDED, &CodeContainer::CharAdd, this);
     codeEditor->Bind(wxEVT_LEFT_UP, &CodeContainer::OnClick, this);
     codeEditor->Bind(wxEVT_KEY_UP, &CodeContainer::OnArrowsPress, this);
-    codeEditor->Bind(wxEVT_STC_UPDATEUI, &CodeContainer::OnScroll, this);
+    codeEditor->Bind(wxEVT_STC_UPDATEUI, &CodeContainer::OnCodeEditorScroll, this);
 
     codeEditor->RegisterImage(0, wxBitmap(icons_dir+"thunder.png"));
     codeEditor->RegisterImage(1, wxBitmap(icons_dir+"question.png"));
@@ -164,7 +165,7 @@ void CodeContainer::CodeEditorInitPrefs() {
     codeEditor->SetProperty(wxT("fold.preprocessor"), wxT("1"));
     codeEditor->SetProperty(wxT("fold.html"), wxT("1"));
     codeEditor->SetProperty(wxT("fold.html.preprocessor"), wxT("1"));
-    codeEditor->SetFoldFlags(wxSTC_FOLDFLAG_LINEBEFORE_CONTRACTED | wxSTC_FOLDFLAG_LINEAFTER_CONTRACTED);
+	codeEditor->SetFoldFlags(wxSTC_FOLDFLAG_LINEBEFORE_CONTRACTED | wxSTC_FOLDFLAG_LINEAFTER_CONTRACTED);
 
     codeEditor->SetMarginMask(2, wxSTC_MASK_FOLDERS);
     codeEditor->SetFoldMarginColour(true, wxColor(55,55,55));
@@ -208,18 +209,12 @@ void CodeContainer::CodeEditorInitPrefs() {
     codeEditor->SetFoldLevel(4, 1025);
     codeEditor->SetFoldLevel(5, 1024);
     codeEditor->SetFoldLevel(6, 1024|wxSTC_FOLDLEVELWHITEFLAG);
-
-    /*wxAcceleratorEntry entries[4];
-    entries[0].Set(wxACCEL_CTRL, WXK_DIVIDE, ID_TOGGLE_COMMENT);
-    wxAcceleratorTable accel(4, entries);
-    codeEditor->SetAcceleratorTable(accel);*/
 }
 
 void CodeContainer::CodeMapInitPrefs() {
     codeMap->SetReadOnly(true);
     codeMap->SetUseHorizontalScrollBar(false); 
     codeMap->SetUseVerticalScrollBar(false); 
-    codeMap->SetScrollWidth(codeEditor->GetSize().GetHeight()*5);
 
     codeMap->StyleSetBackground(wxSTC_STYLE_DEFAULT, wxColor(55, 55, 55));
     codeMap->StyleSetForeground(wxSTC_STYLE_DEFAULT, wxColor(255, 255, 255));
@@ -238,19 +233,19 @@ void CodeContainer::CodeMapInitPrefs() {
     codeMap->SetMarginMask(1, 0);
     codeMap->SetMarginSensitive(1, false);
 
-    codeMap->Bind(wxEVT_STC_UPDATEUI, &CodeContainer::OnScroll, this);
+    codeMap->Bind(wxEVT_STC_UPDATEUI, &CodeContainer::OnCodeMapScroll, this);
+	codeMap->Bind(wxEVT_LEFT_UP, &CodeContainer::OnMapClick, this);
+	codeMap->Bind(wxEVT_PAINT, &CodeContainer::OnCodeMapPaint, this);
+	codeMap->Bind(wxEVT_STC_PAINTED, &CodeContainer::OnPainted, this);
+	
     codeMap->SetLexer(current_lang->lexer);
 
     codeMap->SetZoom(-10);
     codeMap->SetSize(wxSize(100, codeMap->GetSize().GetHeight()*2));
     codeMap->SetMinSize(wxSize(100, codeMap->GetSize().GetHeight()*2));
 
-    codeMap->SetExtraAscent(0);
     codeMap->SetExtraAscent(-1);
-
-    codeMap->SetScrollWidthTracking(false);
     codeMap->SetCaretWidth(0);
-
 }
 
 void CodeContainer::OnSave(wxCommandEvent& event) {
@@ -369,8 +364,45 @@ void CodeContainer::OnClick(wxMouseEvent& event) {
     event.Skip();
 }
 
-void CodeContainer::OnScroll(wxStyledTextEvent& event) {
-    codeMap->SetFirstVisibleLine(codeEditor->GetFirstVisibleLine()-10);
+void CodeContainer::OnCodeEditorScroll(wxStyledTextEvent& event) {
+	SyncMap(codeEditor);
+	event.Skip();
+}
+
+void CodeContainer::OnCodeMapScroll(wxStyledTextEvent& event) {
+	SyncMap(codeMap);
+	event.Skip();
 }
 
 void CodeContainer::OnToggleLineComment(wxCommandEvent& event) {}
+
+void CodeContainer::OnMapClick(wxMouseEvent& event) {
+	wxClientDC dc(this);
+	wxPoint mouse_pos = event.GetLogicalPosition(dc);
+	codeMapClickPoint = mouse_pos;
+	
+	codeEditor->SetFirstVisibleLine(codeMap->GetCurrentLine());
+    codeMap->Refresh();
+	event.Skip();
+}
+
+void CodeContainer::OnCodeMapPaint(wxPaintEvent& event) {
+	event.Skip();
+}
+
+void CodeContainer::OnPainted(wxStyledTextEvent& event) {
+	wxClientDC dc(codeMap);
+    wxColour color(128,128,128,100);
+    
+    dc.SetBrush(color); 
+    dc.SetPen(color);
+    dc.DrawRectangle(0, codeMapClickPoint.y, codeMap->GetSize().GetWidth(), 80);
+}
+
+void CodeContainer::SyncMap(wxStyledTextCtrl* comp) {
+    if(comp == codeEditor) {
+        codeMap->SetFirstVisibleLine(comp->GetFirstVisibleLine());
+    } else {
+        codeEditor->SetFirstVisibleLine(comp->GetFirstVisibleLine());
+    }
+}

@@ -101,7 +101,7 @@ MainFrame::MainFrame(const wxString& title)
             pjt_ctn->GetSizer()->Add(open_folder_link, 1, wxEXPAND);
         }
     }
-
+	
     wxAcceleratorEntry entries[2];
     entries[0].Set(wxACCEL_ALT, WXK_ALT, ID_HIDDE_MENU_BAR);
     entries[1].Set(wxACCEL_CTRL, WXK_SHIFT, ID_TOGGLE_CONTROL_PANEL);

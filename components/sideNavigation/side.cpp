@@ -222,16 +222,6 @@ void SideNavigation::SelectPage(wxMouseEvent& event) {
     }
 }
 
-void SideNavigation::OnHover(wxMouseEvent& event) {
-    auto target = ((wxPanel*)event.GetEventObject());
-    if(target) {}
-}
-
-void SideNavigation::OnEndHover(wxMouseEvent& event) {
-    auto target = ((wxPanel*)event.GetEventObject());
-    if(target) {}
-}
-
 void SideNavigation::OnFocusMode(wxCommandEvent& WXUNUSED(event)) {
     ToggleFocusMode();
 }
