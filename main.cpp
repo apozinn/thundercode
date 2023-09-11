@@ -178,8 +178,7 @@ void MainFrame::OnFileSystemEvent(wxFileSystemWatcherEvent& event) {
     if(type != "ACCESS") {
         files_tree->OnTreeModifyed(
             event.GetPath().GetFullPath(), 
-            event.GetNewPath().GetFullPath(),
-            type
+            event.GetNewPath().GetFullPath()
         );
     }
 }

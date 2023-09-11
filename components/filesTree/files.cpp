@@ -343,7 +343,6 @@ void FilesTree::onTopMenuClick(wxMouseEvent& event) {
     wxMenu* menuFile = new wxMenu;
     menuFile->Append(wxID_ANY, _("&New File"));
     menuFile->Append(ID_CREATE_DIR, _("&New Folder"));
-    menuFile->Append(wxID_ANY, _("&Rename"));
     menuFile->Append(wxID_ANY, _("&Open terminal"));
     PopupMenu(menuFile);
 }
@@ -354,7 +353,7 @@ void FilesTree::onFileRightClick(wxMouseEvent& event) {
     menufile_path = target->GetName();
 
     wxMenu* menuFile = new wxMenu;
-    menuFile->Append(wxID_ANY, _("&Rename"));
+    menuFile->Append(ID_RENAME_FILE, _("&Rename"));
     menuFile->Append(ID_DELETE_FILE, _("&Delete File"));
     PopupMenu(menuFile);
 }
@@ -373,7 +372,7 @@ void FilesTree::onDirRightClick(wxMouseEvent& event) {
     menudir_path = target->GetName();
 
     wxMenu* menuDir = new wxMenu;
-    menuDir->Append(wxID_ANY, _("&Rename"));
+    menuDir->Append(ID_RENAME_DIR, _("&Rename"));
     menuDir->Append(ID_CREATE_FILE, _("&New File"));
     menuDir->Append(ID_CREATE_DIR, _("&New Folder"));
     menuDir->Append(wxID_ANY, _("&Open Folder"));
@@ -387,25 +386,16 @@ void FilesTree::OnPaint(wxPaintEvent& event) {
     wxGraphicsContext *gc = wxGraphicsContext::Create(dc);
     if(!gc) return;
 
-    if(window->GetId() == ID_FILES_TREE) {
-        /*gc->SetPen(gc->CreatePen(wxGraphicsPenInfo(wxColor(136, 136, 136)).Width(0.20)));
-        gc->SetBrush(wxColor(128, 128, 128));
-
-        wxGraphicsPath path = gc->CreatePath();
-        path.MoveToPoint(-10.0, 35.0);
-        path.AddLineToPoint(static_cast<double>(window->GetSize().GetWidth()), 35.0);
-
-        gc->StrokePath(path);  */
-    } else {
+    if(window->GetId() != ID_FILES_TREE) {
         gc->SetPen(gc->CreatePen(wxGraphicsPenInfo(wxColor(128, 128, 128)).Width(1.25).Style(wxPENSTYLE_DOT)));
         gc->SetBrush(wxColor(128, 128, 128));
 
         wxGraphicsPath path = gc->CreatePath();
         path.MoveToPoint(0.0, 0.0);
         path.AddLineToPoint(0.0, static_cast<double>(window->GetSize().GetHeight()));
-
-        gc->StrokePath(path);  
+        gc->StrokePath(path);
     }
+
     delete gc;
 }
 
@@ -458,8 +448,8 @@ void FilesTree::OnDeleteFile(wxCommandEvent& event) {
     bool deleted = fileManager->DeleteFile(menufile_path); 
 } 
 
-void FilesTree::OnTreeModifyed(wxString old_target, wxString new_target, wxString type) {
-    wxFileName path_props(old_target);
+void FilesTree::OnTreeModifyed(wxString old_path, wxString new_path) {
+    wxFileName path_props(old_path);
     wxString parent_path;
 
     if(path_props.IsDir()) {
@@ -468,17 +458,13 @@ void FilesTree::OnTreeModifyed(wxString old_target, wxString new_target, wxStrin
         parent_path = path_props.GetPath();
     }
 
-    auto target_parent = FindWindowByName(parent_path);
-    if(!target_parent) {
-        target_parent = FindWindowByName(parent_path);
-    }
-
-    if(target_parent) {
-        if(target_parent->GetId() != ID_PROJECT_FILES_CTN) 
-            target_parent = target_parent->GetChildren()[1];
-        target_parent->DestroyChildren();
-        Create(parent_path.ToStdString()+"/", target_parent);
-        FitContainer(target_parent);
+    auto parent = FindWindowByName(parent_path);
+    if(parent_path+"/" == project_path) parent = project_files_ctn;
+    if(parent) {
+        if(parent->GetId() != ID_PROJECT_FILES_CTN) parent = parent->GetChildren()[1];
+        parent->DestroyChildren();
+        Create(parent_path.ToStdString()+"/", parent);
+        FitContainer(parent);
     }
 }
 
@@ -500,7 +486,28 @@ void FilesTree::OnLeaveComp(wxMouseEvent& event) {
     }
 }
 
-void OnRename(wxCommandEvent& event) {
-    wxString file_name = wxGetTextFromUser("Enter the file name: ", "Rename Path", "");
-    if(file_name.empty()) return;
+void FilesTree::OnFileRename(wxCommandEvent& event) {
+    wxString new_name = wxGetTextFromUser("Enter the new file name: ", "Rename File", "");
+    if(new_name.empty()) return;
+    if(menufile_path.empty()) return;
+
+    wxString target_parent = menufile_path.substr(0, menufile_path.find_last_of("/")+1);
+    wxString new_path = target_parent+new_name;
+
+    if(!wxRename(menufile_path, new_path)) {
+        wxMessageBox("There was an error renaming the file", "", wxOK | wxICON_INFORMATION);
+    }
+}
+
+void FilesTree::OnDirRename(wxCommandEvent& event) {
+    wxString new_name = wxGetTextFromUser("Enter the new dir name: ", "Rename Dir", "");
+    if(new_name.empty()) return;
+    if(menudir_path.empty()) return;
+
+    wxString target_parent = menudir_path.substr(0, menudir_path.find_last_of("/")+1);
+    wxString new_path = target_parent+new_name;
+
+    if(!wxRename(menudir_path, new_path)) {
+        wxMessageBox("There was an error renaming the dir", "", wxOK | wxICON_INFORMATION);
+    }
 }

@@ -30,8 +30,9 @@ public:
 	void OnCreateFile(wxCommandEvent& event);
 	void OnDeleteDir(wxCommandEvent& event);
 	void OnDeleteFile(wxCommandEvent& event);
-	void OnRename(wxCommandEvent& event);
-	void OnTreeModifyed(wxString old_target, wxString new_target, wxString type);
+	void OnFileRename(wxCommandEvent& event);
+	void OnDirRename(wxCommandEvent& event);
+	void OnTreeModifyed(wxString old_path, wxString new_path);
 private:
 	void OnEnterComp(wxMouseEvent& event);
 	void OnLeaveComp(wxMouseEvent& event);
@@ -44,4 +45,6 @@ wxBEGIN_EVENT_TABLE(FilesTree, wxPanel)
     EVT_MENU(ID_CREATE_FILE, FilesTree::OnCreateFile)
     EVT_MENU(ID_DELETE_DIR, FilesTree::OnDeleteDir)
     EVT_MENU(ID_DELETE_FILE, FilesTree::OnDeleteFile)
+    EVT_MENU(ID_RENAME_FILE, FilesTree::OnFileRename)
+    EVT_MENU(ID_RENAME_DIR, FilesTree::OnDirRename)
 wxEND_EVENT_TABLE()
