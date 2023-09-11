@@ -55,6 +55,7 @@ public:
 	    menuView->Append(ID_HIDDE_STATUS_BAR, _("&Hidde Status Bar"));
 	    menuView->Append(ID_HIDDE_TABS, _("&Hidde Tabs"));
 	    menuView->Append(ID_FOCUS_MODE, _("&Focus Mode\tShift-f11"));
+	    menuView->Append(ID_TOGGLE_MINI_MAP_VIEW, _("&Hide Minimap"));
 
 	    wxMenu *menuTools = new wxMenu;
 	    menuTools->Append(wxID_ANY, _("&Command Palette"));

@@ -82,6 +82,8 @@ private:
 
 class ThunderCode: public wxApp {
 public:
+    MainFrame *frame;
+    wxString m_dirToWatch;
     virtual bool OnInit() override {
         if(!wxApp::OnInit()) return false;
         frame = new MainFrame("ThunderCode");
@@ -116,9 +118,6 @@ public:
         if(parser.GetParamCount()) m_dirToWatch = parser.GetParam();
         return true;
     }
-private: 
-    MainFrame *frame;
-    wxString m_dirToWatch;
 };
 
 wxIMPLEMENT_APP(ThunderCode);
@@ -141,4 +140,5 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_MENU(ID_TOGGLE_CONTROL_PANEL, MainFrame::ToggleControlPanel)
     EVT_MENU(ID_OPEN_TERMINAL, MainFrame::OnOpenTerminal)
 	EVT_MENU(ID_TOGGLE_COMMENT_LINE, CodeContainer::ToggleCommentLine)
+    EVT_MENU(ID_TOGGLE_MINI_MAP_VIEW, CodeContainer::ToggleMiniMapView)
 wxEND_EVENT_TABLE()

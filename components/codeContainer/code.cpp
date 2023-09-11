@@ -1,6 +1,7 @@
 #include "code.hpp"
 #include "wx/settings.h"
 #include "../../utils/randoms.hpp"
+#include <wx/app.h> 
 
 CodeContainer::CodeContainer(
 	wxWindow* parent, wxString path
@@ -426,4 +427,19 @@ void CodeContainer::OnCodeMapMouseEnter(wxMouseEvent& event) {
 void CodeContainer::OnCodeMapMouseLeave(wxMouseEvent& event) {
     codeMapMouseOver = false;
     codeMap->Refresh();
+}
+
+void CodeContainer::ToggleMiniMapView(wxCommandEvent& event) {
+    auto main_code = FindWindowById(ID_MAIN_CODE);
+    for(auto&& mc_children : main_code->GetChildren()) {
+        if(mc_children->GetName().find("_codeContainer") != std::string::npos) {
+            auto code_map = ((wxStyledTextCtrl*)mc_children->GetChildren()[1]);
+            if(code_map) {
+                if(code_map->IsShown()) {
+                    code_map->Hide();
+                } else code_map->Show();
+                mc_children->GetSizer()->Layout();
+            }
+        }
+    }
 }

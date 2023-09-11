@@ -14,6 +14,7 @@ public:
 	CodeContainer(wxWindow* parent, wxString path);
 	bool LoadPath(wxString path);
 	void OnSave(wxCommandEvent& event);
+	void ToggleMiniMapView(wxCommandEvent& event);
 	void ToggleCommentLine(wxCommandEvent& event);
 private:
 	bool changing_values;
