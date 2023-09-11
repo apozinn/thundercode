@@ -20,22 +20,26 @@ private:
 	wxFont font;
 	StatusBar* status_bar = ((StatusBar*)FindWindowById(ID_STATUS_BAR));
 	wxPoint codeMapClickPoint = wxPoint(0, 0);
+	bool codeMapMouseOver = false;
 	wxString DeterminePrefs(wxString filename);
 	bool InitializePrefs(wxString name);
+
 	void CodeEditorInitPrefs();
-	void CodeMapInitPrefs();
+	void OnCodeEditorScroll(wxStyledTextEvent& event);
 	void OnChange(wxStyledTextEvent& event);
 	void CharAdd(wxStyledTextEvent& event);
 	void OnMarginClick(wxStyledTextEvent& event);
 	void OnClick(wxMouseEvent& event);
 	void OnArrowsPress(wxKeyEvent& event);
-	void OnScroll(wxStyledTextEvent& event);
+	
+	void CodeMapInitPrefs();
 	void OnMapClick(wxMouseEvent& event);
 	void OnCodeMapPaint(wxPaintEvent& event);
-	void OnPainted(wxStyledTextEvent& event);
-	void OnCodeEditorScroll(wxStyledTextEvent& event);
+	void OnCodeMapPainted(wxStyledTextEvent& event);
 	void OnCodeMapScroll(wxStyledTextEvent& event);
-	void SyncMap(wxStyledTextCtrl* comp);
+	void OnCodeMapMouseEnter(wxMouseEvent& event);
+	void OnCodeMapMouseLeave(wxMouseEvent& event);
+
 	wxDECLARE_EVENT_TABLE();
 };
 

@@ -499,3 +499,8 @@ void FilesTree::OnLeaveComp(wxMouseEvent& event) {
         target->SetBackgroundColour(wxColor(45, 45, 45));
     }
 }
+
+void OnRename(wxCommandEvent& event) {
+    wxString file_name = wxGetTextFromUser("Enter the file name: ", "Rename Path", "");
+    if(file_name.empty()) return;
+}
