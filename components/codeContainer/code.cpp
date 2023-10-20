@@ -2,10 +2,13 @@
 #include "wx/settings.h"
 #include "../../utils/randoms.hpp"
 #include <wx/app.h> 
+#include "../../src/userConfig/userConfig.cpp"
 
 CodeContainer::CodeContainer(
 	wxWindow* parent, wxString path
 ) : wxScrolled<wxPanel>(parent) {
+
+    json user_config = UserConfig().Get();
 	wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
 	codeEditor = new wxStyledTextCtrl(this, ID_CODE_EDITOR);
 	codeMap = new wxStyledTextCtrl(this, ID_CODE_MAP);
