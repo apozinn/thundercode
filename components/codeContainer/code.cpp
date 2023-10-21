@@ -2,16 +2,15 @@
 #include "wx/settings.h"
 #include "../../utils/randoms.hpp"
 #include <wx/app.h> 
-#include "../../src/userConfig/userConfig.cpp"
 
 CodeContainer::CodeContainer(
 	wxWindow* parent, wxString path
 ) : wxScrolled<wxPanel>(parent) {
-
-    json user_config = UserConfig().Get();
 	wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
 	codeEditor = new wxStyledTextCtrl(this, ID_CODE_EDITOR);
 	codeMap = new wxStyledTextCtrl(this, ID_CODE_MAP);
+    json user_config = UserConfig().Get();
+    if(user_config["show_minimap"] == false) codeMap->Hide();
 
 	sizer->Add(codeEditor, 1, wxEXPAND);
 	sizer->Add(codeMap, 0, wxEXPAND);
@@ -434,14 +433,21 @@ void CodeContainer::OnCodeMapMouseLeave(wxMouseEvent& event) {
 
 void CodeContainer::ToggleMiniMapView(wxCommandEvent& event) {
     auto main_code = FindWindowById(ID_MAIN_CODE);
+    int roll;
     for(auto&& mc_children : main_code->GetChildren()) {
         if(mc_children->GetName().find("_codeContainer") != std::string::npos) {
+            roll++;
             auto code_map = ((wxStyledTextCtrl*)mc_children->GetChildren()[1]);
             if(code_map) {
                 if(code_map->IsShown()) {
                     code_map->Hide();
                 } else code_map->Show();
                 mc_children->GetSizer()->Layout();
+            }
+            if(roll = 1) {
+                json user_config = UserConfig().Get();
+                user_config["show_minimap"] = code_map->IsShown();
+                UserConfig().Update(user_config);
             }
         }
     }

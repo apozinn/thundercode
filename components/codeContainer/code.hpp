@@ -3,8 +3,7 @@
 #include "../statusBar/status.hpp"
 #include "../../src/languagePrefs/prefs.cpp"
 #include "../../src/lexerStyle/lexerStyle.cpp"
-
-const int ANNOTATION_STYLE = wxSTC_STYLE_LASTPREDEFINED + 1;
+#include "../../src/userConfig/userConfig.cpp"
 
 class CodeContainer : public wxScrolled<wxPanel> {
 public:
@@ -24,7 +23,6 @@ private:
 	bool codeMapMouseOver = false;
 	wxString DeterminePrefs(wxString filename);
 	bool InitializePrefs(wxString name);
-
 	void CodeEditorInitPrefs();
 	void OnCodeEditorScroll(wxStyledTextEvent& event);
 	void OnChange(wxStyledTextEvent& event);

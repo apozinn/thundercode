@@ -1,11 +1,9 @@
 #include "userConfig.h"
-#include <fstream>
-#include <wx/stdpaths.h>
 
 json UserConfig::Get() {
 	wxString appDataDir = wxStandardPaths::Get().GetUserConfigDir()+"/.thundercode";
 	wxFileName appDataDir_op(appDataDir);
-	std::string config_locale = appDataDir.ToStdString()+"/userconfig.json";
+	config_path = appDataDir.ToStdString()+"/userconfig.json";
 
 	if(appDataDir_op.GetFullPath() == appDataDir) {
 		if(!appDataDir_op.Exists()) {
@@ -14,7 +12,7 @@ json UserConfig::Get() {
 				wxFile newConfigFile;
 				bool created = newConfigFile.Create(appDataDir+"/userconfig.json");
 				if(created) {
-					std::ofstream newConfigFile_locale(config_locale);
+					std::ofstream newConfigFile_locale(config_path);
 					json new_json_obj = {
 					  {"show_minimap", true},
 					};
@@ -25,7 +23,18 @@ json UserConfig::Get() {
 	} 
 
 	
-	std::ifstream config_file(config_locale);
-	config_file >> data;
+	std::ifstream config_file(config_path);
+	json data;
+	if(config_file) {
+		data = json::parse(config_file);
+	}
 	return data;
+}
+
+bool UserConfig::Update(json new_data) {
+	std::ofstream config_file(config_path);
+	if(config_file) {
+		config_file << std::setw(4) << new_data << std::endl;
+		return true;
+	} else return false;
 }
