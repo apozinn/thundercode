@@ -8,7 +8,7 @@
 #if wxUSE_CLIPBOARD
 #include "wx/dataobj.h"
 #include "wx/clipbrd.h"
-#endif 
+#endif
 
 #ifdef __WXMSW__
 #include "wx/msw/private.h"
@@ -19,6 +19,7 @@
 
 #include "./app.hpp"
 #include "./defs.hpp"
+#include "./src/userConfig/userConfig.cpp"
 
 #include "./components/codeContainer/code.cpp"
 #include "./components/filesTree/files.cpp"
@@ -31,91 +32,108 @@
 #include "./members/controlPanel.cpp"
 #include "./members/terminal.cpp"
 
-class MainFrame: public wxFrame {
-    wxBoxSizer* sizer;
-    wxPanel* main_container;
-    wxSplitterWindow* main_splitter;
-    SideNavigation* side_navigation;
-    FilesTree* files_tree;
-    wxPanel* main_code;
-    Tabs* tabs;
-    MenuBar* menu_bar;
-    EmptyWindow* empty_window;
-    wxPanel* side_container;
-    OpenFolderLink* open_folder_link;
-    ControlPanel* control_panel;
-    Terminal* terminal;
-    wxSplitterWindow* servical_container;
+class MainFrame : public wxFrame
+{
+    wxBoxSizer *sizer;
+    wxPanel *main_container;
+    wxSplitterWindow *main_splitter;
+    SideNavigation *side_navigation;
+    FilesTree *files_tree;
+    wxPanel *main_code;
+    Tabs *tabs;
+    MenuBar *menu_bar;
+    EmptyWindow *empty_window;
+    wxPanel *side_container;
+    OpenFolderLink *open_folder_link;
+    ControlPanel *control_panel;
+    Terminal *terminal;
+    wxSplitterWindow *servical_container;
+
 public:
-    StatusBar* status_bar;
-    MainFrame(const wxString& title);
+    StatusBar *status_bar;
+    MainFrame(const wxString &title);
     virtual ~MainFrame();
     void AddEntry(wxFSWPathType type, wxString filename = wxString());
     bool CreateWatcherIfNecessary();
-    void OnOpenFolderMenu(wxCommandEvent& WXUNUSED(event)) { OpenFolderDialog(); }
-    void OnOpenFolderClick(wxMouseEvent& event) { OpenFolderDialog(); }
-    void OnOpenFile(wxCommandEvent& event);
-    void OnHiddeFilesTree(wxCommandEvent& event);
-    void OnHiddeSideNav(wxCommandEvent& event);
-    void OnHiddeMenuBar(wxCommandEvent& event);
-    void OnHiddeStatusBar(wxCommandEvent& event);
-    void OnHiddeTabs(wxCommandEvent& event);
-    void OnSashPaint(wxPaintEvent& event);
-    void OnSashPosChange(wxSplitterEvent& event);
-    void CloseAllFiles(wxCommandEvent& event);
+    void OnOpenFolderMenu(wxCommandEvent &event) { OpenFolderDialog(); }
+    void OnOpenFolderClick(wxMouseEvent &event) { OpenFolderDialog(); }
+    void OnOpenFile(wxCommandEvent &event);
+    void OnHiddeFilesTree(wxCommandEvent &event);
+    void OnHiddeSideNav(wxCommandEvent &event);
+    void OnHiddeMenuBar(wxCommandEvent &event);
+    void OnHiddeStatusBar(wxCommandEvent &event);
+    void OnHiddeTabs(wxCommandEvent &event);
+    void OnSashPaint(wxPaintEvent &event);
+    void OnSashPosChange(wxSplitterEvent &event);
+    void CloseAllFiles(wxCommandEvent &event);
     void OpenFolderDialog();
-    void ToggleControlPanel(wxCommandEvent& event);
+    void ToggleControlPanel(wxCommandEvent &event);
     bool LoadPath(wxString path);
+    void ToggleFind(wxCommandEvent& event);
+    void GotoSearchPage(wxCommandEvent& event);
 private:
     void CreateWatcher();
-    void OnQuit(wxCommandEvent& WXUNUSED(event)) { Close(true); }
-    void OnWatch(wxCommandEvent& event);
-    void OnFollowLinks(wxCommandEvent& event);
-    void OnAbout(wxCommandEvent& event);
-    void OnFileSystemEvent(wxFileSystemWatcherEvent& event);
-    void OnOpenTerminal(wxCommandEvent& event);
-    wxFileSystemWatcher* m_watcher = nullptr;
+    void OnQuit(wxCommandEvent &WXUNUSED(event)) { Close(true); }
+    void OnWatch(wxCommandEvent &event);
+    void OnFollowLinks(wxCommandEvent &event);
+    void OnAbout(wxCommandEvent &event);
+    void OnFileSystemEvent(wxFileSystemWatcherEvent &event);
+    void OnOpenTerminal(wxCommandEvent &event);
+    wxFileSystemWatcher *m_watcher = nullptr;
     bool m_followLinks;
     wxDECLARE_NO_COPY_CLASS(MainFrame);
     wxDECLARE_EVENT_TABLE();
 };
 
-class ThunderCode: public wxApp {
+class ThunderCode : public wxApp
+{
 public:
     MainFrame *frame;
     wxString m_dirToWatch;
-    virtual bool OnInit() override {
-        if(!wxApp::OnInit()) return false;
+    virtual bool OnInit() override
+    {
+        if (!wxApp::OnInit())
+            return false;
         frame = new MainFrame("ThunderCode");
         frame->Show();
         wxApp::SetTopWindow(frame);
         return true;
     }
 
-    virtual void OnEventLoopEnter(wxEventLoopBase* WXUNUSED(loop)) override  {
-        if(frame->CreateWatcherIfNecessary()) {
+    virtual void OnEventLoopEnter(wxEventLoopBase *WXUNUSED(loop)) override
+    {
+        if (frame->CreateWatcherIfNecessary())
+        {
             wxConfig *config = new wxConfig("ThunderCode");
             wxString str;
 
-            if(!m_dirToWatch.empty()) {
+            if (!m_dirToWatch.empty())
+            {
                 frame->LoadPath(m_dirToWatch);
-            } else {
-                if(config->Read("workspace", &str) ) {
+            }
+            else
+            {
+                if (config->Read("workspace", &str))
+                {
                     wxString last_workspace = config->Read("workspace", str);
                     frame->LoadPath(last_workspace);
-                } 
+                }
             }
         }
     }
 
-    virtual void OnInitCmdLine(wxCmdLineParser& parser) override {
+    virtual void OnInitCmdLine(wxCmdLineParser &parser) override
+    {
         wxApp::OnInitCmdLine(parser);
         parser.AddParam("directory to watch", wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
     }
 
-    virtual bool OnCmdLineParsed(wxCmdLineParser& parser) override {
-        if(!wxApp::OnCmdLineParsed(parser)) return false;
-        if(parser.GetParamCount()) m_dirToWatch = parser.GetParam();
+    virtual bool OnCmdLineParsed(wxCmdLineParser &parser) override
+    {
+        if (!wxApp::OnCmdLineParsed(parser))
+            return false;
+        if (parser.GetParamCount())
+            m_dirToWatch = parser.GetParam();
         return true;
     }
 };
@@ -139,6 +157,7 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_MENU(ID_CLOSE_ALL_FILES, MainFrame::CloseAllFiles)
     EVT_MENU(ID_TOGGLE_CONTROL_PANEL, MainFrame::ToggleControlPanel)
     EVT_MENU(ID_OPEN_TERMINAL, MainFrame::OnOpenTerminal)
-	EVT_MENU(ID_TOGGLE_COMMENT_LINE, CodeContainer::ToggleCommentLine)
+    EVT_MENU(ID_TOGGLE_COMMENT_LINE, CodeContainer::ToggleCommentLine)
     EVT_MENU(ID_TOGGLE_MINI_MAP_VIEW, CodeContainer::ToggleMiniMapView)
+    EVT_MENU(ID_TOGGLE_FIND, MainFrame::ToggleFind)
 wxEND_EVENT_TABLE()

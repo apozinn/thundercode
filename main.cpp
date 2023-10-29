@@ -17,6 +17,8 @@ MainFrame::MainFrame(const wxString& title)
     else if(wxFile::Exists("../icons/settings.png")) icons_dir = "../icons/";
     else wxLogWarning("Can't find icons dir!");
 
+    json user_config = UserConfig().Get();
+
     sizer = new wxBoxSizer(wxVERTICAL);
     main_container = new wxPanel(this, ID_MAIN_CONTAINER);
     wxBoxSizer* main_container_sizer = new wxBoxSizer(wxHORIZONTAL);
@@ -79,6 +81,8 @@ MainFrame::MainFrame(const wxString& title)
 
     menu_bar = new MenuBar();
     SetMenuBar(menu_bar);
+    if(user_config["show_menu"] == false) menu_bar->Hide();
+
     SetTitle("ThunderCode");
 
     SetSizerAndFit(sizer);
@@ -102,11 +106,20 @@ MainFrame::MainFrame(const wxString& title)
         }
     }
 	
-    wxAcceleratorEntry entries[2];
+    wxAcceleratorEntry entries[4];
     entries[0].Set(wxACCEL_ALT, WXK_ALT, ID_HIDDE_MENU_BAR);
+
     entries[1].Set(wxACCEL_CTRL, WXK_SHIFT, ID_TOGGLE_CONTROL_PANEL);
     entries[1].FromString("Ctrl+Shift+P");
-    wxAcceleratorTable accel(2, entries);
+
+    entries[2].Set(wxACCEL_CTRL, WXK_CONTROL_F, ID_TOGGLE_FIND);
+    entries[2].FromString("Ctrl+F");
+
+
+    entries[3].Set(wxACCEL_CTRL, WXK_SHIFT, ID_GOTO_SEARCHPAGE);
+    entries[3].FromString("Ctrl+Shift+F");
+
+    wxAcceleratorTable accel(4, entries);
     SetAcceleratorTable(accel);
 }
 
@@ -237,6 +250,17 @@ void MainFrame::OnHiddeMenuBar(wxCommandEvent& WXUNUSED(event)) {
         if(menu_bar->IsShown()) {
             menu_bar->Hide();
         } else menu_bar->Show();
+
+        json user_config = UserConfig().Get();
+
+        auto is_visible = user_config["show_menu"];
+
+        std::cout << is_visible << "\n";
+
+        if(is_visible) {
+            user_config["show_menu"] = false;
+        } else user_config["show_menu"] = true;
+        UserConfig().Update(user_config);
     }
 }
 
@@ -349,4 +373,32 @@ void MainFrame::OnOpenTerminal(wxCommandEvent& event) {
     } else {
         servical_container->SplitHorizontally(main_code, FindWindowById(ID_TERMINAL), 0);
     }
+}
+
+void MainFrame::ToggleFind(wxCommandEvent& event) {
+    wxPanel* FindContainer = new wxPanel(this, ID_FIND_CONTAINER);
+
+    FindContainer->SetSize(wxSize(300, 51));
+    FindContainer->SetBackgroundColour(wxColor(36, 36, 36));
+    FindContainer->SetPosition(wxPoint(this->GetSize().GetWidth()-FindContainer->GetSize().GetWidth()-10 , 10));
+
+    wxBoxSizer* find_sizer = new wxBoxSizer(wxVERTICAL);
+
+    wxStyledTextCtrl* input = new wxStyledTextCtrl(FindContainer);
+    input->SetSize(wxSize(200, 25));
+    input->SetPosition(wxPoint(10, 13));
+
+    input->StyleSetBackground(wxSTC_STYLE_DEFAULT, wxColor(36, 36, 36));
+    input->StyleSetForeground(wxSTC_STYLE_DEFAULT, wxColor(255, 255, 255));
+    input->StyleClearAll();
+
+    input->SetMarginWidth(0, 0);
+    input->SetMarginWidth(1, 0);
+    input->SetUseVerticalScrollBar(false);
+    input->SetUseHorizontalScrollBar(false);
+
+    input->SetCaretForeground(wxColour(wxT("WHITE")));
+    find_sizer->Add(input);
+
+    FindContainer->SetSizer(find_sizer);
 }

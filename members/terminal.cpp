@@ -1,11 +1,13 @@
 #pragma once
 #include "../defs.hpp"
+#include <wx/utils.h> 
 
 class Terminal : public wxPanel {
     wxString cmd;
     int startCommand = 29;
     wxStyledTextCtrl* shell;
     wxBoxSizer* sizer;
+    wxString shell_title;
 public:
 	Terminal(wxWindow* parent, wxWindowID ID) : wxPanel(parent, ID) {
 		SetBackgroundColour(wxColor(55, 55, 55));
@@ -33,14 +35,14 @@ public:
     	shell->SetUseHorizontalScrollBar(false);
     	shell->SetCaretWidth(500);
 
-    	wxString shell_title;
-
     	wxConfig *config = new wxConfig("ThunderCode");
     	wxString str;
 
         if(config->Read("workspace", &str) ) {
             wxString last_workspace = config->Read("workspace", str);
             shell_title = "["+wxGetUserName()+"@"+wxGetHostName()+" "+wxFileNameFromPath(last_workspace.substr(0, last_workspace.size()-1))+"]$ ";
+        } else {
+        	shell_title = "["+wxGetUserName()+"@"+wxGetHostName()+" "+ "c" +"]$ ";
         }
 
 		shell->AppendText(shell_title);
@@ -89,7 +91,7 @@ private:
 		cmd = shell->GetTextRange(startCommand, shell->GetCurrentPos()-1);
 
 		if(cmd == "clear") {
-			shell->SetText("[samuel@fedora ThunderCode]$ ");
+			shell->SetText(shell_title);
 		    shell->GotoPos(shell->GetLength());
 		    startCommand = shell->GetCurrentPos();
 			return;
@@ -118,7 +120,7 @@ private:
 	    	}	
 	    }
 
-	    shell->AppendText("[samuel@fedora ThunderCode]$ ");
+	    shell->AppendText(shell_title);
 	    shell->GotoPos(shell->GetLength());
 
 	    startCommand = shell->GetCurrentPos();

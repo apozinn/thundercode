@@ -1,4 +1,4 @@
-#include "userConfig.h"
+#include "userConfig.hpp"
 
 json UserConfig::Get() {
 	wxString appDataDir = wxStandardPaths::Get().GetUserConfigDir()+"/.thundercode";
@@ -15,6 +15,7 @@ json UserConfig::Get() {
 					std::ofstream newConfigFile_locale(config_path);
 					json new_json_obj = {
 					  {"show_minimap", true},
+					  {"show_menu", true},
 					};
 					newConfigFile_locale << std::setw(4) << new_json_obj << std::endl;
 				}
@@ -22,12 +23,20 @@ json UserConfig::Get() {
 		} 
 	} 
 
-	
-	std::ifstream config_file(config_path);
 	json data;
-	if(config_file) {
+
+	try
+    {
+        std::ifstream config_file(config_path);
+		if(config_file) {
 		data = json::parse(config_file);
 	}
+    }
+    catch (const json::exception& e)
+    {
+        std::cout << "message: " << e.what() << '\n' << "exception id: " << e.id << std::endl;
+    }
+
 	return data;
 }
 
