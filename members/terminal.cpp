@@ -49,6 +49,18 @@ public:
 
 		sizer->Add(shell, 1, wxEXPAND | wxTOP, 5);
 		SetSizerAndFit(sizer);
+
+		wxAcceleratorEntry entries[1];
+	    entries[0].Set(wxACCEL_NORMAL, WXK_ESCAPE, ID_EXIT_TERMINAL);
+	    wxAcceleratorTable accel(1, entries);
+	    SetAcceleratorTable(accel);
+	}
+	void Close(wxCommandEvent& event) {
+		this->Hide();
+		auto parent = ((wxSplitterWindow*)this->GetParent());
+		if(parent) {
+			parent->Unsplit();
+		}
 	}
 private:
 	void Paint(wxPaintEvent& event) {
@@ -112,4 +124,10 @@ private:
 	    startCommand = shell->GetCurrentPos();
 	    shell->SetFocus();
 	}
+	wxDECLARE_NO_COPY_CLASS(Terminal);
+    wxDECLARE_EVENT_TABLE();
 };
+
+wxBEGIN_EVENT_TABLE(Terminal, wxPanel)
+    EVT_MENU(ID_EXIT_TERMINAL, Terminal::Close)
+wxEND_EVENT_TABLE()
