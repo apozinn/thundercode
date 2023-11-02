@@ -31,6 +31,7 @@
 #include "./members/openFolderLink.cpp"
 #include "./members/controlPanel.cpp"
 #include "./members/terminal.cpp"
+#include "./members/find.cpp"
 
 class MainFrame : public wxFrame
 {

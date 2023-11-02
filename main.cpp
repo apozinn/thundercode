@@ -376,29 +376,9 @@ void MainFrame::OnOpenTerminal(wxCommandEvent& event) {
 }
 
 void MainFrame::ToggleFind(wxCommandEvent& event) {
-    wxPanel* FindContainer = new wxPanel(this, ID_FIND_CONTAINER);
-
-    FindContainer->SetSize(wxSize(300, 51));
-    FindContainer->SetBackgroundColour(wxColor(36, 36, 36));
-    FindContainer->SetPosition(wxPoint(this->GetSize().GetWidth()-FindContainer->GetSize().GetWidth()-10 , 10));
-
-    wxBoxSizer* find_sizer = new wxBoxSizer(wxVERTICAL);
-
-    wxStyledTextCtrl* input = new wxStyledTextCtrl(FindContainer);
-    input->SetSize(wxSize(200, 25));
-    input->SetPosition(wxPoint(10, 13));
-
-    input->StyleSetBackground(wxSTC_STYLE_DEFAULT, wxColor(36, 36, 36));
-    input->StyleSetForeground(wxSTC_STYLE_DEFAULT, wxColor(255, 255, 255));
-    input->StyleClearAll();
-
-    input->SetMarginWidth(0, 0);
-    input->SetMarginWidth(1, 0);
-    input->SetUseVerticalScrollBar(false);
-    input->SetUseHorizontalScrollBar(false);
-
-    input->SetCaretForeground(wxColour(wxT("WHITE")));
-    find_sizer->Add(input);
-
-    FindContainer->SetSizer(find_sizer);
+    if(FindWindowById(ID_FIND_CONTAINER)) {
+        ((wxWindow*)FindWindowById(ID_FIND_CONTAINER))->Destroy();
+    } else {
+        Find* find_container = new Find(this, "You");
+    }
 }

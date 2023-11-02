@@ -74,7 +74,7 @@ void Tabs::Add(wxString tab_name, wxString path) {
 
     new_tab->SetSizerAndFit(new_tab_sizer);
     tabs_ctn_sizer->Add(new_tab, 0);
-    selected_tab = path;
+    current_openned_path = path;
     tabs_container->FitInside();
     tabs_container->Scroll(1000, 0);
 
@@ -92,19 +92,19 @@ void Tabs::Close(wxString tab_path) {
         for(auto& tab : tabs_container->GetChildren()) {
             if(tab->GetName() == tab_path) {
                 auto main_code = FindWindowById(ID_MAIN_CODE);
-                if(tab_path == selected_tab) {
+                if(tab_path == current_openned_path) {
                     auto prev_tab = tab->GetPrevSibling();
                     auto next_tab = tab->GetNextSibling();
 
                     if(prev_tab) {
                         auto act_bar = prev_tab->GetChildren()[1]->SetBackgroundColour(wxColor(255, 0, 180));
-                        selected_tab = prev_tab->GetName();
+                        current_openned_path = prev_tab->GetName();
                     } else if(next_tab) {
                         auto act_bar = next_tab->GetChildren()[1]->SetBackgroundColour(wxColor(255, 0, 180));
-                        selected_tab = next_tab->GetName();
+                        current_openned_path = next_tab->GetName();
                     }
 
-                    auto file_ctn = FindWindowByLabel(selected_tab+"_file_container");
+                    auto file_ctn = FindWindowByLabel(current_openned_path+"_file_container");
                     if(file_ctn) {
                         auto fileContainer = ((FilesTree*)FindWindowById(ID_FILES_TREE));
                         if(fileContainer) {
@@ -118,10 +118,10 @@ void Tabs::Close(wxString tab_path) {
                         }
                     }
 
-                    auto other_codeContainer = ((CodeContainer*)FindWindowByName(selected_tab+"_codeContainer"));
+                    auto other_codeContainer = ((CodeContainer*)FindWindowByName(current_openned_path+"_codeContainer"));
                     if(other_codeContainer) other_codeContainer->Show();
 
-                    auto new_imageContainer = FindWindowByLabel(selected_tab+"_imgContainer");
+                    auto new_imageContainer = FindWindowByLabel(current_openned_path+"_imgContainer");
                     if(new_imageContainer) new_imageContainer->Show();
                     
                     if(!prev_tab && !next_tab) {
@@ -158,8 +158,8 @@ void Tabs::Select(wxMouseEvent& event) {
     wxString tab_path = this_tab->GetName();
     auto main_code = FindWindowById(ID_MAIN_CODE);
 
-    if(tab_path == selected_tab) return;
-    selected_tab = tab_path;
+    if(tab_path == current_openned_path) return;
+    current_openned_path = tab_path;
 
     for(auto& children : tabs_container->GetChildren()) {
         if(children->GetName() == tab_path) {

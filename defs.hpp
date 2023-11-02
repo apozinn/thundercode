@@ -3,6 +3,7 @@
 enum {
     ID_MAIN_FRAME = -1,
     ID_Quit,
+    ID_EXIT_FIND_CONTAINER,
     ID_ABOUT,
     ID_NEW_FILE,
     ID_OPEN_FOLDER,
@@ -81,5 +82,6 @@ enum {
 wxString project_path;
 std::string project_name;
 wxString icons_dir;
+wxString current_openned_path;
 
 #define STYLE_TYPES_COUNT 32
