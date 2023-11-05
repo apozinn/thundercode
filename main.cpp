@@ -314,33 +314,9 @@ void MainFrame::OnSashPosChange(wxSplitterEvent& event) {
 }
 
 void MainFrame::CloseAllFiles(wxCommandEvent& WXUNUSED(event)) {
-    if(tabs) {
-        for(auto&& tab : tabs->GetChildren()) {
-            wxString tab_path = tab->GetName();
-            if(FindWindowByLabel(tab_path+"_imageContainer")) {
-                FindWindowByLabel(tab_path+"_imageContainer")->Destroy();
-            }
-            tab->Destroy();
-        }
-        tabs->Hide();
-    }
-
-    if(main_code) {
-        for(auto&& children : main_code->GetChildren()) 
-            children->Hide();
-    }
-
-    if(files_tree) {
-        files_tree->selectedFile->SetBackgroundColour(wxColor(45, 45, 45));
-        files_tree->SetSelectedFile(new wxPanel(files_tree, wxID_ANY, wxDefaultPosition, wxSize(0, 0)));
-    }
-
-    if(FindWindowById(ID_EMPYT_WINDOW)) {
-        empty_window->Show();
-    } else {
-        empty_window = new EmptyWindow(main_code, ID_EMPYT_WINDOW);
-    }
-    status_bar->ClearLabels();
+    tabs->CloseAll();
+    files_tree->selectedFile->SetBackgroundColour(wxColor(45, 45, 45));
+    files_tree->selectedFile = NULL;
 }
 
 void MainFrame::ToggleControlPanel(wxCommandEvent& event) {

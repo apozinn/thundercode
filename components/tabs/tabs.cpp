@@ -84,6 +84,7 @@ void Tabs::Add(wxString tab_name, wxString path) {
 void Tabs::Close(wxString tab_path) {
     auto codeContainer = ((CodeContainer*)FindWindowByName(tab_path+"_codeContainer"));
     auto imgContainer = ((wxPanel*)FindWindowByLabel(tab_path+"_imgContainer"));
+    auto fileContainer = ((FilesTree*)FindWindowById(ID_FILES_TREE));
 
     if(codeContainer) codeContainer->Destroy();
     if(imgContainer) imgContainer->Destroy();
@@ -106,7 +107,6 @@ void Tabs::Close(wxString tab_path) {
 
                     auto file_ctn = FindWindowByLabel(current_openned_path+"_file_container");
                     if(file_ctn) {
-                        auto fileContainer = ((FilesTree*)FindWindowById(ID_FILES_TREE));
                         if(fileContainer) {
                             if(!prev_tab && !next_tab) {
                                 fileContainer->selectedFile->SetBackgroundColour(wxColor(45, 45, 45));
@@ -128,6 +128,8 @@ void Tabs::Close(wxString tab_path) {
                         this->Hide();
                         FindWindowById(ID_EMPYT_WINDOW)->Show();
                         ((StatusBar*)FindWindowById(ID_STATUS_BAR))->ClearLabels();
+                        fileContainer->selectedFile->SetBackgroundColour(wxColor(45, 45, 45));
+                        fileContainer->selectedFile = NULL;
                     }
                 }
 
