@@ -1,4 +1,5 @@
 class Find : public wxPanel {
+	wxStyledTextCtrl* input;
 public:
 	Find(wxWindow* parent, wxString defaultInput) : wxPanel(parent, ID_FIND_CONTAINER, wxPoint(parent->GetSize().GetWidth()-310, 10), wxSize(300, 51)) {
 	    SetMinSize(wxSize(300, 51));
@@ -7,7 +8,7 @@ public:
 
 	    wxBoxSizer* find_sizer = new wxBoxSizer(wxVERTICAL);
 
-	    wxStyledTextCtrl* input = new wxStyledTextCtrl(this);
+	    input = new wxStyledTextCtrl(this);
 	    input->SetSize(wxSize(200, 25));
 	    input->SetPosition(wxPoint(10, 13));
 	    input->SetText(defaultInput);
@@ -40,10 +41,33 @@ public:
 	    entries[0].Set(wxACCEL_NORMAL, WXK_ESCAPE, ID_EXIT_FIND_CONTAINER);
 	    wxAcceleratorTable accel(1, entries);
 	    SetAcceleratorTable(accel);
+
+		input->Bind(wxEVT_STC_CHARADDED, &Find::Search, this);
 	}
 
 	void Close(wxCommandEvent& event) {
 		Destroy();
+	}
+
+	void Search(wxStyledTextEvent& event) {
+		char chr = (char)event.GetKey();
+		if(chr == '\n') {
+			input->Remove(input->GetLength()-1, input->GetLength());
+    		auto codeContainer = ((CodeContainer*)FindWindowByName(current_openned_path+"_codeContainer"));
+    		if(codeContainer) {
+    			int endTarget = 0;
+    			wxStyledTextCtrl* codeEditor = codeContainer->codeEditor;
+    			int startTarget = codeEditor->FindText(0, codeEditor->GetLength(), input->GetText(), 0, &endTarget);
+
+    			if(startTarget > 0) {
+    				codeEditor->IndicatorSetStyle(0, wxSTC_INDIC_FULLBOX);
+    				codeEditor->IndicatorFillRange(startTarget, input->GetLength());
+    				codeEditor->GotoPos(startTarget);
+    			}
+
+    			codeEditor->IndicatorSetForeground(0, wxColor(255, 0, 0));
+    		}
+		}
 	}
 
 	wxDECLARE_NO_COPY_CLASS(Find);
