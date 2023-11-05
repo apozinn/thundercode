@@ -108,17 +108,12 @@ MainFrame::MainFrame(const wxString& title)
 	
     wxAcceleratorEntry entries[4];
     entries[0].Set(wxACCEL_ALT, WXK_ALT, ID_HIDDE_MENU_BAR);
-
     entries[1].Set(wxACCEL_CTRL, WXK_SHIFT, ID_TOGGLE_CONTROL_PANEL);
     entries[1].FromString("Ctrl+Shift+P");
-
     entries[2].Set(wxACCEL_CTRL, WXK_CONTROL_F, ID_TOGGLE_FIND);
     entries[2].FromString("Ctrl+F");
-
-
     entries[3].Set(wxACCEL_CTRL, WXK_SHIFT, ID_GOTO_SEARCHPAGE);
     entries[3].FromString("Ctrl+Shift+F");
-
     wxAcceleratorTable accel(4, entries);
     SetAcceleratorTable(accel);
 }
@@ -322,25 +317,30 @@ void MainFrame::CloseAllFiles(wxCommandEvent& WXUNUSED(event)) {
     if(tabs) {
         for(auto&& tab : tabs->GetChildren()) {
             wxString tab_path = tab->GetName();
-            if(FindWindowByName(tab_path+"_codeContainer")) {
-                FindWindowByLabel(tab_path+"_codeContainer")->Destroy();
-            }
             if(FindWindowByLabel(tab_path+"_imageContainer")) {
                 FindWindowByLabel(tab_path+"_imageContainer")->Destroy();
             }
-            
             tab->Destroy();
         }
-
         tabs->Hide();
-        FindWindowById(ID_EMPYT_WINDOW)->Show();
-        status_bar->ClearLabels();
-
-        if(files_tree) {
-            files_tree->selectedFile->SetBackgroundColour(wxColor(45, 45, 45));
-            files_tree->SetSelectedFile(new wxPanel(files_tree, wxID_ANY, wxDefaultPosition, wxSize(0, 0)));
-        }
     }
+
+    if(main_code) {
+        for(auto&& children : main_code->GetChildren()) 
+            children->Hide();
+    }
+
+    if(files_tree) {
+        files_tree->selectedFile->SetBackgroundColour(wxColor(45, 45, 45));
+        files_tree->SetSelectedFile(new wxPanel(files_tree, wxID_ANY, wxDefaultPosition, wxSize(0, 0)));
+    }
+
+    if(FindWindowById(ID_EMPYT_WINDOW)) {
+        empty_window->Show();
+    } else {
+        empty_window = new EmptyWindow(main_code, ID_EMPYT_WINDOW);
+    }
+    status_bar->ClearLabels();
 }
 
 void MainFrame::ToggleControlPanel(wxCommandEvent& event) {

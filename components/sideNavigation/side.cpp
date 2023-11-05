@@ -231,14 +231,24 @@ void SideNavigation::ToggleFocusMode() {
     auto side_container = FindWindowById(ID_SIDE_CONTAINER);
     auto tabs = FindWindowById(ID_TABS);
     auto status_bar = FindWindowById(ID_STATUS_BAR);
+    if(
+        !main_container ||
+        !side_container ||
+        !tabs ||
+        !status_bar 
+    ) return;
 
     if(focusModeIsEnable) {
         tabs->Show();
         status_bar->Show();
         for(auto&& child : main_container->GetChildren()) {
             if(child->GetId() == ID_MAIN_SPLITTER) {
-                ((wxSplitterWindow*)child)->SplitVertically(side_container, FindWindowById(ID_MAIN_CODE), 1);
-            } else child->Show();
+                ((wxSplitterWindow*)child)->SplitVertically(side_container, FindWindowById(ID_SERVICAL_CONTAINER), 1);
+            } else {
+                if(child) {
+                    if(!child->IsShown()) child->Show();
+                }
+            }
         }
         focusModeIsEnable = false;
     } else {
