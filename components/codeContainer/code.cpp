@@ -175,6 +175,7 @@ void CodeContainer::CodeEditorInitPrefs()
     codeEditor->Bind(wxEVT_LEFT_UP, &CodeContainer::OnClick, this);
     codeEditor->Bind(wxEVT_KEY_UP, &CodeContainer::OnArrowsPress, this);
     codeEditor->Bind(wxEVT_STC_UPDATEUI, &CodeContainer::OnCodeEditorScroll, this);
+    codeEditor->Bind(wxEVT_STC_AUTOCOMP_COMPLETED, &CodeContainer::OnAutoCompCompleted, this);
 
     codeEditor->RegisterImage(0, wxBitmap(icons_dir + "thunder.png"));
     codeEditor->RegisterImage(1, wxBitmap(icons_dir + "question.png"));
@@ -527,4 +528,10 @@ void CodeContainer::ToggleMiniMapView(wxCommandEvent &event)
             }
         }
     }
+}
+
+void CodeContainer::OnAutoCompCompleted(wxStyledTextEvent& event) {
+    wxString completion = event.GetString();
+    int pos = event.GetPosition();
+    codeEditor->Remove(pos-1, pos);
 }

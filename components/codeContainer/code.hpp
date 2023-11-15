@@ -39,6 +39,7 @@ private:
 	void OnCodeMapScroll(wxStyledTextEvent &event);
 	void OnCodeMapMouseEnter(wxMouseEvent &event);
 	void OnCodeMapMouseLeave(wxMouseEvent &event);
+	void OnAutoCompCompleted(wxStyledTextEvent& event);
 
 	wxDECLARE_EVENT_TABLE();
 };
