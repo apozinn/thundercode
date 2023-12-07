@@ -2,7 +2,7 @@
 
 SideNavigation::SideNavigation(wxPanel* parent, wxWindowID ID) : wxPanel(parent, ID) 
 {
-    this->SetBackgroundColour(wxColor(36, 36, 36));
+    this->SetBackgroundColour(wxColor(21, 21, 21));
     sizer = new wxBoxSizer(wxVERTICAL);
 
     wxPanel* top_container = new wxPanel(this);
@@ -278,8 +278,8 @@ void SideNavigation::OnPaint(wxPaintEvent& event) {
     wxGraphicsContext *gc = wxGraphicsContext::Create(dc);
     if(!gc) return;
 
-    gc->SetPen(gc->CreatePen(wxGraphicsPenInfo(wxColor(55, 55, 55)).Width(0.20)));
-    gc->SetBrush(wxColor(55, 55, 55));
+    gc->SetPen(gc->CreatePen(wxGraphicsPenInfo(wxColor(7, 150, 255)).Width(0.20)));
+    gc->SetBrush(wxColor(7, 150, 255));
     gc->DrawRoundedRectangle(
         0.0, 
         0.0, 

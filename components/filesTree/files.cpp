@@ -19,7 +19,7 @@
 
 FilesTree::FilesTree(wxWindow *parent, wxWindowID ID) : wxPanel(parent, ID)
 {
-    SetBackgroundColour(wxColor(45, 45, 45));
+    SetBackgroundColour(wxColor(30, 30, 30));
     sizer = new wxBoxSizer(wxVERTICAL);
 
     /*ActionButtons* action_buttons = new ActionButtons(this);

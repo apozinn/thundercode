@@ -151,7 +151,7 @@ void CodeContainer::CodeEditorInitPrefs()
     codeEditor->SetBackSpaceUnIndents(true);
     codeEditor->SetIndentationGuides(true);
 
-    codeEditor->StyleSetBackground(wxSTC_STYLE_DEFAULT, wxColor(55, 55, 55));
+    codeEditor->StyleSetBackground(wxSTC_STYLE_DEFAULT, wxColor(33, 33, 33));
     codeEditor->StyleSetForeground(wxSTC_STYLE_DEFAULT, wxColor(255, 255, 255));
     codeEditor->StyleSetFont(wxSTC_STYLE_DEFAULT, font);
 

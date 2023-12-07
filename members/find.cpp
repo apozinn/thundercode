@@ -1,10 +1,12 @@
 class Find : public wxPanel {
 	wxStyledTextCtrl* input;
+	std::vector<std::vector<int>> indicators;
+	wxStyledTextCtrl* codeEditor = NULL;
 public:
-	Find(wxWindow* parent, wxString defaultInput) : wxPanel(parent, ID_FIND_CONTAINER, wxPoint(parent->GetSize().GetWidth()-310, 10), wxSize(300, 51)) {
+	Find(wxWindow* parent, wxString defaultInput) : wxPanel(parent, ID_FIND_CONTAINER, wxPoint(parent->GetSize().GetWidth()-310, 50), wxSize(300, 51)) {
 	    SetMinSize(wxSize(300, 51));
 	    SetSize(wxSize(300, 51));
-	    SetBackgroundColour(wxColor(36, 36, 36));
+	    SetBackgroundColour(wxColor(30, 30, 30));
 
 	    wxBoxSizer* find_sizer = new wxBoxSizer(wxVERTICAL);
 
@@ -46,6 +48,14 @@ public:
 	}
 
 	void Close(wxCommandEvent& event) {
+		for (int i = 0; i < indicators.size(); i++) { 
+			std::vector<int> current_indicator = indicators[i];
+			if(!current_indicator.empty()) {
+				std::cout << current_indicator[0] << " " << current_indicator[1] << " z\n";
+				codeEditor->IndicatorClearRange(current_indicator[0], current_indicator[1]);
+			}
+    	} 
+
 		Destroy();
 	}
 
@@ -56,13 +66,35 @@ public:
     		auto codeContainer = ((CodeContainer*)FindWindowByName(current_openned_path+"_codeContainer"));
     		if(codeContainer) {
     			int endTarget = 0;
-    			wxStyledTextCtrl* codeEditor = codeContainer->codeEditor;
+    			codeEditor = codeContainer->codeEditor;
     			int startTarget = codeEditor->FindText(0, codeEditor->GetLength(), input->GetText(), 0, &endTarget);
+
+    			indicators.push_back({startTarget, endTarget});
 
     			if(startTarget > 0) {
     				codeEditor->IndicatorSetStyle(0, wxSTC_INDIC_FULLBOX);
     				codeEditor->IndicatorFillRange(startTarget, input->GetLength());
     				codeEditor->GotoPos(startTarget);
+    			}
+
+    			codeEditor->SearchAnchor();
+    			int pos = codeEditor->SearchNext(0, input->GetText());
+    			codeEditor->SearchAnchor();
+
+    			int ptb;
+
+    			while(!ptb) {
+    				startTarget = codeEditor->FindText(endTarget, codeEditor->GetLength(), input->GetText(), 0, &endTarget);
+    				if(startTarget && startTarget != endTarget) {
+    					if(startTarget > 0) {
+		    				codeEditor->IndicatorSetStyle(0, wxSTC_INDIC_FULLBOX);
+		    				codeEditor->IndicatorFillRange(startTarget, input->GetLength());
+		    				codeEditor->GotoPos(startTarget);
+    					}
+    					indicators.push_back({startTarget, endTarget});
+    				} else {
+    					ptb++;
+    				}
     			}
 
     			codeEditor->IndicatorSetForeground(0, wxColor(255, 0, 0));
