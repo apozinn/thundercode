@@ -10,7 +10,7 @@ class Terminal : public wxPanel {
     wxString shell_title;
 public:
 	Terminal(wxWindow* parent, wxWindowID ID) : wxPanel(parent, ID) {
-		SetBackgroundColour(wxColor(55, 55, 55));
+		SetBackgroundColour(wxColor(21, 21, 21));
 		sizer = new wxBoxSizer(wxVERTICAL);
 
 		auto separator = new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxSize(this->GetSize().GetWidth(), 1), wxLI_HORIZONTAL);
@@ -18,13 +18,13 @@ public:
 		sizer->Add(separator, 0, wxEXPAND);
 
 		shell = new wxStyledTextCtrl(this);
-		shell->SetBackgroundColour(wxColor(55, 55, 55));
+		shell->SetBackgroundColour(wxColor(21, 21, 21));
 
 		wxFont font(10, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
 		font.SetFaceName(wxT("Monospace"));
 
-		shell->StyleSetBackground(wxSTC_STYLE_DEFAULT, wxColor(55, 55, 55));
-	    shell->StyleSetForeground(wxSTC_STYLE_DEFAULT, wxColor(255, 255, 255));
+		shell->StyleSetBackground(wxSTC_STYLE_DEFAULT, wxColor(21, 21, 21));
+	    shell->StyleSetForeground(wxSTC_STYLE_DEFAULT, wxColor(221, 221, 221));
 	    shell->StyleSetFont(wxSTC_STYLE_DEFAULT, font);
 	    shell->StyleClearAll();
 

@@ -22,9 +22,6 @@ FilesTree::FilesTree(wxWindow *parent, wxWindowID ID) : wxPanel(parent, ID)
     SetBackgroundColour(wxColor(30, 30, 30));
     sizer = new wxBoxSizer(wxVERTICAL);
 
-    /*ActionButtons* action_buttons = new ActionButtons(this);
-    sizer->Add(action_buttons, 0, wxEXPAND | wxTOP | wxBOTTOM, 8);*/
-
     wxPanel *top_content = new wxPanel(this);
     wxBoxSizer *top_ctn_sizer = new wxBoxSizer(wxHORIZONTAL);
 
@@ -573,7 +570,7 @@ void FilesTree::OnLeaveComp(wxMouseEvent &event)
     {
         if (selectedFile == target)
             return;
-        target->SetBackgroundColour(wxColor(45, 45, 45));
+        target->SetBackgroundColour(wxColor(30, 30, 30));
     }
 }
 

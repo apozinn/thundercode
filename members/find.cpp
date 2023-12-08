@@ -51,7 +51,6 @@ public:
 		for (int i = 0; i < indicators.size(); i++) { 
 			std::vector<int> current_indicator = indicators[i];
 			if(!current_indicator.empty()) {
-				std::cout << current_indicator[0] << " " << current_indicator[1] << " z\n";
 				codeEditor->IndicatorClearRange(current_indicator[0], current_indicator[1]);
 			}
     	} 

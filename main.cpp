@@ -35,7 +35,7 @@ MainFrame::MainFrame(const wxString& title)
     wxBoxSizer* main_splitter_sizer = new wxBoxSizer(wxHORIZONTAL);
 
     side_container = new wxPanel(main_splitter, ID_SIDE_CONTAINER);
-    side_container->SetBackgroundColour(wxColor(45, 45, 45));
+    side_container->SetBackgroundColour(wxColor(30, 30, 30));
     wxBoxSizer* side_ctn_sizer = new wxBoxSizer(wxVERTICAL);
     main_splitter_sizer->Add(side_container, 0, wxEXPAND);
     
@@ -66,7 +66,7 @@ MainFrame::MainFrame(const wxString& title)
     servical_ctn_sizer->Add(terminal, 1, wxEXPAND);
     servical_container->SetSizerAndFit(servical_ctn_sizer);
 
-    servical_container->SplitHorizontally(main_code, terminal);
+    servical_container->SplitHorizontally(main_code, terminal, 0);
     servical_container->Unsplit(terminal);
 
     main_splitter_sizer->Add(servical_container, 1, wxEXPAND);
@@ -247,10 +247,7 @@ void MainFrame::OnHiddeMenuBar(wxCommandEvent& WXUNUSED(event)) {
         } else menu_bar->Show();
 
         json user_config = UserConfig().Get();
-
         auto is_visible = user_config["show_menu"];
-
-        std::cout << is_visible << "\n";
 
         if(is_visible) {
             user_config["show_menu"] = false;
@@ -286,8 +283,8 @@ void MainFrame::OnSashPaint(wxPaintEvent& event) {
 
     wxPaintDC this_dc(target);
     if(target->GetId() == ID_SERVICAL_CONTAINER) {
-        this_dc.SetBrush(wxColour(55, 55, 55));        
-    } else this_dc.SetBrush(wxColour(45, 45, 45));
+        this_dc.SetBrush(wxColour(30, 30, 30));        
+    } else this_dc.SetBrush(wxColour(30, 30, 30));
     this_dc.SetPen(*wxTRANSPARENT_PEN);
 
     if(target->GetSplitMode() == wxSPLIT_VERTICAL) {

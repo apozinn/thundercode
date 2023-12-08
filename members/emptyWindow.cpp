@@ -4,7 +4,7 @@ class EmptyWindow : public wxPanel {
 	wxBoxSizer* sizer;
 public:
 	EmptyWindow(wxWindow* parent, wxWindowID ID) : wxPanel(parent, ID) {
-		this->SetBackgroundColour(wxColor(55, 55, 55));
+		this->SetBackgroundColour(wxColor(21, 21, 21));
 		sizer = new wxBoxSizer(wxVERTICAL);
 		wxString logo_dir;
 
