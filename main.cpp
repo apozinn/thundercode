@@ -347,7 +347,7 @@ void MainFrame::OnSashPaint(wxPaintEvent &event)
 
     auto border_color = Themes["dark"]["borderColor"].template get<std::string>();
 
-    wxPaintDC this_dc(target);
+    wxClientDC this_dc(target);
     if (target->GetId() == ID_SERVICAL_CONTAINER)
     {
         this_dc.SetBrush(target->GetBackgroundColour());
@@ -372,9 +372,6 @@ void MainFrame::OnSashPaint(wxPaintEvent &event)
             target->GetSize().GetWidth(),
             target->GetSashSize());
     }
-
-    this_dc.SetPen(wxPen(wxColor(border_color), 0.20));
-    this_dc.DrawLine(target->GetSize().GetWidth() - 1, 0, target->GetSize().GetWidth() - 1, target->GetSize().GetHeight());
 }
 
 void MainFrame::OnSashPosChange(wxSplitterEvent &event)

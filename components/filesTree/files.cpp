@@ -23,15 +23,15 @@ FilesTree::FilesTree(wxWindow *parent, wxWindowID ID) : wxPanel(parent, ID)
     SetBackgroundColour(wxColor(background_color));
     sizer = new wxBoxSizer(wxVERTICAL);
 
-    wxPanel *top_content = new wxPanel(this);
+    wxPanel *top_content = new wxPanel(this, ID_FILES_TREE_TOP_CONTENT);
     wxBoxSizer *top_ctn_sizer = new wxBoxSizer(wxHORIZONTAL);
 
     NavigationButtons* navigationButtons = new NavigationButtons(top_content, wxColor(background_color));
-    navigationButtons->Bind(wxEVT_PAINT, &FilesTree::OnPaint, this);
+    top_ctn_sizer->Add(navigationButtons, 1, wxEXPAND | wxTOP | wxBOTTOM, 5);
+    top_content->Bind(wxEVT_PAINT, &FilesTree::OnPaint, this);
 
-    top_ctn_sizer->Add(navigationButtons, 1, wxEXPAND);
     top_content->SetSizerAndFit(top_ctn_sizer);
-    sizer->Add(top_content, 0, wxEXPAND );
+    sizer->Add(top_content, 0, wxEXPAND);
 
     wxPanel *project_files = new wxPanel(this, ID_PROJECT_FILES);
     wxBoxSizer *pjt_files_sizer = new wxBoxSizer(wxVERTICAL);
@@ -439,7 +439,7 @@ void FilesTree::OnPaint(wxPaintEvent &event)
 
     if(target->GetId() == ID_FILES_TREE) {
 
-    } else if(target->GetId() == ID_NAVIGATION_BUTTONS) { 
+    } else if(target->GetId() == ID_FILES_TREE_TOP_CONTENT) { 
         auto border_color = Themes["dark"]["borderColor"].template get<std::string>();
 
         dc.SetPen(wxPen(wxColor(border_color), 0.20));
@@ -555,24 +555,28 @@ void FilesTree::OnTreeModifyed(wxString old_path, wxString new_path)
 void FilesTree::OnEnterComp(wxMouseEvent &event)
 {
     auto target = ((wxWindow *)event.GetEventObject());
+    auto background_color = Themes["dark"]["main"].template get<std::string>();
+    auto highlight = Themes["dark"]["highlight"].template get<std::string>();
+
     if (target)
     {
-        if (target->GetGrandParent()->GetBackgroundColour() == wxColour(60, 60, 60))
+        if (target->GetGrandParent()->GetBackgroundColour() == wxColour(highlight))
         {
-            target->GetGrandParent()->SetBackgroundColour(wxColor(45, 45, 45));
+            target->GetGrandParent()->SetBackgroundColour(wxColor(background_color));
         }
-        target->SetBackgroundColour(wxColor(60, 60, 60));
+        target->SetBackgroundColour(wxColor(highlight));
     }
 }
 
 void FilesTree::OnLeaveComp(wxMouseEvent &event)
 {
     auto target = ((wxWindow *)event.GetEventObject());
+    auto background_color = Themes["dark"]["main"].template get<std::string>();
     if (target)
     {
         if (selectedFile == target)
             return;
-        target->SetBackgroundColour(wxColor(41, 41, 41));
+        target->SetBackgroundColour(wxColor(background_color));
     }
 }
 

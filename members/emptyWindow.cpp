@@ -2,9 +2,11 @@
 
 class EmptyWindow : public wxPanel {
 	wxBoxSizer* sizer;
+	json Themes = UserConfig().GetThemes();
 public:
 	EmptyWindow(wxWindow* parent, wxWindowID ID) : wxPanel(parent, ID) {
-		this->SetBackgroundColour(wxColor(31, 31, 31));
+    	auto background_color = Themes["dark"]["secondary"].template get<std::string>();
+		SetBackgroundColour(wxColor(background_color));
 		sizer = new wxBoxSizer(wxVERTICAL);
 		wxString logo_dir;
 
@@ -23,10 +25,11 @@ public:
 private:
 	void OnPaint(wxPaintEvent& event) {
 		auto target = ((wxWindow*)event.GetEventObject());
+    	auto border_color = Themes["dark"]["borderColor"].template get<std::string>();
 	    if(target) {
 	        wxClientDC dc(target);
 	        if(!dc.IsOk()) return;
-	        dc.SetPen(wxPen(wxColor(65, 65, 65), 0.20));
+	        dc.SetPen(wxPen(wxColor(border_color), 0.20));
 	        dc.DrawLine(0 , 0, 0, target->GetSize().GetHeight());
 	    }
 	}

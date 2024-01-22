@@ -2,7 +2,7 @@
 	"dark": {
 		"main": "#323232",
 		"secondary": "#222222",
-		"hightligth": "#424242",
+		"highlight": "#424242",
 		"borderColor": "#5F5F5F"
 	},
 	"ligth": {

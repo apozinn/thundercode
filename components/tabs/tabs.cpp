@@ -1,7 +1,6 @@
 #include "tabs.hpp"
 
 Tabs::Tabs(wxPanel* parent, wxWindowID ID) : wxPanel(parent, ID) {
-    json Themes = UserConfig().GetThemes();
     auto background_color = Themes["dark"]["main"].template get<std::string>();
 
     SetBackgroundColour(wxColor(background_color));
@@ -23,6 +22,7 @@ Tabs::Tabs(wxPanel* parent, wxWindowID ID) : wxPanel(parent, ID) {
     SetSizerAndFit(sizer);
     tabs_container->SetScrollRate(20, 20);
     tabs_container->EnableScrolling(true, false);
+    Bind(wxEVT_PAINT, &Tabs::OnPaint, this);
 }
 
 void Tabs::Add(wxString tab_name, wxString path) {    
@@ -258,5 +258,14 @@ void Tabs::OnLeaveComp(wxMouseEvent& event) {
                 target->GetChildren()[2]->Hide();
             }
         }
+    }
+}
+
+void Tabs::OnPaint(wxPaintEvent& event) {
+    wxClientDC dc(this);
+    if(dc.IsOk()) {
+        auto border_color = Themes["dark"]["borderColor"].template get<std::string>();
+        dc.SetPen(wxPen(wxColor(border_color), 0.20));
+        dc.DrawLine(GetSize().GetHeight()-1, GetSize().GetHeight()-1, GetSize().GetWidth(), GetSize().GetHeight()-1);
     }
 }

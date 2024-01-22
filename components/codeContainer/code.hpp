@@ -4,18 +4,17 @@
 #include "../../src/languagePrefs/prefs.cpp"
 #include "../../src/lexerStyle/lexerStyle.cpp"
 
-class CodeContainer : public wxScrolled<wxPanel>
-{
+class CodeContainer : public wxScrolled<wxPanel> {
 public:
 	wxStyledTextCtrl *codeEditor = nullptr;
 	wxStyledTextCtrl *codeMap = nullptr;
 	LanguageInfo const *current_lang;
+    json Themes = UserConfig().GetThemes();
 	CodeContainer(wxWindow *parent, wxString path);
 	bool LoadPath(wxString path);
 	void OnSave(wxCommandEvent &event);
 	void ToggleMiniMapView(wxCommandEvent &event);
 	void ToggleCommentLine(wxCommandEvent &event);
-
 private:
 	bool changing_values;
 	wxFont font;
@@ -31,7 +30,6 @@ private:
 	void OnMarginClick(wxStyledTextEvent &event);
 	void OnClick(wxMouseEvent &event);
 	void OnArrowsPress(wxKeyEvent &event);
-
 	void CodeMapInitPrefs();
 	void OnMapClick(wxMouseEvent &event);
 	void OnCodeMapPaint(wxPaintEvent &event);
@@ -40,7 +38,7 @@ private:
 	void OnCodeMapMouseEnter(wxMouseEvent &event);
 	void OnCodeMapMouseLeave(wxMouseEvent &event);
 	void OnAutoCompCompleted(wxStyledTextEvent& event);
-
+	void DrawBorder(wxStyledTextEvent& event);
 	wxDECLARE_EVENT_TABLE();
 };
 

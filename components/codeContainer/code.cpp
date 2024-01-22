@@ -176,6 +176,7 @@ void CodeContainer::CodeEditorInitPrefs()
     codeEditor->Bind(wxEVT_KEY_UP, &CodeContainer::OnArrowsPress, this);
     codeEditor->Bind(wxEVT_STC_UPDATEUI, &CodeContainer::OnCodeEditorScroll, this);
     codeEditor->Bind(wxEVT_STC_AUTOCOMP_COMPLETED, &CodeContainer::OnAutoCompCompleted, this);
+    codeEditor->Bind(wxEVT_STC_PAINTED, &CodeContainer::DrawBorder, this);
 
     codeEditor->RegisterImage(0, wxBitmap(icons_dir + "thunder.png"));
     codeEditor->RegisterImage(1, wxBitmap(icons_dir + "question.png"));
@@ -477,15 +478,18 @@ void CodeContainer::OnCodeMapPaint(wxPaintEvent &event) { event.Skip(); }
 
 void CodeContainer::OnCodeMapPainted(wxStyledTextEvent &event)
 {
-    if (codeMapMouseOver)
-    {
-        wxClientDC dc(codeMap);
+    wxClientDC dc(codeMap);
+    if(codeMapMouseOver) {
         wxColour color(128, 128, 128, 100);
-
         dc.SetBrush(color);
         dc.SetPen(color);
         dc.DrawRectangle(0, codeMapClickPoint.y, codeMap->GetSize().GetWidth(), 80);
     }
+
+    auto border_color = Themes["dark"]["borderColor"].template get<std::string>();
+    dc.SetBrush(wxColor(border_color));
+    dc.SetPen(wxPen(wxColor(border_color), 0.20));
+    dc.DrawLine(1, codeMap->GetSize().GetHeight(), 1, 0);
 }
 
 void CodeContainer::OnCodeMapMouseEnter(wxMouseEvent &event)
@@ -534,4 +538,13 @@ void CodeContainer::OnAutoCompCompleted(wxStyledTextEvent& event) {
     wxString completion = event.GetString();
     int pos = event.GetPosition();
     codeEditor->Remove(pos-1, pos);
+}
+
+void CodeContainer::DrawBorder(wxStyledTextEvent& event) {
+    wxClientDC dc(codeEditor);
+    auto border_color = Themes["dark"]["borderColor"].template get<std::string>();
+    if(dc.IsOk()) {
+        dc.SetPen(wxPen(wxColor(border_color), 0.20));
+        dc.DrawLine(1, codeEditor->GetSize().GetHeight(), 1, 0);
+    }
 }

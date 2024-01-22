@@ -11,6 +11,7 @@ class Tabs : public wxPanel {
 	wxStaticBitmap* menu;
 	wxScrolled<wxPanel>* tabs_container;
 	wxBoxSizer* tabs_ctn_sizer;
+    json Themes = UserConfig().GetThemes();
 public:
 	Tabs(wxPanel* parent, wxWindowID ID);
 	void Add(wxString tab_name, wxString path);
@@ -23,5 +24,6 @@ public:
 private:
 	void OnEnterComp(wxMouseEvent& event);
 	void OnLeaveComp(wxMouseEvent& event);
+	void OnPaint(wxPaintEvent& event);
 	wxDECLARE_NO_COPY_CLASS(Tabs);
 };
