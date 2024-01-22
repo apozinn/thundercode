@@ -38,7 +38,7 @@ bool CodeContainer::LoadPath(wxString path)
             if (codeEditor_loadSuccessfully && codeMap_loadSuccessfully)
             {
                 status_bar->UpdateCodeLocale(codeEditor);
-                ((wxFrame *)FindWindowById(ID_STATUS_BAR)->GetParent())->SetTitle(wxFileNameFromPath(path) + " (" + project_name + ") - ThunderCode");
+                ((wxFrame *)FindWindowById(ID_MAIN_SPLITTER)->GetParent())->SetTitle(wxFileNameFromPath(path) + " (" + project_name + ") - ThunderCode");
                 InitializePrefs(DeterminePrefs(path));
                 return true;
             }
@@ -151,7 +151,7 @@ void CodeContainer::CodeEditorInitPrefs()
     codeEditor->SetBackSpaceUnIndents(true);
     codeEditor->SetIndentationGuides(true);
 
-    codeEditor->StyleSetBackground(wxSTC_STYLE_DEFAULT, wxColor(21, 21, 21));
+    codeEditor->StyleSetBackground(wxSTC_STYLE_DEFAULT, wxColor(31, 31, 31));
     codeEditor->StyleSetForeground(wxSTC_STYLE_DEFAULT, wxColor(221, 221, 221));
     codeEditor->StyleSetFont(wxSTC_STYLE_DEFAULT, font);
 
@@ -161,7 +161,7 @@ void CodeContainer::CodeEditorInitPrefs()
     codeEditor->SetMarginWidth(0, codeEditor->TextWidth(wxSTC_STYLE_LINENUMBER, wxT("_99999")));
     codeEditor->SetMarginType(0, wxSTC_MARGIN_NUMBER);
     codeEditor->StyleSetForeground(wxSTC_STYLE_LINENUMBER, wxColor(128, 128, 128));
-    codeEditor->StyleSetBackground(wxSTC_STYLE_LINENUMBER, wxColor(21, 21, 21));
+    codeEditor->StyleSetBackground(wxSTC_STYLE_LINENUMBER, wxColor(31, 31, 31));
     codeEditor->StyleSetForeground(wxSTC_STYLE_INDENTGUIDE, wxColor(128, 128, 128));
 
     codeEditor->SetMarginWidth(1, 16);
@@ -190,35 +190,35 @@ void CodeContainer::CodeEditorInitPrefs()
     codeEditor->SetFoldFlags(wxSTC_FOLDFLAG_LINEBEFORE_CONTRACTED | wxSTC_FOLDFLAG_LINEAFTER_CONTRACTED);
 
     codeEditor->SetMarginMask(2, wxSTC_MASK_FOLDERS);
-    codeEditor->SetFoldMarginColour(true, wxColor(21, 21, 21));
-    codeEditor->SetFoldMarginHiColour(true, wxColor(21, 21, 21));
+    codeEditor->SetFoldMarginColour(true, wxColor(31, 31, 31));
+    codeEditor->SetFoldMarginHiColour(true, wxColor(31, 31, 31));
 
     codeEditor->MarkerDefine(wxSTC_MARKNUM_FOLDER, wxSTC_MARK_ARROW);
-    codeEditor->MarkerSetForeground(wxSTC_MARKNUM_FOLDER, wxColor(21, 21, 21));
+    codeEditor->MarkerSetForeground(wxSTC_MARKNUM_FOLDER, wxColor(31, 31, 31));
     codeEditor->MarkerSetBackground(wxSTC_MARKNUM_FOLDER, wxColor(128, 128, 128));
 
     codeEditor->MarkerDefine(wxSTC_MARKNUM_FOLDEREND, wxSTC_MARK_ARROW);
-    codeEditor->MarkerSetForeground(wxSTC_MARKNUM_FOLDEREND, wxColor(21, 21, 21));
+    codeEditor->MarkerSetForeground(wxSTC_MARKNUM_FOLDEREND, wxColor(31, 31, 31));
     codeEditor->MarkerSetBackground(wxSTC_MARKNUM_FOLDEREND, wxColor(128, 128, 128));
 
     codeEditor->MarkerDefine(wxSTC_MARKNUM_FOLDERMIDTAIL, wxSTC_MARK_TCORNER);
-    codeEditor->MarkerSetForeground(wxSTC_MARKNUM_FOLDERMIDTAIL, wxColor(21, 21, 21));
+    codeEditor->MarkerSetForeground(wxSTC_MARKNUM_FOLDERMIDTAIL, wxColor(31, 31, 31));
     codeEditor->MarkerSetBackground(wxSTC_MARKNUM_FOLDERMIDTAIL, wxColor(128, 128, 128));
 
     codeEditor->MarkerDefine(wxSTC_MARKNUM_FOLDEROPEN, wxSTC_MARK_ARROWDOWN);
-    codeEditor->MarkerSetForeground(wxSTC_MARKNUM_FOLDEROPEN, wxColor(21, 21, 21));
+    codeEditor->MarkerSetForeground(wxSTC_MARKNUM_FOLDEROPEN, wxColor(31, 31, 31));
     codeEditor->MarkerSetBackground(wxSTC_MARKNUM_FOLDEROPEN, wxColor(128, 128, 128));
 
     codeEditor->MarkerDefine(wxSTC_MARKNUM_FOLDEROPENMID, wxSTC_MARK_ARROWDOWN);
-    codeEditor->MarkerSetForeground(wxSTC_MARKNUM_FOLDEROPENMID, wxColor(21, 21, 21));
+    codeEditor->MarkerSetForeground(wxSTC_MARKNUM_FOLDEROPENMID, wxColor(31, 31, 31));
     codeEditor->MarkerSetBackground(wxSTC_MARKNUM_FOLDEROPENMID, wxColor(128, 128, 128));
 
     codeEditor->MarkerDefine(wxSTC_MARKNUM_FOLDERSUB, wxSTC_MARK_VLINE);
-    codeEditor->MarkerSetForeground(wxSTC_MARKNUM_FOLDERSUB, wxColor(21, 21, 21));
+    codeEditor->MarkerSetForeground(wxSTC_MARKNUM_FOLDERSUB, wxColor(31, 31, 31));
     codeEditor->MarkerSetBackground(wxSTC_MARKNUM_FOLDERSUB, wxColor(128, 128, 128));
 
     codeEditor->MarkerDefine(wxSTC_MARKNUM_FOLDERTAIL, wxSTC_MARK_LCORNER);
-    codeEditor->MarkerSetForeground(wxSTC_MARKNUM_FOLDERTAIL, wxColor(21, 21, 21));
+    codeEditor->MarkerSetForeground(wxSTC_MARKNUM_FOLDERTAIL, wxColor(31, 31, 31));
     codeEditor->MarkerSetBackground(wxSTC_MARKNUM_FOLDERTAIL, wxColor(128, 128, 128));
 
     codeEditor->MarkerEnableHighlight(false);
@@ -239,17 +239,17 @@ void CodeContainer::CodeMapInitPrefs()
     codeMap->SetUseHorizontalScrollBar(false);
     codeMap->SetUseVerticalScrollBar(false);
 
-    codeMap->StyleSetBackground(wxSTC_STYLE_DEFAULT, wxColor(21, 21, 21));
+    codeMap->StyleSetBackground(wxSTC_STYLE_DEFAULT, wxColor(31, 31, 31));
     codeMap->StyleSetForeground(wxSTC_STYLE_DEFAULT, wxColor(221, 221, 221));
     codeMap->StyleSetFont(wxSTC_STYLE_DEFAULT, font);
 
     codeMap->StyleClearAll();
-    codeMap->SetCaretForeground(wxColor(21, 21, 21));
+    codeMap->SetCaretForeground(wxColor(31, 31, 31));
 
     codeMap->SetMarginWidth(0, 0);
     codeMap->SetMarginType(0, 0);
     codeMap->StyleSetForeground(wxSTC_STYLE_LINENUMBER, wxColor(128, 128, 128));
-    codeMap->StyleSetBackground(wxSTC_STYLE_LINENUMBER, wxColor(21, 21, 21));
+    codeMap->StyleSetBackground(wxSTC_STYLE_LINENUMBER, wxColor(31, 31, 31));
 
     codeMap->SetMarginWidth(1, 0);
     codeMap->SetMarginType(1, 0);

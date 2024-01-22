@@ -15,33 +15,30 @@
 #include "../codeContainer/code.hpp"
 #include "../tabs/tabs.hpp"
 #include <wx/graphics.h>
-#include "./actionButtons.cpp"
+#include "./navigationButtons.cpp"
 
 FilesTree::FilesTree(wxWindow *parent, wxWindowID ID) : wxPanel(parent, ID)
 {
-    SetBackgroundColour(wxColor(30, 30, 30));
+    auto background_color = Themes["dark"]["main"].template get<std::string>();
+    SetBackgroundColour(wxColor(background_color));
     sizer = new wxBoxSizer(wxVERTICAL);
 
     wxPanel *top_content = new wxPanel(this);
     wxBoxSizer *top_ctn_sizer = new wxBoxSizer(wxHORIZONTAL);
 
-    wxStaticText *top_ctn_pjt = new wxStaticText(top_content, wxID_ANY, "EXPLORATOR");
-    top_ctn_pjt->SetFont(fontWithOtherSize(top_ctn_pjt, 15));
-    top_ctn_pjt->SetForegroundColour(wxColor(200, 200, 200));
-    top_ctn_sizer->Add(top_ctn_pjt, 1, wxEXPAND | wxTOP, 4);
+    NavigationButtons* navigationButtons = new NavigationButtons(top_content, wxColor(background_color));
+    navigationButtons->Bind(wxEVT_PAINT, &FilesTree::OnPaint, this);
 
-    wxStaticText *top_ctn_menu = new wxStaticText(top_content, ID_FILES_TREE_TOP_MENU, "...");
-    top_ctn_menu->Bind(wxEVT_LEFT_UP, &FilesTree::onTopMenuClick, this);
-    top_ctn_sizer->Add(top_ctn_menu, 0, wxEXPAND);
+    top_ctn_sizer->Add(navigationButtons, 1, wxEXPAND);
     top_content->SetSizerAndFit(top_ctn_sizer);
-    sizer->Add(top_content, 0, wxEXPAND | wxTOP | wxBOTTOM, 4);
+    sizer->Add(top_content, 0, wxEXPAND );
 
     wxPanel *project_files = new wxPanel(this, ID_PROJECT_FILES);
     wxBoxSizer *pjt_files_sizer = new wxBoxSizer(wxVERTICAL);
 
     wxPanel *project_tools = new wxPanel(project_files, ID_PROJECT_TOOLS_BAR);
     project_tools->Bind(wxEVT_LEFT_UP, &FilesTree::ToggleDir, this);
-    pjt_files_sizer->Add(project_tools, 0, wxEXPAND);
+    pjt_files_sizer->Add(project_tools, 0, wxEXPAND | wxTOP | wxLEFT, 5);
     wxBoxSizer *pjt_tools_sizer = new wxBoxSizer(wxHORIZONTAL);
 
     wxVector<wxBitmap> bitmaps;
@@ -178,7 +175,7 @@ void FilesTree::CreateFile(
     file_ctn_sizer->Add(file_name, 0, wxALIGN_CENTRE_VERTICAL | wxLEFT, 3);
 
     file_container->SetSizerAndFit(file_ctn_sizer);
-    parent_sizer->Add(file_container, 0, wxEXPAND | wxLEFT, 2);
+    parent_sizer->Add(file_container, 0, wxEXPAND | wxLEFT | wxTOP, 2);
 }
 
 void FilesTree::CreateDir(
@@ -435,20 +432,25 @@ void FilesTree::onDirRightClick(wxMouseEvent &event)
 
 void FilesTree::OnPaint(wxPaintEvent &event)
 {
-    auto window = ((wxPanel *)event.GetEventObject());
+    auto target = ((wxPanel *)event.GetEventObject());
     wxClientDC dc(this);
     wxGraphicsContext *gc = wxGraphicsContext::Create(dc);
-    if (!gc)
-        return;
+    if(!gc) return;
 
-    if (window->GetId() != ID_FILES_TREE)
-    {
+    if(target->GetId() == ID_FILES_TREE) {
+
+    } else if(target->GetId() == ID_NAVIGATION_BUTTONS) { 
+        auto border_color = Themes["dark"]["borderColor"].template get<std::string>();
+
+        dc.SetPen(wxPen(wxColor(border_color), 0.20));
+        dc.DrawLine(target->GetSize().GetWidth(), target->GetSize().GetHeight(), 0, target->GetSize().GetHeight());
+    } else {
         gc->SetPen(gc->CreatePen(wxGraphicsPenInfo(wxColor(128, 128, 128)).Width(1.25).Style(wxPENSTYLE_DOT)));
         gc->SetBrush(wxColor(128, 128, 128));
 
         wxGraphicsPath path = gc->CreatePath();
         path.MoveToPoint(0.0, 0.0);
-        path.AddLineToPoint(0.0, static_cast<double>(window->GetSize().GetHeight()));
+        path.AddLineToPoint(0.0, static_cast<double>(target->GetSize().GetHeight()));
         gc->StrokePath(path);
     }
 
@@ -570,7 +572,7 @@ void FilesTree::OnLeaveComp(wxMouseEvent &event)
     {
         if (selectedFile == target)
             return;
-        target->SetBackgroundColour(wxColor(30, 30, 30));
+        target->SetBackgroundColour(wxColor(41, 41, 41));
     }
 }
 

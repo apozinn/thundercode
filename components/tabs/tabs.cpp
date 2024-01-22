@@ -1,7 +1,10 @@
 #include "tabs.hpp"
 
 Tabs::Tabs(wxPanel* parent, wxWindowID ID) : wxPanel(parent, ID) {
-    SetBackgroundColour(wxColor(21, 21, 21));
+    json Themes = UserConfig().GetThemes();
+    auto background_color = Themes["dark"]["main"].template get<std::string>();
+
+    SetBackgroundColour(wxColor(background_color));
     sizer = new wxBoxSizer(wxHORIZONTAL);
 
     tabs_container = new wxScrolled<wxPanel>(this, ID_TABS_CONTAINER);
@@ -28,14 +31,19 @@ void Tabs::Add(wxString tab_name, wxString path) {
     for(auto& a_tab : tabs_container->GetChildren()) {
         if(a_tab->GetName() == path) {
             a_tab->GetChildren()[1]->SetBackgroundColour(wxColor(255, 0, 180));
+            a_tab->SetBackgroundColour(wxColour(31, 31, 31));
             exists = true;
         } else {
             a_tab->GetChildren()[1]->SetBackgroundColour(wxColor(55, 55, 55));
+            a_tab->SetBackgroundColour(wxColour(41, 41, 41));
+
         }
     }
     if(exists) return;
 
     wxPanel* new_tab = new wxPanel(tabs_container);
+    new_tab->SetBackgroundColour(wxColour(31, 31, 31));
+
     new_tab->SetName(path);
     new_tab->Bind(wxEVT_LEFT_UP, &Tabs::Select, this);
     wxBoxSizer* new_tab_sizer = new wxBoxSizer(wxVERTICAL);
@@ -165,9 +173,11 @@ void Tabs::Select(wxMouseEvent& event) {
 
     for(auto& children : tabs_container->GetChildren()) {
         if(children->GetName() == tab_path) {
+            children->SetBackgroundColour(wxColour(31, 31, 31));
             children->GetChildren()[1]->SetBackgroundColour(wxColor(255, 0, 180));
         } else {
             children->GetChildren()[1]->SetBackgroundColour(wxColor(55, 55, 55));
+            children->SetBackgroundColour(wxColour(20, 20, 20));
         }
     }
 

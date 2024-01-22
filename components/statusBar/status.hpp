@@ -6,7 +6,7 @@ class StatusBar : public wxPanel {
 	wxStaticText* second_comp;
 	wxStaticText* third_comp;
 public:
-	StatusBar(wxFrame* parent, wxWindowID ID);
+	StatusBar(wxWindow* parent, wxWindowID ID);
 	void UpdateComps(wxString path, std::string format, const char* language);
 	void ClearLabels();
 	void UpdateCodeLocale(wxStyledTextCtrl* Code);

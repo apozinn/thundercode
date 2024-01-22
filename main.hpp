@@ -49,7 +49,11 @@ class MainFrame : public wxFrame
     ControlPanel *control_panel;
     Terminal *terminal;
     wxSplitterWindow *servical_container;
-
+    json Themes = UserConfig().GetThemes();
+    wxSplitterWindow* mainSplitter;
+    wxPanel* navigationContainer;
+    wxPanel* mainContainer;
+    wxPanel* mainCode;
 public:
     StatusBar *status_bar;
     MainFrame(const wxString &title);
@@ -80,6 +84,7 @@ private:
     void OnAbout(wxCommandEvent &event);
     void OnFileSystemEvent(wxFileSystemWatcherEvent &event);
     void OnOpenTerminal(wxCommandEvent &event);
+    void MainComponentsDrawnBorder(wxPaintEvent& event);
     wxFileSystemWatcher *m_watcher = nullptr;
     bool m_followLinks;
     wxDECLARE_NO_COPY_CLASS(MainFrame);

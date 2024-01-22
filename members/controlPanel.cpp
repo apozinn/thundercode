@@ -146,14 +146,14 @@ public:
 					{"Ok", "ok"},
 				};
 				auto notify_panel = new NotifyPanel(
-					((wxWindow*)FindWindowById(ID_STATUS_BAR)->GetParent()), 
+					((wxWindow*)FindWindowById(ID_MAIN_SPLITTER)->GetParent()), 
 					"Executando teste de painel de Notificações", 
 					ntf_interactions
 				);
 			} break;
 			case '5': {
-				((wxSplitterWindow*)FindWindowById(ID_SERVICAL_CONTAINER))->SplitHorizontally(
-					FindWindowById(ID_MAIN_CODE), FindWindowById(ID_TERMINAL), 0);
+				((wxSplitterWindow*)FindWindowById(ID_MAIN_CONTAINER_SPLITTER))->SplitHorizontally(
+					FindWindowById(ID_CENTERED_CONTENT), FindWindowById(ID_TERMINAL), 0);
 			} break;
 		}
 

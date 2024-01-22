@@ -1,8 +1,11 @@
 #include "status.hpp"
 
-StatusBar::StatusBar(wxFrame* parent, wxWindowID ID) : wxPanel(parent, ID) 
+StatusBar::StatusBar(wxWindow* parent, wxWindowID ID) : wxPanel(parent, ID) 
 {
-	this->SetBackgroundColour(wxColor(45,120,210));
+	json Themes = UserConfig().GetThemes();
+    auto background_color = Themes["dark"]["secondary"].template get<std::string>();
+
+	this->SetBackgroundColour(wxColor(background_color));
 	sizer = new wxBoxSizer(wxHORIZONTAL);
 	wxFont new_font = fontWithOtherSize(this, 15);
 

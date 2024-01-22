@@ -8,104 +8,121 @@
 #include "wx/file.h"
 #include "wx/filename.h"
 
-MainFrame::MainFrame(const wxString& title)
+MainFrame::MainFrame(const wxString &title)
     : wxFrame(nullptr, wxID_ANY, title),
       m_watcher(nullptr), m_followLinks(false)
 {
     wxInitAllImageHandlers();
-    if(wxFile::Exists("./icons/settings.png")) icons_dir = "./icons/";
-    else if(wxFile::Exists("../icons/settings.png")) icons_dir = "../icons/";
-    else wxLogWarning("Can't find icons dir!");
+    if (wxFile::Exists("./icons/settings.png"))
+        icons_dir = "./icons/";
+    else if (wxFile::Exists("../icons/settings.png"))
+        icons_dir = "../icons/";
+    else
+        wxLogWarning("Can't find icons dir!");
 
     json user_config = UserConfig().Get();
-
     sizer = new wxBoxSizer(wxVERTICAL);
-    main_container = new wxPanel(this, ID_MAIN_CONTAINER);
-    wxBoxSizer* main_container_sizer = new wxBoxSizer(wxHORIZONTAL);
 
-    side_navigation = new SideNavigation(main_container, ID_SIDE_NAVIGATION);
-    main_container_sizer->Add(side_navigation, 0, wxEXPAND);
-    
-    main_splitter = new wxSplitterWindow(main_container, ID_MAIN_SPLITTER);
-    main_splitter->SetBackgroundStyle(wxBG_STYLE_PAINT);
-    main_splitter->Bind(wxEVT_PAINT, &MainFrame::OnSashPaint, this);
-    main_splitter->Bind(wxEVT_COMMAND_SPLITTER_SASH_POS_CHANGED, &MainFrame::OnSashPosChange, this);
+    mainSplitter = new wxSplitterWindow(this, ID_MAIN_SPLITTER);
+    mainSplitter->Bind(wxEVT_PAINT, &MainFrame::OnSashPaint, this);
+    wxBoxSizer *mainSplitterSizer = new wxBoxSizer(wxHORIZONTAL);
 
-    main_container_sizer->Add(main_splitter, 1, wxEXPAND);
-    wxBoxSizer* main_splitter_sizer = new wxBoxSizer(wxHORIZONTAL);
+    navigationContainer = new wxPanel(mainSplitter);
+    wxBoxSizer *navigationContainerSizer = new wxBoxSizer(wxVERTICAL);
+    files_tree = new FilesTree(navigationContainer, ID_FILES_TREE);
+    navigationContainerSizer->Add(files_tree, 1, wxEXPAND);
+    navigationContainer->SetSizerAndFit(navigationContainerSizer);
 
-    side_container = new wxPanel(main_splitter, ID_SIDE_CONTAINER);
-    side_container->SetBackgroundColour(wxColor(30, 30, 30));
-    wxBoxSizer* side_ctn_sizer = new wxBoxSizer(wxVERTICAL);
-    main_splitter_sizer->Add(side_container, 0, wxEXPAND);
-    
-    files_tree = new FilesTree(side_container, ID_FILES_TREE);
-    side_ctn_sizer->Add(files_tree, 1, wxEXPAND | wxLEFT, 5);
-    side_container->SetSizerAndFit(side_ctn_sizer);
+    wxPanel *applicationContent = new wxPanel(mainSplitter, ID_APPLICATION_CONTENT);
+    wxBoxSizer *applicationContentSizer = new wxBoxSizer(wxVERTICAL);
 
-    servical_container = new wxSplitterWindow(main_splitter, ID_SERVICAL_CONTAINER);
-    servical_container->SetBackgroundStyle(wxBG_STYLE_PAINT);
-    servical_container->Bind(wxEVT_PAINT, &MainFrame::OnSashPaint, this);
-    servical_container->Bind(wxEVT_COMMAND_SPLITTER_SASH_POS_CHANGED, &MainFrame::OnSashPosChange, this);
-    wxBoxSizer* servical_ctn_sizer = new wxBoxSizer(wxVERTICAL);
+    wxSplitterWindow *mainContainerSplitter = new wxSplitterWindow(applicationContent, ID_MAIN_CONTAINER_SPLITTER);
+    mainContainerSplitter->SetBackgroundColour(wxColor(*wxRED));
+    wxBoxSizer *mainContainerSplitterSizer = new wxBoxSizer(wxVERTICAL);
 
-    main_code = new wxPanel(servical_container, ID_MAIN_CODE);
-    main_code->SetBackgroundColour(wxColor(55, 55, 55));
-    wxBoxSizer* main_code_sizer = new wxBoxSizer(wxVERTICAL);
+    wxPanel *centeredContent = new wxPanel(mainContainerSplitter, ID_CENTERED_CONTENT);
+    wxBoxSizer *centeredContentSizer = new wxBoxSizer(wxVERTICAL);
 
-    tabs = new Tabs(main_code, ID_TABS);
-    empty_window = new EmptyWindow(main_code, ID_EMPYT_WINDOW);
+    mainContainer = new wxPanel(centeredContent, ID_MAIN_CONTAINER);
+    mainContainer->SetBackgroundColour(wxColor("#fff"));
+    wxBoxSizer *mainContainerSizer = new wxBoxSizer(wxVERTICAL);
 
-    main_code_sizer->Add(tabs, 0, wxEXPAND);
-    main_code_sizer->Add(empty_window, 1, wxEXPAND);
-    main_code->SetSizerAndFit(main_code_sizer);
+    tabs = new Tabs(mainContainer, ID_TABS);
+    mainContainerSizer->Add(tabs, 0, wxEXPAND);
 
-    terminal = new Terminal(servical_container, ID_TERMINAL);
+    mainCode = new wxPanel(mainContainer, ID_MAIN_CODE);
+    mainCode->SetBackgroundColour(wxColor(*wxRED));
 
-    servical_ctn_sizer->Add(main_code, 1, wxEXPAND);
-    servical_ctn_sizer->Add(terminal, 1, wxEXPAND);
-    servical_container->SetSizerAndFit(servical_ctn_sizer);
+    mainContainerSizer->Add(mainCode, 1, wxEXPAND);
 
-    servical_container->SplitHorizontally(main_code, terminal, 0);
-    servical_container->Unsplit(terminal);
+    wxBoxSizer *mainCodeSizer = new wxBoxSizer(wxVERTICAL);
 
-    main_splitter_sizer->Add(servical_container, 1, wxEXPAND);
-    main_splitter->SetSizerAndFit(main_splitter_sizer);
-    main_splitter->SetMinimumPaneSize(250);
-    main_splitter->SplitVertically(side_container, servical_container, 1);
-    
-    status_bar = new StatusBar(this, ID_STATUS_BAR);
-    main_container->SetSizerAndFit(main_container_sizer);
-    sizer->Add(main_container, 1, wxEXPAND);
-    sizer->Add(status_bar, 0, wxEXPAND);
+    empty_window = new EmptyWindow(mainCode, ID_EMPYT_WINDOW);
+    mainCodeSizer->Add(empty_window, 1, wxEXPAND);
+    mainCode->SetSizerAndFit(mainCodeSizer);
 
-    menu_bar = new MenuBar();
-    SetMenuBar(menu_bar);
-    if(user_config["show_menu"] == false) menu_bar->Hide();
+    mainContainer->SetSizerAndFit(mainContainerSizer);
+
+    centeredContentSizer->Add(mainContainer, 1, wxEXPAND);
+
+    centeredContent->SetSizerAndFit(centeredContentSizer);
+
+    mainContainerSplitterSizer->Add(centeredContent, 1, wxEXPAND);
+
+    terminal = new Terminal(mainContainerSplitter, ID_TERMINAL);
+    mainContainerSplitterSizer->Add(terminal, 0);
+
+    mainContainerSplitter->SplitVertically(centeredContent, terminal, 0);
+    mainContainerSplitter->Unsplit(terminal);
+
+    mainContainerSplitter->SetSizerAndFit(mainContainerSplitterSizer);
+
+    applicationContentSizer->Add(mainContainerSplitter, 1, wxEXPAND);
+
+    status_bar = new StatusBar(applicationContent, ID_STATUS_BAR);
+    applicationContentSizer->Add(status_bar, 0, wxEXPAND);
+
+    applicationContent->SetSizerAndFit(applicationContentSizer);
+
+    mainSplitterSizer->Add(navigationContainer, 0);
+    mainSplitterSizer->Add(applicationContent, 1, wxEXPAND);
+    mainSplitter->SetSizerAndFit(mainSplitterSizer);
+
+    mainSplitter->SetMinimumPaneSize(250);
+    mainSplitter->SplitVertically(navigationContainer, applicationContent, 1);
+    sizer->Add(mainSplitter, 1, wxEXPAND);
 
     SetTitle("ThunderCode");
-
     SetSizerAndFit(sizer);
     SetOwnForegroundColour(wxColour(*wxWHITE));
     SetThemeEnabled(true);
     Maximize();
 
+    menu_bar = new MenuBar();
+    SetMenuBar(menu_bar);
+    if (user_config["show_menu"] == false)
+        menu_bar->Hide();
+
     wxConfig *config = new wxConfig("ThunderCode");
     wxString str;
-    if(config->Read("workspace", &str) ) {
+    if (config->Read("workspace", &str))
+    {
         wxString last_workspace = config->Read("workspace", str);
         LoadPath(last_workspace);
-    } else {
+    }
+    else
+    {
         tabs->CloseAll();
-        if(auto pjt_ctn = FindWindowById(ID_PROJECT_FILES_CTN)) {
+        if (auto pjt_ctn = FindWindowById(ID_PROJECT_FILES_CTN))
+        {
             open_folder_link = new OpenFolderLink(pjt_ctn, ID_OPEN_FOLDER_LINK);
             open_folder_link->Bind(wxEVT_LEFT_UP, &MainFrame::OnOpenFolderClick, this);
-            for(auto&& children : open_folder_link->GetChildren()) 
+            for (auto &&children : open_folder_link->GetChildren())
                 children->Bind(wxEVT_LEFT_UP, &MainFrame::OnOpenFolderClick, this);
             pjt_ctn->GetSizer()->Add(open_folder_link, 1, wxEXPAND);
         }
     }
-	
+
     wxAcceleratorEntry entries[4];
     entries[0].Set(wxACCEL_ALT, WXK_ALT, ID_HIDDE_MENU_BAR);
     entries[1].Set(wxACCEL_CTRL, WXK_SHIFT, ID_TOGGLE_CONTROL_PANEL);
@@ -120,41 +137,52 @@ MainFrame::MainFrame(const wxString& title)
 
 MainFrame::~MainFrame() { delete m_watcher; }
 
-bool MainFrame::CreateWatcherIfNecessary() {
-    if(m_watcher) return false;
+bool MainFrame::CreateWatcherIfNecessary()
+{
+    if (m_watcher)
+        return false;
     CreateWatcher();
     Bind(wxEVT_FSWATCHER, &MainFrame::OnFileSystemEvent, this);
     return true;
 }
 
-void MainFrame::CreateWatcher() {
+void MainFrame::CreateWatcher()
+{
     wxCHECK_RET(!m_watcher, _("Watcher already initialized"));
     m_watcher = new wxFileSystemWatcher();
     m_watcher->SetOwner(this);
 }
 
-void MainFrame::OnAbout(wxCommandEvent& WXUNUSED(event)) {
+void MainFrame::OnAbout(wxCommandEvent &WXUNUSED(event))
+{
     wxMessageBox("A simple Code-editor for multiple usages and languages"
                  "(c) 2023 Okarin Services\n",
                  "About ThunderCode",
                  wxOK | wxICON_INFORMATION, this);
 }
 
-void MainFrame::OnWatch(wxCommandEvent& event) {
-    if(event.IsChecked()) {
+void MainFrame::OnWatch(wxCommandEvent &event)
+{
+    if (event.IsChecked())
+    {
         wxCHECK_RET(!m_watcher, "Watcher already initialized");
         CreateWatcher();
-    } else {
+    }
+    else
+    {
         wxCHECK_RET(m_watcher, "Watcher not initialized");
         wxDELETE(m_watcher);
     }
 }
 
-void MainFrame::OnFollowLinks(wxCommandEvent& event) { m_followLinks = event.IsChecked(); }
+void MainFrame::OnFollowLinks(wxCommandEvent &event) { m_followLinks = event.IsChecked(); }
 
-void MainFrame::AddEntry(wxFSWPathType type, wxString filename) {
-    if(!m_watcher) return;
-    if(filename.empty()) return;
+void MainFrame::AddEntry(wxFSWPathType type, wxString filename)
+{
+    if (!m_watcher)
+        return;
+    if (filename.empty())
+        return;
 
     wxCHECK_RET(m_watcher, "Watcher not initialized");
 
@@ -162,43 +190,49 @@ void MainFrame::AddEntry(wxFSWPathType type, wxString filename) {
     bool ok = false;
 
     wxFileName fn = wxFileName::DirName(filename);
-    if (!m_followLinks) {
+    if (!m_followLinks)
+    {
         fn.DontFollowLink();
     }
 
-    switch(type) {
-        case wxFSWPath_Dir: 
-            ok = m_watcher->Add(fn);
-            prefix = "Dir:  ";
-            break;
-        case wxFSWPath_Tree:
-            ok = m_watcher->AddTree(fn);
-            prefix = "Tree: ";
-            break;
-        case wxFSWPath_File:
-        case wxFSWPath_None:
-            wxFAIL_MSG("Unexpected path type.");
+    switch (type)
+    {
+    case wxFSWPath_Dir:
+        ok = m_watcher->Add(fn);
+        prefix = "Dir:  ";
+        break;
+    case wxFSWPath_Tree:
+        ok = m_watcher->AddTree(fn);
+        prefix = "Tree: ";
+        break;
+    case wxFSWPath_File:
+    case wxFSWPath_None:
+        wxFAIL_MSG("Unexpected path type.");
     }
 }
 
-void MainFrame::OnFileSystemEvent(wxFileSystemWatcherEvent& event) {
+void MainFrame::OnFileSystemEvent(wxFileSystemWatcherEvent &event)
+{
     wxString type = GetFSWEventChangeTypeName(event.GetChangeType());
-    if(type != "ACCESS") {
+    if (type != "ACCESS")
+    {
         files_tree->OnTreeModifyed(
-            event.GetPath().GetFullPath(), 
-            event.GetNewPath().GetFullPath()
-        );
+            event.GetPath().GetFullPath(),
+            event.GetNewPath().GetFullPath());
     }
 }
 
-void MainFrame::OpenFolderDialog() {
-    wxDirDialog* dlg = new wxDirDialog( NULL, "Choose project directory", "", wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
+void MainFrame::OpenFolderDialog()
+{
+    wxDirDialog *dlg = new wxDirDialog(NULL, "Choose project directory", "", wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
     dlg->ShowModal();
     wxString path = dlg->GetPath();
-    if(path.size()) {
-        project_path = path+"/";
+    if (path.size())
+    {
+        project_path = path + "/";
         project_name = wxFileNameFromPath(path);
-        if(tabs) {
+        if (tabs)
+        {
             tabs->CloseAll();
         }
         files_tree->Update();
@@ -207,126 +241,173 @@ void MainFrame::OpenFolderDialog() {
         config->Write("workspace", project_path);
         delete config;
 
-        SetTitle("ThunderCode - "+project_name);
+        SetTitle("ThunderCode - " + project_name);
         AddEntry(wxFSWPath_Tree, path);
     }
 }
 
-void MainFrame::OnOpenFile(wxCommandEvent& WXUNUSED(event)) {
-    wxFileDialog* dlg = new wxFileDialog(NULL, "Choose a file", "", "", "", wxFD_DEFAULT_STYLE | wxFD_FILE_MUST_EXIST);
+void MainFrame::OnOpenFile(wxCommandEvent &WXUNUSED(event))
+{
+    wxFileDialog *dlg = new wxFileDialog(NULL, "Choose a file", "", "", "", wxFD_DEFAULT_STYLE | wxFD_FILE_MUST_EXIST);
     dlg->ShowModal();
     wxString path = dlg->GetPath();
-    if(path.size()) {
+    if (path.size())
+    {
         files_tree->OpenFile(path);
     }
 }
 
-void MainFrame::OnHiddeFilesTree(wxCommandEvent& WXUNUSED(event)) {
-    if(main_splitter->IsSplit()) {
+void MainFrame::OnHiddeFilesTree(wxCommandEvent &WXUNUSED(event))
+{
+    if (main_splitter->IsSplit())
+    {
         main_splitter->Unsplit(side_container);
-    } else {
+    }
+    else
+    {
         main_splitter->SplitVertically(side_container, servical_container, 1);
     }
 }
 
-void MainFrame::OnHiddeSideNav(wxCommandEvent& WXUNUSED(event)) {
-    if(side_navigation) {
-        if(side_navigation->IsShown()) {
+void MainFrame::OnHiddeSideNav(wxCommandEvent &WXUNUSED(event))
+{
+    if (side_navigation)
+    {
+        if (side_navigation->IsShown())
+        {
             side_navigation->Hide();
-        } else side_navigation->Show();
+        }
+        else
+            side_navigation->Show();
 
         main_container->GetSizer()->Layout();
         main_container->Update();
     }
 }
 
-void MainFrame::OnHiddeMenuBar(wxCommandEvent& WXUNUSED(event)) {
-    if(menu_bar) {
-        if(menu_bar->IsShown()) {
+void MainFrame::OnHiddeMenuBar(wxCommandEvent &WXUNUSED(event))
+{
+    if (menu_bar)
+    {
+        if (menu_bar->IsShown())
+        {
             menu_bar->Hide();
-        } else menu_bar->Show();
+        }
+        else
+            menu_bar->Show();
 
         json user_config = UserConfig().Get();
         auto is_visible = user_config["show_menu"];
 
-        if(is_visible) {
+        if (is_visible)
+        {
             user_config["show_menu"] = false;
-        } else user_config["show_menu"] = true;
+        }
+        else
+            user_config["show_menu"] = true;
         UserConfig().Update(user_config);
     }
 }
 
-void MainFrame::OnHiddeStatusBar(wxCommandEvent& WXUNUSED(event)) {
-    if(status_bar) {
-        if(status_bar->IsShown()) {
+void MainFrame::OnHiddeStatusBar(wxCommandEvent &WXUNUSED(event))
+{
+    if (status_bar)
+    {
+        if (status_bar->IsShown())
+        {
             status_bar->Hide();
-        } else status_bar->Show();
+        }
+        else
+            status_bar->Show();
 
         GetSizer()->Layout();
         Update();
     }
 }
 
-void MainFrame::OnHiddeTabs(wxCommandEvent& WXUNUSED(event)) {
-    if(tabs) {
-        if(tabs->IsShown()) {
+void MainFrame::OnHiddeTabs(wxCommandEvent &WXUNUSED(event))
+{
+    if (tabs)
+    {
+        if (tabs->IsShown())
+        {
             tabs->Hide();
-        } else tabs->Show();
+        }
+        else
+            tabs->Show();
         main_code->GetSizer()->Layout();
         main_code->Update();
     }
 }
 
-void MainFrame::OnSashPaint(wxPaintEvent& event) {
-    auto target = ((wxSplitterWindow*)event.GetEventObject());
-    if(!target) return;
+void MainFrame::OnSashPaint(wxPaintEvent &event)
+{
+    auto target = ((wxSplitterWindow *)event.GetEventObject());
+    if (!target) return;
+
+    auto border_color = Themes["dark"]["borderColor"].template get<std::string>();
 
     wxPaintDC this_dc(target);
-    if(target->GetId() == ID_SERVICAL_CONTAINER) {
-        this_dc.SetBrush(wxColour(30, 30, 30));        
-    } else this_dc.SetBrush(wxColour(30, 30, 30));
-    this_dc.SetPen(*wxTRANSPARENT_PEN);
+    if (target->GetId() == ID_SERVICAL_CONTAINER)
+    {
+        this_dc.SetBrush(target->GetBackgroundColour());
+    }
+    else
+        this_dc.SetBrush(target->GetBackgroundColour());
+    this_dc.SetPen(target->GetBackgroundColour());
 
-    if(target->GetSplitMode() == wxSPLIT_VERTICAL) {
+    if (target->GetSplitMode() == wxSPLIT_VERTICAL)
+    {
         this_dc.DrawRectangle(
             target->GetSashPosition(),
             0,
             target->GetSashSize(),
-            target->GetSize().GetHeight()
-        );
-    } else {
+            target->GetSize().GetHeight());
+    }
+    else
+    {
         this_dc.DrawRectangle(
             0,
             target->GetSashPosition(),
             target->GetSize().GetWidth(),
-            target->GetSashSize()
-        );
+            target->GetSashSize());
     }
+
+    this_dc.SetPen(wxPen(wxColor(border_color), 0.20));
+    this_dc.DrawLine(target->GetSize().GetWidth() - 1, 0, target->GetSize().GetWidth() - 1, target->GetSize().GetHeight());
 }
 
-void MainFrame::OnSashPosChange(wxSplitterEvent& event) { 
-    auto target = ((wxSplitterWindow*)event.GetEventObject());
-    if(!target) return;
-    target->Refresh(); 
+void MainFrame::OnSashPosChange(wxSplitterEvent &event)
+{
+    auto target = ((wxSplitterWindow *)event.GetEventObject());
+    if (!target)
+        return;
+    target->Refresh();
 }
 
-void MainFrame::CloseAllFiles(wxCommandEvent& WXUNUSED(event)) {
+void MainFrame::CloseAllFiles(wxCommandEvent &WXUNUSED(event))
+{
     tabs->CloseAll();
     files_tree->selectedFile->SetBackgroundColour(wxColor(45, 45, 45));
     files_tree->selectedFile = NULL;
 }
 
-void MainFrame::ToggleControlPanel(wxCommandEvent& event) {
-    if(FindWindowById(ID_CONTROL_PANEL)) {
+void MainFrame::ToggleControlPanel(wxCommandEvent &event)
+{
+    if (FindWindowById(ID_CONTROL_PANEL))
+    {
         control_panel->Destroy();
-    } else {
+    }
+    else
+    {
         control_panel = new ControlPanel(this, ID_CONTROL_PANEL);
     }
 }
 
-bool MainFrame::LoadPath(wxString path) {
+bool MainFrame::LoadPath(wxString path)
+{
     project_path = path;
-    project_name = wxFileNameFromPath(path.substr(0, path.size()-1));
+    project_name = wxFileNameFromPath(path.substr(0, path.size() - 1));
 
     wxConfig *config = new wxConfig("ThunderCode");
     config->Write("workspace", path);
@@ -334,24 +415,46 @@ bool MainFrame::LoadPath(wxString path) {
 
     tabs->CloseAll();
     files_tree->Update();
-    SetTitle("ThunderCode - "+project_name);
+    SetTitle("ThunderCode - " + project_name);
 
     AddEntry(wxFSWPath_Tree, path);
     return true;
 }
 
-void MainFrame::OnOpenTerminal(wxCommandEvent& event) {
-    if(servical_container->IsSplit()) {        
+void MainFrame::OnOpenTerminal(wxCommandEvent &event)
+{
+    if (servical_container->IsSplit())
+    {
         servical_container->Unsplit(FindWindowById(ID_TERMINAL));
-    } else {
+    }
+    else
+    {
         servical_container->SplitHorizontally(main_code, FindWindowById(ID_TERMINAL), 0);
     }
 }
 
-void MainFrame::ToggleFind(wxCommandEvent& event) {
-    if(FindWindowById(ID_FIND_CONTAINER)) {
-        ((wxWindow*)FindWindowById(ID_FIND_CONTAINER))->Destroy();
-    } else {
-        Find* find_container = new Find(this, "You");
+void MainFrame::ToggleFind(wxCommandEvent &event)
+{
+    if (FindWindowById(ID_FIND_CONTAINER))
+    {
+        ((wxWindow *)FindWindowById(ID_FIND_CONTAINER))->Destroy();
+    }
+    else
+    {
+        Find *find_container = new Find(this, "You");
+    }
+}
+
+void MainFrame::MainComponentsDrawnBorder(wxPaintEvent &event)
+{
+    return;
+    auto target = ((wxWindow *)event.GetEventObject());
+    if (target)
+    {
+        wxClientDC dc(target);
+        if (!dc.IsOk())
+            return;
+        dc.SetPen(wxPen(wxColor(65, 65, 65), 0.20));
+        dc.DrawLine(target->GetSize().GetWidth() - 1, 0, target->GetSize().GetWidth() - 1, target->GetSize().GetHeight());
     }
 }

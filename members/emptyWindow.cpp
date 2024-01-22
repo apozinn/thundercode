@@ -4,7 +4,7 @@ class EmptyWindow : public wxPanel {
 	wxBoxSizer* sizer;
 public:
 	EmptyWindow(wxWindow* parent, wxWindowID ID) : wxPanel(parent, ID) {
-		this->SetBackgroundColour(wxColor(21, 21, 21));
+		this->SetBackgroundColour(wxColor(31, 31, 31));
 		sizer = new wxBoxSizer(wxVERTICAL);
 		wxString logo_dir;
 
@@ -17,5 +17,17 @@ public:
 		sizer->AddStretchSpacer();
 
 		this->SetSizerAndFit(sizer);
+
+		Bind(wxEVT_PAINT, &EmptyWindow::OnPaint, this);
+	}
+private:
+	void OnPaint(wxPaintEvent& event) {
+		auto target = ((wxWindow*)event.GetEventObject());
+	    if(target) {
+	        wxClientDC dc(target);
+	        if(!dc.IsOk()) return;
+	        dc.SetPen(wxPen(wxColor(65, 65, 65), 0.20));
+	        dc.DrawLine(0 , 0, 0, target->GetSize().GetHeight());
+	    }
 	}
 };

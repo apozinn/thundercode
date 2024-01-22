@@ -11,4 +11,5 @@ class UserConfig {
 public:
 	json Get();
 	bool Update(json new_data);
+	json GetThemes();
 };
