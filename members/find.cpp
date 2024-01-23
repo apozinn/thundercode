@@ -10,7 +10,7 @@ public:
 
 	    wxBoxSizer* find_sizer = new wxBoxSizer(wxVERTICAL);
 
-	    input = new wxStyledTextCtrl(this);
+	    input = new wxStyledTextCtrl(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
 	    input->SetSize(wxSize(200, 25));
 	    input->SetPosition(wxPoint(10, 13));
 	    input->SetText(defaultInput);

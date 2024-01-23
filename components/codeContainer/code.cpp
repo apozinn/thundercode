@@ -7,8 +7,8 @@ CodeContainer::CodeContainer(
     wxWindow *parent, wxString path) : wxScrolled<wxPanel>(parent)
 {
     wxBoxSizer *sizer = new wxBoxSizer(wxHORIZONTAL);
-    codeEditor = new wxStyledTextCtrl(this, ID_CODE_EDITOR);
-    codeMap = new wxStyledTextCtrl(this, ID_CODE_MAP);
+    codeEditor = new wxStyledTextCtrl(this, ID_CODE_EDITOR, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
+    codeMap = new wxStyledTextCtrl(this, ID_CODE_MAP, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
     json user_config = UserConfig().Get();
     if (user_config["show_minimap"] == false)
         codeMap->Hide();
@@ -545,6 +545,6 @@ void CodeContainer::DrawBorder(wxStyledTextEvent& event) {
     auto border_color = Themes["dark"]["borderColor"].template get<std::string>();
     if(dc.IsOk()) {
         dc.SetPen(wxPen(wxColor(border_color), 0.20));
-        dc.DrawLine(1, codeEditor->GetSize().GetHeight(), 1, 0);
+        dc.DrawLine(0, codeEditor->GetSize().GetHeight(), 0, 0);
     }
 }

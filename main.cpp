@@ -372,6 +372,31 @@ void MainFrame::OnSashPaint(wxPaintEvent &event)
             target->GetSize().GetWidth(),
             target->GetSashSize());
     }
+
+    auto top_content = ((wxPanel*)FindWindowById(ID_FILES_TREE_TOP_CONTENT));
+    auto search_files = ((wxPanel*)FindWindowById(ID_SEARCH_FILES));
+
+    if(top_content && search_files) {
+        wxPoint top_content_point = top_content->GetPosition();
+        wxPoint search_files_point = search_files->GetPosition();
+
+        this_dc.SetBrush(wxColor(border_color));
+        this_dc.SetPen(wxColor(border_color));
+
+        this_dc.DrawLine(
+            0, 
+            top_content_point.x+top_content->GetSize().GetHeight()+5, 
+            top_content->GetSize().GetWidth()+target->GetSashSize(), 
+            top_content_point.x+top_content->GetSize().GetHeight()+5
+        );    
+
+        this_dc.DrawLine(
+            0, 
+            search_files_point.y+search_files->GetSize().GetHeight(), 
+            search_files->GetSize().GetWidth()+target->GetSashSize(), 
+            search_files_point.y+search_files->GetSize().GetHeight()
+        );     
+    }
 }
 
 void MainFrame::OnSashPosChange(wxSplitterEvent &event)
