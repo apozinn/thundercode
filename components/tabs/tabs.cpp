@@ -6,6 +6,27 @@ Tabs::Tabs(wxPanel* parent, wxWindowID ID) : wxPanel(parent, ID) {
     SetBackgroundColour(wxColor(background_color));
     sizer = new wxBoxSizer(wxHORIZONTAL);
 
+    wxPanel* tabs_controller = new wxPanel(this);
+    wxBoxSizer* tabs_controller_sizer = new wxBoxSizer(wxHORIZONTAL);
+
+    wxVector<wxBitmap> arrow_left_bitmap;
+    arrow_left_bitmap.push_back(wxBitmap(icons_dir+"arrow_left.png", wxBITMAP_TYPE_PNG));
+    arrow_left = new wxStaticBitmap(tabs_controller, wxID_ANY, wxBitmapBundle::FromBitmaps(arrow_left_bitmap));
+    // menu->Bind(wxEVT_LEFT_UP, &Tabs::OnMenu, this);
+
+    tabs_controller_sizer->Add(arrow_left, 0, wxLEFT, 5);
+
+    wxVector<wxBitmap> arrow_right_bitmap;
+    arrow_right_bitmap.push_back(wxBitmap(icons_dir+"arrow_right.png", wxBITMAP_TYPE_PNG));
+    arrow_right = new wxStaticBitmap(tabs_controller, wxID_ANY, wxBitmapBundle::FromBitmaps(arrow_right_bitmap));
+    // menu->Bind(wxEVT_LEFT_UP, &Tabs::OnMenu, this);
+
+    tabs_controller_sizer->Add(arrow_right, 0, wxRIGHT, 5);
+
+    tabs_controller->SetSizerAndFit(tabs_controller_sizer);
+
+    sizer->Add(tabs_controller, 0, wxALIGN_CENTER);
+
     tabs_container = new wxScrolled<wxPanel>(this, ID_TABS_CONTAINER);
     tabs_ctn_sizer = new wxBoxSizer(wxHORIZONTAL);
     tabs_container->SetSizerAndFit(tabs_ctn_sizer);
@@ -15,7 +36,7 @@ Tabs::Tabs(wxPanel* parent, wxWindowID ID) : wxPanel(parent, ID) {
     menu = new wxStaticBitmap(this, wxID_ANY, wxBitmapBundle::FromBitmaps(bitmaps));
     menu->Bind(wxEVT_LEFT_UP, &Tabs::OnMenu, this);
 
-    sizer->Add(tabs_container, 1, wxEXPAND);
+    sizer->Add(tabs_container, 1, wxEXPAND | wxTOP | wxBOTTOM, 5);
     sizer->Add(menu, 0, wxALIGN_CENTER | wxRIGHT, 10);
     Add("ThunderCode", "initial_tab");
 
@@ -42,7 +63,6 @@ void Tabs::Add(wxString tab_name, wxString path) {
     if(exists) return;
 
     wxPanel* new_tab = new wxPanel(tabs_container);
-    new_tab->SetBackgroundColour(wxColour(31, 31, 31));
 
     new_tab->SetName(path);
     new_tab->Bind(wxEVT_LEFT_UP, &Tabs::Select, this);
@@ -55,13 +75,13 @@ void Tabs::Add(wxString tab_name, wxString path) {
     name->SetName(path);
     name->SetFont(fontWithOtherSize(name, 17));
     name->Bind(wxEVT_LEFT_UP, &Tabs::Select, this);
-    tab_infos_sizer->Add(name, 0, wxEXPAND | wxRIGHT, 5);
+    tab_infos_sizer->Add(name, 1, wxEXPAND | wxLEFT | wxRIGHT, 6);
 
     wxVector<wxBitmap> bitmaps;
     bitmaps.push_back(wxBitmap(wxBitmap(icons_dir+"close.png", wxBITMAP_TYPE_PNG)));
     wxStaticBitmap* close_icon = new wxStaticBitmap(tab_infos, wxID_ANY, wxBitmapBundle::FromBitmaps(bitmaps));
     close_icon->Bind(wxEVT_LEFT_UP, &Tabs::OnCloseTab, this);
-    tab_infos_sizer->Add(close_icon, 0, wxALIGN_CENTER);
+    tab_infos_sizer->Add(close_icon, 0, wxALIGN_CENTER | wxRIGHT, 6);
 
     wxVector<wxBitmap> bitmaps_c;
     bitmaps_c.push_back(wxBitmap(wxBitmap(icons_dir+"white_circle.png", wxBITMAP_TYPE_PNG)));
@@ -71,22 +91,22 @@ void Tabs::Add(wxString tab_name, wxString path) {
     tab_infos->Bind(wxEVT_LEAVE_WINDOW, &Tabs::OnLeaveComp, this);
 
     modified_icon->Hide();
-    tab_infos_sizer->Add(modified_icon, 0, wxEXPAND | wxTOP, 2);
+    tab_infos_sizer->Add(modified_icon, 0, wxALIGN_CENTER);
     
     tab_infos->SetSizerAndFit(tab_infos_sizer);
-    new_tab_sizer->Add(tab_infos, 1, wxEXPAND | wxALL, 8);
+    new_tab_sizer->Add(tab_infos, 1, wxEXPAND | wxTOP | wxBOTTOM, 6);
 
     wxPanel* active_bar = new wxPanel(new_tab);
-    active_bar->SetBackgroundColour(wxColor(255, 0, 180));
     new_tab_sizer->Add(active_bar, 0, wxEXPAND);
 
     new_tab->SetSizerAndFit(new_tab_sizer);
-    tabs_ctn_sizer->Add(new_tab, 0);
+    tabs_ctn_sizer->Add(new_tab, 0, wxALIGN_CENTER);
     current_openned_path = path;
     tabs_container->FitInside();
     tabs_container->Scroll(1000, 0);
+    new_tab->Bind(wxEVT_PAINT, &Tabs::OnTabPaint, this);
 
-    SetMinSize(wxSize(GetSize().GetWidth(), new_tab->GetSize().GetHeight()));
+    SetMinSize(wxSize(GetSize().GetWidth(), new_tab->GetSize().GetHeight()+10));
 }
 
 void Tabs::Close(wxString tab_path) {
@@ -266,6 +286,22 @@ void Tabs::OnPaint(wxPaintEvent& event) {
     if(dc.IsOk()) {
         auto border_color = Themes["dark"]["borderColor"].template get<std::string>();
         dc.SetPen(wxPen(wxColor(border_color), 0.20));
-        dc.DrawLine(GetSize().GetHeight()-1, GetSize().GetHeight()-1, GetSize().GetWidth(), GetSize().GetHeight()-1);
+        dc.DrawLine(0, GetSize().GetHeight()-1, GetSize().GetWidth(), GetSize().GetHeight()-1);
+        dc.DrawLine(0, GetSize().GetHeight(), 0, 0);
+    }
+}
+
+void Tabs::OnTabPaint(wxPaintEvent& event) {
+    auto target = ((wxPanel*)event.GetEventObject());
+    wxPaintDC dc(target);
+    wxGraphicsContext *gc = wxGraphicsContext::Create(dc);
+
+    auto background = Themes["dark"]["highlight"].template get<std::string>();
+
+    if(gc) {
+        gc->SetPen(wxColor(background));
+        gc->SetBrush(wxColor(background));
+        gc->DrawRoundedRectangle(0.0, 0.0, static_cast<double>(target->GetSize().GetWidth()), static_cast<double>(target->GetSize().GetHeight()), 10);
+        delete gc;
     }
 }
