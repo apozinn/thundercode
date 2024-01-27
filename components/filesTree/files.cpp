@@ -28,7 +28,7 @@ FilesTree::FilesTree(wxWindow *parent, wxWindowID ID) : wxPanel(parent, ID)
     wxBoxSizer *top_ctn_sizer = new wxBoxSizer(wxHORIZONTAL);
 
     NavigationButtons* navigationButtons = new NavigationButtons(top_content, wxColor(background_color));
-    top_ctn_sizer->Add(navigationButtons, 1, wxEXPAND | wxTOP | wxBOTTOM, 1);
+    top_ctn_sizer->Add(navigationButtons, 0, wxEXPAND | wxTOP | wxBOTTOM, 5);
     top_content->Bind(wxEVT_PAINT, &FilesTree::OnPaint, this);
 
     top_content->SetSizerAndFit(top_ctn_sizer);
