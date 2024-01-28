@@ -373,11 +373,8 @@ void MainFrame::OnSashPaint(wxPaintEvent &event)
             target->GetSashSize());
     }
 
-    auto top_content = ((wxPanel*)FindWindowById(ID_FILES_TREE_TOP_CONTENT));
     auto search_files = ((wxPanel*)FindWindowById(ID_SEARCH_FILES));
-
-    if(top_content && search_files) {
-        wxPoint top_content_point = top_content->GetPosition();
+    if(search_files) {
         wxPoint search_files_point = search_files->GetPosition();
 
         this_dc.SetBrush(wxColor(border_color));
@@ -385,10 +382,10 @@ void MainFrame::OnSashPaint(wxPaintEvent &event)
 
         this_dc.DrawLine(
             0, 
-            top_content_point.x+top_content->GetSize().GetHeight()+5, 
-            top_content->GetSize().GetWidth()+target->GetSashSize(), 
-            top_content_point.x+top_content->GetSize().GetHeight()+5
-        );    
+            search_files_point.y, 
+            search_files->GetSize().GetWidth()+target->GetSashSize(), 
+            search_files_point.y
+        );
 
         this_dc.DrawLine(
             0, 
@@ -463,20 +460,6 @@ void MainFrame::ToggleFind(wxCommandEvent &event)
     }
     else
     {
-        Find *find_container = new Find(this, "You");
-    }
-}
-
-void MainFrame::MainComponentsDrawnBorder(wxPaintEvent &event)
-{
-    return;
-    auto target = ((wxWindow *)event.GetEventObject());
-    if (target)
-    {
-        wxClientDC dc(target);
-        if (!dc.IsOk())
-            return;
-        dc.SetPen(wxPen(wxColor(65, 65, 65), 0.20));
-        dc.DrawLine(target->GetSize().GetWidth() - 1, 0, target->GetSize().GetWidth() - 1, target->GetSize().GetHeight());
+        Find *find_container = new Find(this, "Find a text");
     }
 }

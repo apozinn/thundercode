@@ -28,15 +28,15 @@ FilesTree::FilesTree(wxWindow *parent, wxWindowID ID) : wxPanel(parent, ID)
     wxBoxSizer *top_ctn_sizer = new wxBoxSizer(wxHORIZONTAL);
 
     NavigationButtons* navigationButtons = new NavigationButtons(top_content, wxColor(background_color));
-    top_ctn_sizer->Add(navigationButtons, 0, wxEXPAND | wxTOP | wxBOTTOM, 5);
+    top_ctn_sizer->Add(navigationButtons, 1, wxEXPAND);
     top_content->Bind(wxEVT_PAINT, &FilesTree::OnPaint, this);
 
     top_content->SetSizerAndFit(top_ctn_sizer);
-    sizer->Add(top_content, 0, wxEXPAND);
+    sizer->Add(top_content, 0, wxEXPAND | wxTOP, 8);
 
     SearchFiles* searchFiles = new SearchFiles(this, ID_SEARCH_FILES, wxColor(background_color));
 
-    sizer->Add(searchFiles, 0, wxEXPAND | wxTOP | wxBOTTOM, 7);
+    sizer->Add(searchFiles, 0, wxEXPAND | wxTOP, 10);
     searchFiles->Bind(wxEVT_PAINT, &FilesTree::OnPaint, this);
 
     wxPanel *project_files = new wxPanel(this, ID_PROJECT_FILES);
@@ -443,18 +443,16 @@ void FilesTree::OnPaint(wxPaintEvent &event)
     wxGraphicsContext *gc = wxGraphicsContext::Create(dc);
     if(!gc) return;
 
-    if(target->GetId() == ID_FILES_TREE) {
-
-    } else if(target->GetId() == ID_SEARCH_FILES) {
+    if(target->GetId() == ID_FILES_TREE) {}
+     else if(target->GetId() == ID_SEARCH_FILES) {
         auto border_color = Themes["dark"]["borderColor"].template get<std::string>();
-
         dc.SetPen(wxPen(wxColor(border_color), 0.20));
+        dc.DrawLine(0, target->GetPosition().y, target->GetSize().GetWidth(), target->GetPosition().y);
         dc.DrawLine(0, target->GetPosition().y+target->GetSize().GetHeight(), target->GetSize().GetWidth(), target->GetPosition().y+target->GetSize().GetHeight());
     } else if(target->GetId() == ID_FILES_TREE_TOP_CONTENT) { 
         auto border_color = Themes["dark"]["borderColor"].template get<std::string>();
-
         dc.SetPen(wxPen(wxColor(border_color), 0.20));
-        dc.DrawLine(target->GetSize().GetWidth(), target->GetSize().GetHeight()+5, 0, target->GetSize().GetHeight()+5);
+        dc.DrawLine(target->GetSize().GetWidth(), target->GetSize().GetHeight()-10, 0, target->GetSize().GetHeight()-10);
     } else {
         gc->SetPen(gc->CreatePen(wxGraphicsPenInfo(wxColor(128, 128, 128)).Width(1.25).Style(wxPENSTYLE_DOT)));
         gc->SetBrush(wxColor(128, 128, 128));
