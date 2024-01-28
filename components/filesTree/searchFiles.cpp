@@ -1,5 +1,6 @@
 class SearchFiles : public wxPanel {
     json Themes = UserConfig().GetThemes();
+    wxStyledTextCtrl* search_input;
 public:
 	SearchFiles(wxWindow* parent, wxWindowID ID, wxColor background_color) : wxPanel(parent, ID) {
 		SetBackgroundColour(background_color);
@@ -10,7 +11,7 @@ public:
 	    );
 	    sizer->Add(search_icon, 0, wxALIGN_CENTER | wxALL, 2);
 
-	    wxStyledTextCtrl* search_input = new wxStyledTextCtrl(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
+	    search_input = new wxStyledTextCtrl(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
 	    search_input->SetSize(wxSize(GetSize().GetWidth(), GetSize().GetHeight()));
 	    search_input->SetMinSize(wxSize(GetSize().GetWidth(), GetSize().GetHeight()));
 	    sizer->Add(search_input, 1, wxALIGN_CENTER);
@@ -29,6 +30,21 @@ public:
 
 	    search_input->SetCaretForeground(wxColour(wxT("WHITE")));
 	    search_input->SetText("Search a file");
+	    search_input->Bind(wxEVT_LEFT_UP, &SearchFiles::OnClick, this);
+	    search_input->Bind(wxEVT_KILL_FOCUS, &SearchFiles::OnLostFocus, this);
 		SetSizerAndFit(sizer);
+	}
+private:
+	void OnClick(wxMouseEvent& event) {
+	    search_input->StyleSetForeground(wxSTC_STYLE_DEFAULT, wxColor(*wxWHITE));
+	    search_input->StyleClearAll();
+		search_input->SetText("");
+		event.Skip();
+	}
+	void OnLostFocus(wxEvent& event) {
+	    search_input->StyleSetForeground(wxSTC_STYLE_DEFAULT, wxColor("#7d7d7e"));
+	    search_input->StyleClearAll();
+		search_input->SetText("Search a file");
+		event.Skip();
 	}
 };
