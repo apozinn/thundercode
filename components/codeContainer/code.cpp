@@ -329,21 +329,11 @@ void CodeContainer::OnChange(wxStyledTextEvent &event)
         {
             if (tab->GetName() == GetLabel())
             {
-                auto close_ico = tab->GetChildren()[0]->GetChildren()[1];
-                auto unsave = ((wxStaticBitmap *)tab->GetChildren()[0]->GetChildren()[2]);
-
-                if (close_ico)
-                    close_ico->Hide();
-                if (unsave)
+                auto icon = ((wxStaticBitmap *)tab->GetChildren()[0]->GetChildren()[1]);
+                if (icon)
                 {
-                    wxVector<wxBitmap> bitmaps;
-                    bitmaps.push_back(wxBitmap(wxBitmap(icons_dir + "white_circle.png", wxBITMAP_TYPE_PNG)));
-                    unsave->SetBitmap(wxBitmapBundle::FromBitmaps(bitmaps));
-                    unsave->Show();
+                    icon->SetBitmap(wxBitmapBundle::FromBitmap(wxBitmap(icons_dir + "white_circle.png")));
                 }
-
-                tab->GetSizer()->Layout();
-                tab->Update();
             }
         }
     }
@@ -479,7 +469,8 @@ void CodeContainer::OnCodeMapPaint(wxPaintEvent &event) { event.Skip(); }
 void CodeContainer::OnCodeMapPainted(wxStyledTextEvent &event)
 {
     wxClientDC dc(codeMap);
-    if(codeMapMouseOver) {
+    if (codeMapMouseOver)
+    {
         wxColour color(128, 128, 128, 100);
         dc.SetBrush(color);
         dc.SetPen(color);
@@ -534,16 +525,19 @@ void CodeContainer::ToggleMiniMapView(wxCommandEvent &event)
     }
 }
 
-void CodeContainer::OnAutoCompCompleted(wxStyledTextEvent& event) {
+void CodeContainer::OnAutoCompCompleted(wxStyledTextEvent &event)
+{
     wxString completion = event.GetString();
     int pos = event.GetPosition();
-    codeEditor->Remove(pos-1, pos);
+    codeEditor->Remove(pos - 1, pos);
 }
 
-void CodeContainer::DrawBorder(wxStyledTextEvent& event) {
+void CodeContainer::DrawBorder(wxStyledTextEvent &event)
+{
     wxClientDC dc(codeEditor);
     auto border_color = Themes["dark"]["borderColor"].template get<std::string>();
-    if(dc.IsOk()) {
+    if (dc.IsOk())
+    {
         dc.SetPen(wxPen(wxColor(border_color), 0.20));
         dc.DrawLine(0, codeEditor->GetSize().GetHeight(), 0, 0);
     }
