@@ -52,19 +52,15 @@ void Tabs::Add(wxString tab_name, wxString path)
     if (!IsShown())
         Show();
     bool exists = false;
+    current_openned_path = path;
     for (auto &a_tab : tabs_container->GetChildren())
     {
         if (a_tab->GetName() == path)
         {
-            a_tab->GetChildren()[1]->SetBackgroundColour(wxColor(255, 0, 180));
-            a_tab->SetBackgroundColour(wxColour(31, 31, 31));
             exists = true;
         }
         else
-        {
-            a_tab->GetChildren()[1]->SetBackgroundColour(wxColor(55, 55, 55));
-            a_tab->SetBackgroundColour(wxColour(41, 41, 41));
-        }
+            a_tab->Refresh();
     }
     if (exists)
         return;
@@ -100,13 +96,15 @@ void Tabs::Add(wxString tab_name, wxString path)
     new_tab_sizer->Add(active_bar, 0, wxEXPAND);
 
     new_tab->SetSizerAndFit(new_tab_sizer);
-    tabs_ctn_sizer->Add(new_tab, 0, wxALIGN_CENTER);
-    current_openned_path = path;
+    tabs_ctn_sizer->Add(new_tab, 0, wxALIGN_CENTER | wxLEFT, 5);
     tabs_container->FitInside();
     tabs_container->Scroll(1000, 0);
     new_tab->Bind(wxEVT_PAINT, &Tabs::OnTabPaint, this);
 
     SetMinSize(wxSize(GetSize().GetWidth(), new_tab->GetSize().GetHeight() + 10));
+
+    for (auto &&tab : tabs_container->GetChildren())
+        tab->Refresh();
 }
 
 void Tabs::Close(wxString tab_path)
@@ -215,18 +213,7 @@ void Tabs::Select(wxMouseEvent &event)
     current_openned_path = tab_path;
 
     for (auto &children : tabs_container->GetChildren())
-    {
-        if (children->GetName() == tab_path)
-        {
-            children->SetBackgroundColour(wxColour(31, 31, 31));
-            children->GetChildren()[1]->SetBackgroundColour(wxColor(255, 0, 180));
-        }
-        else
-        {
-            children->GetChildren()[1]->SetBackgroundColour(wxColor(55, 55, 55));
-            children->SetBackgroundColour(wxColour(20, 20, 20));
-        }
-    }
+        children->Refresh();
 
     auto codeContainer = ((CodeContainer *)FindWindowByName(tab_path + "_codeContainer"));
     auto imageContainer = ((wxStaticBitmap *)FindWindowByLabel(tab_path + "_imageContainer"));
@@ -334,14 +321,23 @@ void Tabs::OnTabPaint(wxPaintEvent &event)
     auto target = ((wxPanel *)event.GetEventObject());
     wxPaintDC dc(target);
     wxGraphicsContext *gc = wxGraphicsContext::Create(dc);
+    if (!gc)
+        return;
 
-    auto background = Themes["dark"]["highlight"].template get<std::string>();
-
-    if (gc)
+    if (current_openned_path == target->GetName())
     {
+        auto background = Themes["dark"]["highlight"].template get<std::string>();
         gc->SetPen(wxColor(background));
         gc->SetBrush(wxColor(background));
         gc->DrawRoundedRectangle(0.0, 0.0, static_cast<double>(target->GetSize().GetWidth()), static_cast<double>(target->GetSize().GetHeight()), 10);
-        delete gc;
     }
+    else
+    {
+        auto background = Themes["dark"]["main"].template get<std::string>();
+        gc->SetPen(wxColor(background));
+        gc->SetBrush(wxColor(background));
+        gc->DrawRoundedRectangle(0.0, 0.0, static_cast<double>(target->GetSize().GetWidth()), static_cast<double>(target->GetSize().GetHeight()), 10);
+    }
+
+    delete gc;
 }
