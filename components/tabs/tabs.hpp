@@ -19,7 +19,8 @@ public:
 	void Add(wxString tab_name, wxString path);
 	void Close(wxString tab_path);
 	void CloseAll();
-	void Select(wxMouseEvent& event);
+	void Select();
+	void OnTabClick(wxMouseEvent& event);
 	void OnCloseTab(wxMouseEvent& event);
 	void OnMenu(wxMouseEvent& event);
 private:
@@ -27,5 +28,7 @@ private:
 	void OnLeaveComp(wxMouseEvent& event); 
 	void OnPaint(wxPaintEvent& event);
 	void OnTabPaint(wxPaintEvent& event);
+	void OnPreviousTab(wxMouseEvent& event);
+	void OnNextTab(wxMouseEvent& event);
 	wxDECLARE_NO_COPY_CLASS(Tabs);
 };

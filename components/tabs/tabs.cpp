@@ -13,14 +13,14 @@ Tabs::Tabs(wxPanel *parent, wxWindowID ID) : wxPanel(parent, ID)
     wxVector<wxBitmap> arrow_left_bitmap;
     arrow_left_bitmap.push_back(wxBitmap(icons_dir + "arrow_left.png", wxBITMAP_TYPE_PNG));
     arrow_left = new wxStaticBitmap(tabs_controller, wxID_ANY, wxBitmapBundle::FromBitmaps(arrow_left_bitmap));
-    // menu->Bind(wxEVT_LEFT_UP, &Tabs::OnMenu, this);
+    arrow_left->Bind(wxEVT_LEFT_UP, &Tabs::OnPreviousTab, this);
 
     tabs_controller_sizer->Add(arrow_left, 0, wxLEFT, 5);
 
     wxVector<wxBitmap> arrow_right_bitmap;
     arrow_right_bitmap.push_back(wxBitmap(icons_dir + "arrow_right.png", wxBITMAP_TYPE_PNG));
     arrow_right = new wxStaticBitmap(tabs_controller, wxID_ANY, wxBitmapBundle::FromBitmaps(arrow_right_bitmap));
-    // menu->Bind(wxEVT_LEFT_UP, &Tabs::OnMenu, this);
+    arrow_right->Bind(wxEVT_LEFT_UP, &Tabs::OnNextTab, this);
 
     tabs_controller_sizer->Add(arrow_right, 0, wxRIGHT, 5);
 
@@ -68,7 +68,7 @@ void Tabs::Add(wxString tab_name, wxString path)
     wxPanel *new_tab = new wxPanel(tabs_container);
 
     new_tab->SetName(path);
-    new_tab->Bind(wxEVT_LEFT_UP, &Tabs::Select, this);
+    new_tab->Bind(wxEVT_LEFT_UP, &Tabs::OnTabClick, this);
     wxBoxSizer *new_tab_sizer = new wxBoxSizer(wxVERTICAL);
 
     wxPanel *tab_infos = new wxPanel(new_tab);
@@ -77,7 +77,7 @@ void Tabs::Add(wxString tab_name, wxString path)
     wxStaticText *name = new wxStaticText(tab_infos, wxID_ANY, tab_name);
     name->SetName(path);
     name->SetFont(fontWithOtherSize(name, 17));
-    name->Bind(wxEVT_LEFT_UP, &Tabs::Select, this);
+    name->Bind(wxEVT_LEFT_UP, &Tabs::OnTabClick, this);
     tab_infos_sizer->Add(name, 1, wxEXPAND | wxLEFT | wxRIGHT, 6);
 
     wxVector<wxBitmap> bitmaps;
@@ -202,21 +202,14 @@ void Tabs::CloseAll()
     FindWindowById(ID_EMPYT_WINDOW)->Show();
 }
 
-void Tabs::Select(wxMouseEvent &event)
-{
-    auto this_tab = ((Tabs *)event.GetEventObject());
-    wxString tab_path = this_tab->GetName();
+void Tabs::Select() {
     auto main_code = FindWindowById(ID_MAIN_CODE);
-
-    if (tab_path == current_openned_path)
-        return;
-    current_openned_path = tab_path;
 
     for (auto &children : tabs_container->GetChildren())
         children->Refresh();
 
-    auto codeContainer = ((CodeContainer *)FindWindowByName(tab_path + "_codeContainer"));
-    auto imageContainer = ((wxStaticBitmap *)FindWindowByLabel(tab_path + "_imageContainer"));
+    auto codeContainer = ((CodeContainer *)FindWindowByName(current_openned_path + "_codeContainer"));
+    auto imageContainer = ((wxStaticBitmap *)FindWindowByLabel(current_openned_path + "_imageContainer"));
     auto status_bar = ((StatusBar *)FindWindowById(ID_STATUS_BAR));
 
     for (auto &&other_ct : main_code->GetChildren())
@@ -228,17 +221,27 @@ void Tabs::Select(wxMouseEvent &event)
     if (codeContainer)
     {
         codeContainer->Show();
-        status_bar->UpdateComps(tab_path, "text", codeContainer->current_lang->name);
+        status_bar->UpdateComps(current_openned_path, "text", codeContainer->current_lang->name);
     }
 
     if (imageContainer)
     {
         imageContainer->Show();
-        status_bar->UpdateComps(tab_path, "image", "img");
+        status_bar->UpdateComps(current_openned_path, "image", "img");
     }
 
     main_code->GetSizer()->Layout();
     main_code->Update();
+}
+
+void Tabs::OnTabClick(wxMouseEvent &event)
+{
+    auto this_tab = ((Tabs *)event.GetEventObject());
+    wxString tab_path = this_tab->GetName();   
+    if (tab_path == current_openned_path)
+        return;
+    current_openned_path = tab_path;
+    this->Select();
 }
 
 void Tabs::OnCloseTab(wxMouseEvent &event)
@@ -340,4 +343,26 @@ void Tabs::OnTabPaint(wxPaintEvent &event)
     }
 
     delete gc;
+}
+
+void Tabs::OnPreviousTab(wxMouseEvent& event) {
+    for(auto&& tab : tabs_container->GetChildren())
+        if(tab->GetName() == current_openned_path) {
+            auto prevTab = tab->GetPrevSibling();
+            if(prevTab) {
+                current_openned_path = prevTab->GetName();
+                this->Select();
+            }
+        }
+}
+
+void Tabs::OnNextTab(wxMouseEvent& event) {
+    for(auto&& tab : tabs_container->GetChildren())
+        if(tab->GetName() == current_openned_path) {
+            auto nextTab = tab->GetNextSibling();
+            if(nextTab) {
+                current_openned_path = nextTab->GetName();
+                this->Select();
+            }
+        }
 }
