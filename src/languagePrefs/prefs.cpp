@@ -7,6 +7,7 @@
 #include "languages/PLAINTEXT.cpp"
 #include "languages/JSON.cpp"
 #include "languages/CMAKE.cpp"
+#include "languages/UNKNOWN.cpp"
 
 const CommonInfo global_commonPrefs = {
     true,  // syntaxEnable
@@ -23,6 +24,7 @@ const CommonInfo global_commonPrefs = {
 };
 
 const LanguageInfo languages_prefs [] = {
+    UNKNOWN_PREFS,
     PLAINTEXT_PREFS,
     BINARY_PREFS,
     CPP_PREFS,

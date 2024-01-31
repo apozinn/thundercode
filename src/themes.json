@@ -3,7 +3,8 @@
 		"main": "#323232",
 		"secondary": "#222222",
 		"highlight": "#424242",
-		"borderColor": "#5F5F5F"
+		"borderColor": "#5F5F5F",
+		"tint": "#00b5cc"
 	},
 	"ligth": {
 		"main": "#fff"

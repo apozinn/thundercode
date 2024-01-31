@@ -39,5 +39,6 @@ const LanguageInfo JSON_PREFS = {
         {-1, nullptr},
         {-1, nullptr}
     },
-    mySTC_FOLD_COMMENT | mySTC_FOLD_COMPACT | mySTC_FOLD_PREPROC
+    mySTC_FOLD_COMMENT | mySTC_FOLD_COMPACT | mySTC_FOLD_PREPROC,
+    icons_dir+"file_ext/json.svg"
 };

@@ -27,14 +27,14 @@ FilesTree::FilesTree(wxWindow *parent, wxWindowID ID) : wxPanel(parent, ID)
     wxPanel *top_content = new wxPanel(this, ID_FILES_TREE_TOP_CONTENT);
     wxBoxSizer *top_ctn_sizer = new wxBoxSizer(wxHORIZONTAL);
 
-    NavigationButtons* navigationButtons = new NavigationButtons(top_content, wxColor(background_color));
+    NavigationButtons *navigationButtons = new NavigationButtons(top_content, wxColor(background_color));
     top_ctn_sizer->Add(navigationButtons, 1, wxEXPAND);
     top_content->Bind(wxEVT_PAINT, &FilesTree::OnPaint, this);
 
     top_content->SetSizerAndFit(top_ctn_sizer);
     sizer->Add(top_content, 0, wxEXPAND | wxTOP, 8);
 
-    SearchFiles* searchFiles = new SearchFiles(this, ID_SEARCH_FILES, wxColor(background_color));
+    SearchFiles *searchFiles = new SearchFiles(this, ID_SEARCH_FILES, wxColor(background_color));
 
     sizer->Add(searchFiles, 0, wxEXPAND | wxTOP, 10);
     searchFiles->Bind(wxEVT_PAINT, &FilesTree::OnPaint, this);
@@ -147,6 +147,34 @@ void FilesTree::CreateFile(
     file_container->Bind(wxEVT_LEFT_UP, &FilesTree::OnFileSelect, this);
     wxBoxSizer *file_ctn_sizer = new wxBoxSizer(wxHORIZONTAL);
 
+    LanguageInfo const *currentLanguageInfo;
+    LanguageInfo const *currentInfo;
+    int languageNr;
+
+    bool found;
+    for (languageNr = 0; languageNr < languages_prefs_size; languageNr++)
+    {
+        currentInfo = &languages_prefs[languageNr];
+        wxString filepattern = currentInfo->filepattern;
+        filepattern.Lower();
+
+        while (!filepattern.empty() && !found)
+        {
+            wxString cur = filepattern.BeforeFirst(';');
+            if ((cur == path) ||
+                (cur == (path.BeforeLast('.') + ".*")) ||
+                (cur == ("*." + path.AfterLast('.'))))
+            {
+                found = true;
+                currentLanguageInfo = currentInfo;
+            }
+            filepattern = filepattern.AfterFirst(';');
+        }
+    }
+
+    if (!found)
+        currentLanguageInfo = &languages_prefs[0];
+
     wxVector<wxBitmap> bitmaps;
     auto last_dot = path.find_last_of(".");
     if (last_dot != std::string::npos)
@@ -156,29 +184,25 @@ void FilesTree::CreateFile(
         {
             if (file_ext == "png" || file_ext == "jpg" || file_ext == "jpeg")
             {
-                bitmaps.push_back(wxBitmap(icons_dir + "file_image.png", wxBITMAP_TYPE_PNG));
+                bitmaps.push_back(wxBitmap(icons_dir + "file_ext" + "/image_ext.svg"));
             }
             else
             {
-                bitmaps.push_back(wxBitmap(icons_dir + "file_code.png", wxBITMAP_TYPE_PNG));
+                bitmaps.push_back(wxBitmap(icons_dir + currentLanguageInfo->icon_path));
             }
         }
-    }
-
-    if (!bitmaps.size())
-    {
-        bitmaps.push_back(wxBitmap(icons_dir + "file_noext.png", wxBITMAP_TYPE_PNG));
-    }
+    } else bitmaps.push_back(wxBitmap(icons_dir + "/file_ext/no_ext.svg", wxBITMAP_TYPE_PNG));
 
     wxStaticBitmap *file_icon = new wxStaticBitmap(file_container, wxID_ANY, wxBitmapBundle::FromBitmaps(bitmaps));
     file_ctn_sizer->Add(file_icon, 0, wxALIGN_CENTRE_VERTICAL | wxLEFT, 8);
 
     wxStaticText *file_name = new wxStaticText(file_container, wxID_ANY, name);
+    file_name->SetForegroundColour(wxColor(245, 245, 245));
     file_name->SetName(path);
     file_name->Bind(wxEVT_LEFT_UP, &FilesTree::OnFileSelect, this);
     file_name->Bind(wxEVT_RIGHT_UP, &FilesTree::onFileRightClick, this);
     file_name->SetFont(fontWithOtherSize(file_name, 18));
-    file_ctn_sizer->Add(file_name, 0, wxALIGN_CENTRE_VERTICAL | wxLEFT, 3);
+    file_ctn_sizer->Add(file_name, 0, wxALIGN_CENTRE_VERTICAL | wxLEFT, 5);
 
     file_container->SetSizerAndFit(file_ctn_sizer);
     parent_sizer->Add(file_container, 0, wxEXPAND | wxLEFT | wxTOP, 2);
@@ -439,19 +463,27 @@ void FilesTree::OnPaint(wxPaintEvent &event)
     auto target = ((wxPanel *)event.GetEventObject());
     wxClientDC dc(this);
     wxGraphicsContext *gc = wxGraphicsContext::Create(dc);
-    if(!gc) return;
+    if (!gc)
+        return;
 
-    if(target->GetId() == ID_FILES_TREE) {}
-     else if(target->GetId() == ID_SEARCH_FILES) {
+    if (target->GetId() == ID_FILES_TREE)
+    {
+    }
+    else if (target->GetId() == ID_SEARCH_FILES)
+    {
         auto border_color = Themes["dark"]["borderColor"].template get<std::string>();
         dc.SetPen(wxPen(wxColor(border_color), 0.20));
         dc.DrawLine(0, target->GetPosition().y, target->GetSize().GetWidth(), target->GetPosition().y);
-        dc.DrawLine(0, target->GetPosition().y+target->GetSize().GetHeight(), target->GetSize().GetWidth(), target->GetPosition().y+target->GetSize().GetHeight());
-    } else if(target->GetId() == ID_FILES_TREE_TOP_CONTENT) { 
+        dc.DrawLine(0, target->GetPosition().y + target->GetSize().GetHeight(), target->GetSize().GetWidth(), target->GetPosition().y + target->GetSize().GetHeight());
+    }
+    else if (target->GetId() == ID_FILES_TREE_TOP_CONTENT)
+    {
         auto border_color = Themes["dark"]["borderColor"].template get<std::string>();
         dc.SetPen(wxPen(wxColor(border_color), 0.20));
-        dc.DrawLine(target->GetSize().GetWidth(), target->GetSize().GetHeight()-10, 0, target->GetSize().GetHeight()-10);
-    } else {
+        dc.DrawLine(target->GetSize().GetWidth(), target->GetSize().GetHeight() - 10, 0, target->GetSize().GetHeight() - 10);
+    }
+    else
+    {
         gc->SetPen(gc->CreatePen(wxGraphicsPenInfo(wxColor(128, 128, 128)).Width(1.25).Style(wxPENSTYLE_DOT)));
         gc->SetBrush(wxColor(128, 128, 128));
 

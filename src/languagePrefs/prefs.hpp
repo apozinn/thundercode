@@ -83,6 +83,7 @@ struct LanguageInfo {
         const char *words;
     } styles [STYLE_TYPES_COUNT];
     int folds;
+    wxString icon_path;
 };
 
 extern const LanguageInfo languages_prefs[];

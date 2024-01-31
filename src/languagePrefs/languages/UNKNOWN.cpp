@@ -1,8 +1,8 @@
 #pragma once
 #include "../prefs.hpp"
 
-const LanguageInfo BINARY_PREFS = {
-	"Binary",
+const LanguageInfo UNKNOWN_PREFS = {
+	"Unknown",
     "",
     wxSTC_LEX_AUTOMATIC,
     {
@@ -40,5 +40,5 @@ const LanguageInfo BINARY_PREFS = {
         {-1, nullptr}
     },
     mySTC_FOLD_COMMENT | mySTC_FOLD_COMPACT | mySTC_FOLD_PREPROC,
-    icons_dir+"file_ext/binary.svg"
+    icons_dir+"file_ext/unknown_ext.svg"
 };
