@@ -43,23 +43,16 @@ MainFrame::MainFrame(const wxString &title)
     wxPanel *centeredContent = new wxPanel(mainContainerSplitter, ID_CENTERED_CONTENT);
     wxBoxSizer *centeredContentSizer = new wxBoxSizer(wxVERTICAL);
 
-    mainContainer = new wxPanel(centeredContent, ID_MAIN_CONTAINER);
-    mainContainer->SetBackgroundColour(wxColor("#fff"));
+    mainContainer = new wxPanel(centeredContent, ID_MAIN_CODE);
     wxBoxSizer *mainContainerSizer = new wxBoxSizer(wxVERTICAL);
 
     tabs = new Tabs(mainContainer, ID_TABS);
     mainContainerSizer->Add(tabs, 0, wxEXPAND);
 
-    mainCode = new wxPanel(mainContainer, ID_MAIN_CODE);
-    mainCode->SetBackgroundColour(wxColor(*wxRED));
-
-    mainContainerSizer->Add(mainCode, 1, wxEXPAND);
-
     wxBoxSizer *mainCodeSizer = new wxBoxSizer(wxVERTICAL);
 
-    empty_window = new EmptyWindow(mainCode, ID_EMPYT_WINDOW);
-    mainCodeSizer->Add(empty_window, 1, wxEXPAND);
-    mainCode->SetSizerAndFit(mainCodeSizer);
+    empty_window = new EmptyWindow(mainContainer, ID_EMPYT_WINDOW);
+    mainContainerSizer->Add(empty_window, 1, wxEXPAND);
 
     mainContainer->SetSizerAndFit(mainContainerSizer);
 
@@ -335,8 +328,8 @@ void MainFrame::OnHiddeTabs(wxCommandEvent &WXUNUSED(event))
         }
         else
             tabs->Show();
-        main_code->GetSizer()->Layout();
-        main_code->Update();
+        mainContainer->GetSizer()->Layout();
+        mainContainer->Update();
     }
 }
 
@@ -448,7 +441,7 @@ void MainFrame::OnOpenTerminal(wxCommandEvent &event)
     }
     else
     {
-        servical_container->SplitHorizontally(main_code, FindWindowById(ID_TERMINAL), 0);
+        servical_container->SplitHorizontally(mainContainer, FindWindowById(ID_TERMINAL), 0);
     }
 }
 

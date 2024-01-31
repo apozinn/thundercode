@@ -132,12 +132,10 @@ void Tabs::Close(wxString tab_path)
 
                     if (prev_tab)
                     {
-                        auto act_bar = prev_tab->GetChildren()[1]->SetBackgroundColour(wxColor(255, 0, 180));
                         current_openned_path = prev_tab->GetName();
                     }
                     else if (next_tab)
                     {
-                        auto act_bar = next_tab->GetChildren()[1]->SetBackgroundColour(wxColor(255, 0, 180));
                         current_openned_path = next_tab->GetName();
                     }
 

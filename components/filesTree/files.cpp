@@ -246,8 +246,6 @@ void FilesTree::OnFileSelect(wxMouseEvent &event)
         file = file->GetParent();
     wxString path = file->GetName();
 
-    file->SetBackgroundColour(wxColor(255, 0, 0));
-
     if (path.size())
     {
         OpenFile(path);

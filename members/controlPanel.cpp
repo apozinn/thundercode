@@ -24,7 +24,7 @@ public:
 		wxBoxSizer* top_ctn_sizer = new wxBoxSizer(wxHORIZONTAL);
 
 		wxVector<wxBitmap> bitmaps;
-	    bitmaps.push_back(wxBitmap(icons_dir+"search.png", wxBITMAP_TYPE_PNG));
+	    bitmaps.push_back(wxBitmap(icons_dir+"search_gray.png", wxBITMAP_TYPE_PNG));
 	    wxStaticBitmap* search_icon = new wxStaticBitmap(top_container, wxID_ANY, wxBitmapBundle::FromBitmaps(bitmaps));
 	    top_ctn_sizer->Add(search_icon, 0, wxEXPAND | wxALL, 5);
 
