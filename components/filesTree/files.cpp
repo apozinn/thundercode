@@ -566,8 +566,14 @@ void FilesTree::OnDeleteFile(wxCommandEvent &event)
 
 void FilesTree::OnTreeModifyed(wxString old_path, wxString new_path)
 {
+    if(!old_path || !new_path) return;
     wxFileName path_props(old_path);
     wxString parent_path;
+
+    auto opennedEditor = ((CodeContainer*)FindWindowByName(new_path+"_codeContainer"));
+    if(opennedEditor) {
+        opennedEditor->LoadPath(new_path);
+    }
 
     if (path_props.IsDir())
     {
