@@ -74,6 +74,39 @@ void Tabs::Add(wxString tab_name, wxString path)
     wxPanel *tab_infos = new wxPanel(new_tab);
     wxBoxSizer *tab_infos_sizer = new wxBoxSizer(wxHORIZONTAL);
 
+    LanguageInfo const *currentLanguageInfo;
+    LanguageInfo const *currentInfo;
+    int languageNr;
+
+    bool found;
+    for (languageNr = 0; languageNr < languages_prefs_size; languageNr++)
+    {
+        currentInfo = &languages_prefs[languageNr];
+        wxString filepattern = currentInfo->filepattern;
+        filepattern.Lower();
+
+        while (!filepattern.empty() && !found)
+        {
+            wxString cur = filepattern.BeforeFirst(';');
+            if ((cur == path) ||
+                (cur == (path.BeforeLast('.') + ".*")) ||
+                (cur == ("*." + path.AfterLast('.'))))
+            {
+                found = true;
+                currentLanguageInfo = currentInfo;
+            }
+            filepattern = filepattern.AfterFirst(';');
+        }
+    }
+
+    if (!found)
+        currentLanguageInfo = &languages_prefs[0];
+
+    wxVector<wxBitmap> bitmaps_;
+    bitmaps_.push_back(wxBitmap(wxBitmap(icons_dir + currentLanguageInfo->icon_path)));
+    wxStaticBitmap *ico = new wxStaticBitmap(tab_infos, wxID_ANY, wxBitmapBundle::FromBitmaps(bitmaps_));
+    tab_infos_sizer->Add(ico, 0, wxALIGN_CENTER | wxLEFT, 10);
+
     wxStaticText *name = new wxStaticText(tab_infos, wxID_ANY, tab_name);
     name->SetName(path);
     name->SetFont(fontWithOtherSize(name, 17));
@@ -84,7 +117,7 @@ void Tabs::Add(wxString tab_name, wxString path)
     bitmaps.push_back(wxBitmap(wxBitmap(icons_dir + "close.png", wxBITMAP_TYPE_PNG)));
     wxStaticBitmap *close_icon = new wxStaticBitmap(tab_infos, wxID_ANY, wxBitmapBundle::FromBitmaps(bitmaps));
     close_icon->Bind(wxEVT_LEFT_UP, &Tabs::OnCloseTab, this);
-    tab_infos_sizer->Add(close_icon, 0, wxALIGN_CENTER | wxRIGHT, 6);
+    tab_infos_sizer->Add(close_icon, 0, wxALIGN_CENTER | wxRIGHT, 10);
 
     tab_infos->Bind(wxEVT_ENTER_WINDOW, &Tabs::OnEnterComp, this);
     tab_infos->Bind(wxEVT_LEAVE_WINDOW, &Tabs::OnLeaveComp, this);
@@ -266,10 +299,10 @@ void Tabs::OnEnterComp(wxMouseEvent &event)
     auto codeContainer = ((wxStyledTextCtrl *)FindWindowByName(target->GetParent()->GetName() + "_codeContainer"));
     if (target && codeContainer)
     {
-        auto icon = ((wxStaticBitmap *)target->GetChildren()[1]);
+        auto icon = ((wxStaticBitmap *)target->GetChildren()[2]);
         if (icon)
         {
-            auto icon = ((wxStaticBitmap *)target->GetChildren()[1]);
+            auto icon = ((wxStaticBitmap *)target->GetChildren()[2]);
             if (icon)
             {
                 auto codeEditor = ((wxStyledTextCtrl *)codeContainer->GetChildren()[0]);
@@ -289,7 +322,7 @@ void Tabs::OnLeaveComp(wxMouseEvent &event)
     if (target)
     {
         auto codeContainer = ((wxWindow *)FindWindowByName(target->GetParent()->GetName() + "_codeContainer"));
-        wxStaticBitmap *icon = ((wxStaticBitmap *)target->GetChildren()[1]);
+        wxStaticBitmap *icon = ((wxStaticBitmap *)target->GetChildren()[2]);
         if (codeContainer)
         {
             auto codeEditor = ((wxStyledTextCtrl *)codeContainer->GetChildren()[0]);

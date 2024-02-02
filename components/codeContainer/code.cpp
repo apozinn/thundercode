@@ -290,13 +290,9 @@ void CodeContainer::OnSave(wxCommandEvent &event)
                     if (tab->GetName() == this_path)
                     {
                         this_codeEditor->SaveFile(this_path);
-                        auto close_ico = tab->GetChildren()[0]->GetChildren()[1];
-                        auto unsave = tab->GetChildren()[0]->GetChildren()[2];
+                        auto icon = ((wxStaticBitmap*)tab->GetChildren()[0]->GetChildren()[2]);
 
-                        if (close_ico)
-                            close_ico->Show();
-                        if (unsave)
-                            unsave->Hide();
+                        icon->SetBitmap(wxBitmapBundle::FromBitmap(wxBitmap(icons_dir + "close.png")));
 
                         tab->GetSizer()->Layout();
                         tab->Update();
@@ -329,7 +325,7 @@ void CodeContainer::OnChange(wxStyledTextEvent &event)
         {
             if (tab->GetName() == GetLabel())
             {
-                auto icon = ((wxStaticBitmap *)tab->GetChildren()[0]->GetChildren()[1]);
+                auto icon = ((wxStaticBitmap*)tab->GetChildren()[0]->GetChildren()[2]);
                 if (icon)
                 {
                     icon->SetBitmap(wxBitmapBundle::FromBitmap(wxBitmap(icons_dir + "white_circle.png")));

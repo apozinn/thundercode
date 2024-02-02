@@ -8,6 +8,7 @@
 #include "languages/JSON.cpp"
 #include "languages/CMAKE.cpp"
 #include "languages/UNKNOWN.cpp"
+#include "languages/JAVASCRIPT.cpp"
 
 const CommonInfo global_commonPrefs = {
     true,  // syntaxEnable
@@ -30,5 +31,6 @@ const LanguageInfo languages_prefs [] = {
     CPP_PREFS,
     JSON_PREFS,
     CMAKE_PREFS,
+    JAVASCRIPT_PREFS,
 };
 const int languages_prefs_size = WXSIZEOF(languages_prefs); 
